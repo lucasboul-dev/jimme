@@ -1,12 +1,14 @@
 # Jimee — consignes pour Claude
 
-Lire **JIMEE-RECAP-V23.md** en entier avant toute modification : c'est le document de référence (règles de travail, systèmes, constantes, historique des versions).
+Lire **JIMEE-RECAP.md** en entier avant toute modification : c'est le document de référence (règles de travail, systèmes, constantes, historique des versions).
 
 ## Organisation du dépôt
 - Les fichiers du jeu sont à la **racine** du dépôt (`index.html`, `sw.js`, `manifest.webmanifest`, images, `planetes/`).
 - `tests/` : tests automatiques (non servis aux joueurs).
 - `serveur/` : script SQL Supabase du mode multijoueur (non servi aux joueurs).
 - `netlify.toml` : réglages de publication.
+- `polices/` : polices du thème cartoon, hébergées avec le jeu.
+- `DIRECTION-ARTISTIQUE.md` : style graphique (V24), consignes ChatGPT pour les décors et procédure d'intégration des images.
 
 ## Déploiement
 - Site Netlify : https://startling-kheer-17da0d.netlify.app

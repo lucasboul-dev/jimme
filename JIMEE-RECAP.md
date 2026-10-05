@@ -1,9 +1,10 @@
-# PROJET JIMEE — Document de référence (V23)
+# PROJET JIMEE — Document de référence (V24)
 
 > **À lire en premier par toute nouvelle session de travail.**
-> Version décrite : **V23 (rapport en deux temps, hangar, carte univers, marché / atelier), sauvegarde v20 inchangée** (5 octobre 2026). Ce document remplace l'ancien récap, qui décrivait la V5.
+> Version décrite : **V24 (thème cartoon années 30 : interface, personnages, icône ; guide des décors), sauvegarde v20 inchangée** (5 octobre 2026).
 > ⚠️ Le travail « V14 » d'une session précédente (météo du jour, objectifs de mission, événements galactiques, anomalies) n'a jamais été livré : il n'est PAS dans le code. Seule l'idée des tailles a été reprise ici.
-> **Le code fait foi** : le fichier de référence est le `index.html` du **dernier ZIP déployé sur Netlify**. Avant toute modification, demander ce ZIP à Dylan si le fichier du projet n'est pas daté du même jour. En cas de contradiction entre ce document et le code, suivre le code et signaler l'écart.
+> **Le code fait foi** : depuis le 5 octobre 2026, la référence est la branche `main` du dépôt GitHub `lucasboul-dev/jimme` ; chaque push redéploie Netlify (https://startling-kheer-17da0d.netlify.app). Plus de ZIP : faire `git pull` avant de travailler. En cas de contradiction entre ce document et le code, suivre le code et signaler l'écart.
+> **Style graphique** : voir `DIRECTION-ARTISTIQUE.md` (palette, consignes ChatGPT pour les décors, procédure d'intégration).
 
 ---
 
@@ -16,10 +17,11 @@
 5. **Déterminisme** : tout résultat important est tiré une fois à partir d'une seed et sauvegardé. Ajouter un tirage dans un générateur existant = utiliser un **flux séparé** (`creerRng(seed+'/QUELQUECHOSE')`) pour ne pas modifier le reste.
 6. **Tests** : `node tests/tests.js` (65 vérifications), `node tests/tests-v13.js` (30) et `node tests/tests-v14.js` (28) `node tests/tests-v15.js` (42) `node tests/tests-v16.js` (16) `node tests/tests-v17.js` (30, serveur factice) `node tests/tests-v18.js` (36) `node tests/tests-v19.js` (27) `node tests/tests-v20.js` (27) `node tests/tests-v21.js` (20) `node tests/tests-v22.js` (20) et `node tests/tests-v23.js` (22), tous doivent passer. Prérequis : Node 18+ et `npm i jsdom`.
 7. **Humour Jimee's Corp partout, jamais au détriment de l'information** : pourcentages, prix et conséquences toujours affichés.
-8. **Livrable** : ZIP complet prêt à déployer + compte rendu (changements, chiffres du simulateur, tests, limites honnêtes).
+8. **Livrable** : commit poussé sur `main` (Netlify redéploie seul) + compte rendu (changements, chiffres du simulateur, tests, limites honnêtes).
+9. **Style** : aucune couleur en dur dans le CSS ou le HTML généré ; passer par les variables du thème (`--papier`, `--carte`, `--encre`, `--corp`, `--ia`, `--ia-txt` pour un texte moutarde lisible…). Texte des explications et de l'IA en `--main` (écriture à la main), titres et chiffres en `--titre`.
 
 ### Préférences de Dylan
-Français ; livrables complets et directs ; évaluations honnêtes et chiffrées ; dicte souvent à la voix (interpréter l'intention) ; teste sur Honor 90 ; valide l'équilibrage avec les chiffres du simulateur ; crée les visuels avec ChatGPT.
+Français ; livrables complets et directs ; évaluations honnêtes et chiffrées ; dicte souvent à la voix (interpréter l'intention) ; teste sur Honor 90 ; valide l'équilibrage avec les chiffres du simulateur ; crée les visuels avec ChatGPT (consignes dans `DIRECTION-ARTISTIQUE.md`).
 
 ---
 
@@ -269,7 +271,40 @@ Cible : 88 % sur sa classe, ~55 % une classe au-dessus, ~10 % deux classes au-de
 
 ---
 
+## 2 duodecies. V24 — style cartoon années 30
+
+Demande de Lucas : passer le jeu dans un style graphique plus cartoon (références : dessins animés américains des années 30, croquis du Jimee et d'un second personnage). Aucune règle de jeu ni format de sauvegarde modifié.
+
+### Interface
+- Feuille de style réécrite (mêmes sélecteurs, même mise en page) : papier crème, contours d'encre épais, ombres portées pleines, coins légèrement irréguliers, boutons « gros jouets » qui s'enfoncent au toucher, pointillés pour les séparateurs.
+- Variables : `--papier`, `--carte`, `--carte2`, `--sep`, `--encre`, `--corp`, `--ia` (remplissage moutarde), `--ia-txt` (moutarde foncée pour le texte), `--bon`, `--mauvais`, `--mort`, `--bleu`, `--violet`. Les anciennes variables (`--vide`, `--panneau`, `--ligne`…) pointent dessus.
+- Polices hébergées dans `polices/` (hors ligne, plus d'appel à Google Fonts) : Luckiest Guy (titres, boutons, chiffres), Nunito (texte), Patrick Hand (IA de bord, explications, slogans).
+- Grain de film animé et vignettage sur tout l'écran (`html::after`, sans bloquer le toucher, coupé si « réduire les animations »).
+- IA de bord en bulle de bande dessinée ; bandeau du haut en carte ; bannière Corp rouge à rayons ; baie d'observation en ciel de nuit dessiné (étoiles crème, planète moutarde cerclée d'encre).
+- Couleurs des classes de Jimee ajustées à la palette (G sable, F vert, B bleu, A violet, S moutarde) : purement visuel.
+- Icône de l'application et couleurs du manifeste refaites (Jimee sur rayons rouges).
+
+### Personnages (d'après les croquis de Lucas)
+- `persoJimee({couleur, lettre, etat, etoiles})` : tête ovale penchée, grands yeux noirs, corps en rectangle, pieds ovales. États : `normal`, `heureux` (reflets), `mort` (yeux en croix, gris, auréole). Ceinture et badge à la couleur de la classe. `dessinJimee(cl, etat)` l'appelle pour le catalogue.
+- `persoCorp()` : le représentant de la Jimee's Corp (grand, chauve, gros nez, mains dans les poches, cravate rouge).
+- Balancement animé en CSS (`.perso`), coupé si « réduire les animations ».
+- Où ils apparaissent : catalogue de recrutement, tête de l'armurerie (portrait), bannière Corp, première étape du tutoriel, tête des rapports (`persoRapport` : Jimee content pour une mission, Jimee mort pour une mort, représentant de la Corp pour agence, pillage et escouade ; les archives retrouvent le bon personnage).
+
+### Décors (en attente)
+- Les anciennes images restent, réchauffées par un filtre sépia d'attente.
+- `DECORS.cartoon` (en tête de la configuration), à passer à `true` quand les nouveaux décors arrivent : filtre retiré, étiquettes et boutons de l'accueil dessinés par le jeu (`data-etiquette`, classe `bas`, `data-align="droite"`), Jimee dessiné sur la banquette (vide sur la nouvelle image, absent pendant une mission).
+- `DIRECTION-ARTISTIQUE.md` : palette, bloc de style, consigne prête à coller pour chacun des 5 décors et des 11 planètes (dont `ville` et `fongique`, encore sans image), positions à respecter, vérifications et procédure d'intégration.
+
+### Dépôt
+- Fichiers du jeu à la racine, `netlify.toml` (pas de build, pas de cache sur `index.html` et `sw.js`, `tests/` et `serveur/` non servis), `CLAUDE.md` pour les sessions Claude. Ce document s'appelle désormais `JIMEE-RECAP.md`.
+
+---
+
 ## 3. Limites connues (honnêtes)
+- V24 : tant que les décors ne sont pas refaits, l'accueil, le hangar et la carte mélangent une interface cartoon et des images de science-fiction bleutées (atténué par le filtre sépia, pas résolu).
+- V24 : les icônes des ressources et des produits (SVG existants) n'ont pas été redessinées dans le nouveau style ; elles sont posées sur des pastilles bleu nuit cerclées d'encre.
+- V24 : les étiquettes de l'accueil en mode `DECORS.cartoon` ont été vérifiées sur l'ancienne image ; leurs positions seront à reprendre sur la nouvelle.
+- V24 : la carte stellaire (soleil, trajectoires, galaxies) garde ses dessins d'origine, seuls les textes ont été restylés.
 - V23 : un rapport très court (2-3 lignes) demande quand même un toucher sur « Suivant » pour voir le butin.
 - G sur G reste à 92 % (cible 88) et G sur B à 17 % (cible 10) : les plus petites planètes n'ont souvent qu'une seule épreuve.
 - A sur SS à 15 % (cible 10).

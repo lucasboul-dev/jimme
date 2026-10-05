@@ -1,0 +1,7 @@
+Polices du thème cartoon (V24), hébergées avec le jeu pour fonctionner hors ligne.
+
+- luckiest-guy.woff2 : Luckiest Guy (Astigmatic), licence Apache 2.0. Titres, boutons, chiffres.
+- nunito-500/700/800.woff2 : Nunito (Vernon Adams), licence SIL Open Font License 1.1. Texte courant.
+- patrick-hand.woff2 : Patrick Hand (Patrick Wagesreiter), licence SIL Open Font License 1.1. Voix de l'IA de bord, slogans de la Corp.
+
+Fichiers tirés des paquets @fontsource (sous-ensemble latin, accents français compris).
