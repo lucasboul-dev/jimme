@@ -70,7 +70,7 @@ header h1{font-family:var(--titre);font-size:1rem;font-weight:400;letter-spacing
 
 /* Écran d'accueil : l'image du vaisseau occupe tout l'écran, le bandeau du haut passe par-dessus */
 #ecran-vaisseau{position:fixed;top:0;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;background:var(--encre);overflow:hidden;z-index:0}
-#ecran-vaisseau .fond-flou{position:absolute;inset:-40px;background:url(vaisseau.jpg) center/cover;filter:blur(22px) brightness(.6) sepia(.4);transform:scale(1.1)}
+#ecran-vaisseau .fond-flou{position:absolute;inset:-40px;background:url(decors/vaisseau.svg) center/cover;filter:blur(22px) brightness(.75);transform:scale(1.1)}
 #ecran-vaisseau>img,#ecran-hangar>img{position:absolute;left:0;top:0;width:100%;height:100%;-webkit-user-drag:none;user-select:none}
 /* En attendant les décors cartoon : les anciennes images sont réchauffées (sépia léger) pour rester dans la palette */
 body:not(.decors-cartoon) #ecran-vaisseau>img,body:not(.decors-cartoon) #ecran-hangar>img{filter:sepia(.35) saturate(1.15) contrast(1.04)}
@@ -174,7 +174,7 @@ header,.ia,#statut{position:relative;z-index:3}
 body.mode-vaisseau #statut{background:var(--carte)}
 /* Carte stellaire : image de fond plein écran, planètes générées par-dessus */
 body.mode-carte{background:transparent}
-body.mode-carte::before{content:'';position:fixed;inset:0;background:url(carte.jpg) center/cover;filter:sepia(.45) saturate(.9) brightness(.85);z-index:-1}
+body.mode-carte::before{content:'';position:fixed;inset:0;background:url(decors/carte.svg) center/cover;z-index:-1}
 body.decors-cartoon.mode-carte::before{filter:none}
 #panneau-carte{background:var(--carte);border-top:3px solid var(--encre);box-shadow:0 -4px 0 rgba(34,27,22,.25)}
 
@@ -299,8 +299,8 @@ th{color:var(--doux);font-weight:800}
 .pilule-vaisseau svg{width:22px;height:22px;flex-shrink:0}
 /* Marché intergalactique */
 body.mode-marche,body.mode-atelier{background:transparent}
-body.mode-marche::before,body.mode-atelier::before{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(244,231,200,.35),rgba(244,231,200,.86) 26%,var(--papier) 52%),url(marche.jpg) center top/cover;background-color:var(--papier)}
-body.mode-atelier::before{background:linear-gradient(rgba(244,231,200,.35),rgba(244,231,200,.86) 26%,var(--papier) 52%),url(atelier.jpg) center 83%/auto 180%;background-color:var(--papier)}
+body.mode-marche::before,body.mode-atelier::before{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(244,231,200,.12),rgba(244,231,200,.7) 30%,var(--papier) 56%),url(decors/marche.svg) center top/cover;background-color:var(--papier)}
+body.mode-atelier::before{background:linear-gradient(rgba(244,231,200,.12),rgba(244,231,200,.7) 30%,var(--papier) 56%),url(decors/atelier.svg) center top/cover;background-color:var(--papier)}
 body:not(.decors-cartoon).mode-marche::before,body:not(.decors-cartoon).mode-atelier::before{filter:sepia(.55) saturate(.85) brightness(1.08)}
 body.mode-marche #panneau h2,body.mode-atelier #panneau h2{display:inline-block;padding:4px 12px 2px;background:var(--carte);border:var(--bord);border-radius:var(--arrondi);box-shadow:var(--ombre-p)}
 body.mode-marche #panneau>.sous,body.mode-atelier #panneau>.sous{color:var(--encre);margin-top:8px}
@@ -330,7 +330,7 @@ body.mode-marche #panneau>.sous,body.mode-atelier #panneau>.sous{color:var(--enc
 .article-prix .btn{margin-top:6px;padding:7px 13px 5px;font-size:.88rem;width:auto}
 /* Hangar */
 #ecran-hangar{overflow:hidden;background:var(--encre)}
-#ecran-hangar .fond-flou{position:absolute;inset:-40px;background:url(hangar.jpg) center/cover;filter:blur(22px) brightness(.55) sepia(.4);transform:scale(1.1)}
+#ecran-hangar .fond-flou{position:absolute;inset:-40px;background:url(decors/hangar.svg) center/cover;filter:blur(22px) brightness(.75);transform:scale(1.1)}
 #hangar-zones{display:contents}
 .zone-piece{z-index:2;border:3px dashed rgba(255,247,228,.75);border-radius:14px;animation:pulse-piece 2.4s ease-in-out infinite}
 .zone-piece span{position:absolute;left:50%;bottom:0;transform:translate(-50%,62%);white-space:nowrap;padding:3px 10px 2px;border-radius:999px;background:var(--carte);border:2px solid var(--encre);box-shadow:var(--ombre-p);font-family:var(--titre);font-size:.74rem;letter-spacing:.03em;color:var(--encre);pointer-events:none}
@@ -440,8 +440,9 @@ body:not(.mode-vaisseau) .onglet-soute,body:not(.mode-vaisseau) .tiroir-soute{di
 .lien{background:none;border:0;color:var(--corp);text-decoration:underline;text-decoration-thickness:2px;font-size:inherit;font-weight:800;padding:0}.fiche-tete img{flex-shrink:0;width:88px;height:88px}.fiche-tete .sous{margin-bottom:0}
 /* V24 : étiquettes de l'écran d'accueil dessinées en HTML (décor cartoon sans texte peint) */
 .etiquette-vaisseau{display:none}
-body.decors-cartoon #ecran-vaisseau .etiquette-vaisseau{display:block;position:absolute;left:50%;top:0;transform:translate(-50%,-70%);white-space:nowrap;padding:3px 10px 2px;border-radius:999px;background:var(--carte);border:2px solid var(--encre);box-shadow:var(--ombre-p);font-family:var(--titre);font-size:.78rem;letter-spacing:.03em;color:var(--encre);pointer-events:none}
-body.decors-cartoon #ecran-vaisseau .hotspot-img[data-align="droite"] .etiquette-vaisseau{left:auto;right:0;transform:translate(0,-70%)}
+body.decors-cartoon #ecran-vaisseau .etiquette-vaisseau{display:block;position:absolute;left:50%;top:0;transform:translate(-50%,-70%);white-space:nowrap;padding:3px 10px 2px;border-radius:999px;background:var(--carte);border:2px solid var(--encre);box-shadow:var(--ombre-p);font-family:var(--titre);font-size:.74rem;letter-spacing:.02em;color:var(--encre);pointer-events:none}
+body.decors-cartoon #ecran-vaisseau .hotspot-img[data-align="droite"] .etiquette-vaisseau{left:auto;right:4px;top:22%;transform:none}
+body.decors-cartoon #ecran-vaisseau .hotspot-img[data-align="gauche"] .etiquette-vaisseau{transform:translate(-78%,-70%)}
 body.decors-cartoon #ecran-vaisseau .hotspot-img.bas .etiquette-vaisseau{top:50%;transform:translate(-50%,-50%);padding:9px 14px 7px;font-size:.95rem;border-width:3px;box-shadow:0 4px 0 var(--encre)}
 .jimee-banquette{position:absolute;left:30%;bottom:18%;height:105%;aspect-ratio:330/520;pointer-events:none}
 .jimee-banquette svg{width:100%;height:100%}
@@ -471,13 +472,13 @@ body.decors-cartoon #ecran-vaisseau .hotspot-img.bas .etiquette-vaisseau{top:50%
   <div class="fond-flou" aria-hidden="true"></div>
   <div class="baie" aria-hidden="true"><div class="nebuleuse"></div><div class="etoiles e1"></div><div class="etoiles e2"></div><div class="etoiles e3"></div>
     <div class="lune-baie"></div><div class="planete-baie"></div><div class="filante"></div><div class="vitre"></div><div class="montant g"></div><div class="montant d"></div></div>
-  <img src="vaisseau.jpg" alt="Intérieur du vaisseau : armurerie à gauche, cockpit au fond, carte stellaire et terminal Jimee's Corp à droite, le Jimee installé sur la banquette" draggable="false">
-  <!-- Zones cliquables mesurées sur vaisseau.jpg V2 (1024 × 1536) : étiquettes et éléments peints dans l'image -->
+  <img src="decors/vaisseau.svg" alt="Intérieur du vaisseau : armurerie à gauche, cockpit au fond, planétaire et guichet de la Jimee's Corp à droite, banquette à gauche" draggable="false">
+  <!-- Zones cliquables : positions des éléments dessinés dans decors/vaisseau.svg (1024 × 1536), voir outils/decors.py -->
   <button type="button" id="onglet-soute" class="onglet-soute" data-soute="1" aria-expanded="false">▲ Soute <b id="soute-total">0</b></button>
   <div id="tiroir-soute" class="tiroir-soute" aria-hidden="true"></div>
   <button type="button" class="hotspot-img" data-armoire="1" data-etiquette="Armurerie" data-hx="16.3" data-hy="27" data-hw="19.1" data-hh="19.6" aria-label="Armurerie : équiper le Jimee"></button>
   <button type="button" class="hotspot-img" data-labo="1" data-etiquette="Cockpit" data-hx="37.1" data-hy="29" data-hw="24.1" data-hh="20.2" aria-label="Cockpit : ouvrir le labo"></button>
-  <button type="button" class="hotspot-img" data-holo="1" data-etiquette="Carte stellaire" data-hx="60.2" data-hy="31.9" data-hw="17.5" data-hh="18.2" aria-label="Carte stellaire"></button>
+  <button type="button" class="hotspot-img" data-holo="1" data-etiquette="Carte stellaire" data-align="gauche" data-hx="60.2" data-hy="31.9" data-hw="17.5" data-hh="18.2" aria-label="Carte stellaire"></button>
   <button type="button" class="hotspot-img" data-ecran-corp="1" data-etiquette="Jimee's Corp" data-align="droite" data-hx="78.1" data-hy="30.9" data-hw="15.9" data-hh="19.3" aria-label="Terminal Jimee's Corp"></button>
   <button type="button" class="hotspot-img" id="hotspot-jimee" data-jimee-ship="1" data-hx="5.2" data-hy="46.9" data-hw="25.5" data-hh="13.9" aria-label="Votre Jimee"></button>
   <button type="button" class="hotspot-img bas" data-hangar="1" data-etiquette="Hangar" data-hx="7.8" data-hy="81.1" data-hw="26.3" data-hh="10.2" aria-label="Hangar : améliorer le vaisseau"></button>
@@ -487,7 +488,7 @@ body.decors-cartoon #ecran-vaisseau .hotspot-img.bas .etiquette-vaisseau{top:50%
 
 <div id="ecran-hangar" class="plein-ecran" style="display:none">
   <div class="fond-flou" aria-hidden="true"></div>
-  <img src="hangar.jpg" alt="Hangar de maintenance : schéma holographique du vaisseau et ses pièces améliorables" draggable="false">
+  <img src="decors/hangar.svg" alt="Hangar de maintenance : plan de la fusée au mur et ses pièces améliorables" draggable="false">
   <button type="button" class="retour-flottant" data-retour-vaisseau="1">‹ Vaisseau</button>
   <div id="hangar-zones"></div>
   <div id="hangar-fiche" class="panneau-scroll" aria-live="polite"></div>
@@ -555,10 +556,9 @@ function creerRng(str){
 /* =========================================================
    2. CONFIGURATION CENTRALISÉE — toutes les valeurs d'équilibrage sont ici
    ========================================================= */
-// V24 : décors. Passer cartoon à true quand les nouveaux décors (DIRECTION-ARTISTIQUE.md) remplacent les anciens :
-// les anciens reçoivent un filtre sépia d'attente, et l'écran d'accueil dessine alors lui-même ses étiquettes
-// (le nouveau vaisseau.jpg ne doit contenir aucun texte peint). Penser à remesurer les zones data-hx… du vaisseau et PIECES_HANGAR.
-const DECORS={cartoon:false};
+// V25 : décors cartoon dessinés en SVG (decors/*.svg, produits par outils/decors.py). cartoon:true = l'accueil dessine
+// lui-même ses étiquettes et ses boutons, et le Jimee s'assoit sur la banquette. false = anciennes images avec texte peint.
+const DECORS={cartoon:true};
 const CONFIG={
   versionSauvegarde:20,
   prixJimeeG:50,
@@ -1189,7 +1189,7 @@ const REACTEURS=[
   {niveau:5,facteur:.8, prix:5000,ressources:{helium3:15,cryonite:6,noyau:2}}
 ];
 const TABLES_AMELIORATION={reservoir:RESERVOIRS,scanner:SCANNERS,reacteur:REACTEURS};
-// Pièces du schéma du hangar (positions en % de hangar.jpg, 1024 × 1536). bientot:true = pièce affichée mais pas encore améliorable.
+// Pièces du schéma du hangar (positions en % de decors/hangar.svg, 1024 × 1536 ; mêmes valeurs dans outils/decors.py). bientot:true = pièce affichée mais pas encore améliorable.
 const PIECES_HANGAR=[
   {id:'reacteur', nom:'Réacteur',          hx:67.9,hy:27.9,hw:13.9,hh:6.8,
    desc:'Le vaisseau rejoint plus vite l\'orbite des planètes : les missions sont plus courtes. Le Jimee, lui, marche toujours à la même vitesse.'},

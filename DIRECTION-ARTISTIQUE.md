@@ -1,6 +1,10 @@
-# Jimee — direction artistique cartoon (V24)
+# Jimee — direction artistique cartoon (V24-V25)
 
-> Guide pour refaire tous les décors avec ChatGPT dans le nouveau style. L'interface, le Jimee et le représentant de la Corp sont déjà dessinés dans le code ; il reste les **5 décors** et les **11 planètes**.
+> **État au 5 octobre 2026 (V25)** : l'interface, les personnages **et les 5 décors** (vaisseau, hangar, atelier, marché, fond de carte) sont dessinés en SVG au trait d'encre, dans `decors/`. Ils sont produits par `outils/decors.py` : pour modifier un décor, on modifie ce script puis on le relance (`python3 outils/decors.py`). Les positions des éléments à toucher y sont alignées sur celles du code.
+>
+> **Reste à refaire : les 11 planètes** (images peintes de l'ancien style). Les consignes ChatGPT de la section 4 restent valables ; elles peuvent aussi être dessinées en SVG comme les décors, pour une cohérence parfaite.
+>
+> Les sections 2, 3, 5 et 6 (consignes ChatGPT pour les décors) sont conservées pour référence, au cas où l'on voudrait un jour des décors peints.
 
 ---
 

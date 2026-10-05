@@ -1,7 +1,7 @@
-# PROJET JIMEE — Document de référence (V24)
+# PROJET JIMEE — Document de référence (V25)
 
 > **À lire en premier par toute nouvelle session de travail.**
-> Version décrite : **V24 (thème cartoon années 30 : interface, personnages, icône ; guide des décors), sauvegarde v20 inchangée** (5 octobre 2026).
+> Version décrite : **V25 (décors cartoon dessinés en SVG) sur la V24 (thème cartoon années 30 : interface, personnages, icône), sauvegarde v20 inchangée** (5 octobre 2026).
 > ⚠️ Le travail « V14 » d'une session précédente (météo du jour, objectifs de mission, événements galactiques, anomalies) n'a jamais été livré : il n'est PAS dans le code. Seule l'idée des tailles a été reprise ici.
 > **Le code fait foi** : depuis le 5 octobre 2026, la référence est la branche `main` du dépôt GitHub `lucasboul-dev/jimme` ; chaque push redéploie Netlify (https://startling-kheer-17da0d.netlify.app). Plus de ZIP : faire `git pull` avant de travailler. En cas de contradiction entre ce document et le code, suivre le code et signaler l'écart.
 > **Style graphique** : voir `DIRECTION-ARTISTIQUE.md` (palette, consignes ChatGPT pour les décors, procédure d'intégration).
@@ -300,10 +300,21 @@ Demande de Lucas : passer le jeu dans un style graphique plus cartoon (référen
 
 ---
 
+## 2 terdecies. V25 — décors cartoon dessinés
+
+- Les 5 décors (vaisseau, hangar, atelier, marché, fond de carte) sont dessinés en SVG dans le même trait d'encre que les personnages (`decors/*.svg`, 1024 × 1536, ≈ 25-40 ko chacun au lieu de plusieurs centaines de ko). Ils sont générés par `outils/decors.py` (palette, tremblement « à la main » par filtre SVG, motifs réutilisables : plantes, caisses, ampoules, fusée, engrenages). Les anciens JPG sont supprimés.
+- **Vaisseau** : couloir de fusée à côtes rivetées, armoire ouverte (armurerie), cockpit à hublot, planétaire en laiton (carte stellaire), guichet à auvent rayé (Corp), banquette vide, tapis rouge, sol libre en bas. Les éléments sont dessinés aux positions des zones existantes (`data-hx…`), inchangées.
+- **Hangar** : plan cyanotype au mur avec la fusée et 5 encadrés aux positions de `PIECES_HANGAR` (copiées dans le script), vraie fusée garée en dessous.
+- **Atelier** (panneau d'outils, bocaux, établi, lampe), **marché** (baie ronde avec fusée amarrée, étals à auvents, lampions, balance), **carte** (ciel de nuit, nébuleuses, étoiles en croix plus nombreuses vers les bords, astéroïdes).
+- `DECORS.cartoon` passe à `true` : étiquettes et boutons de l'accueil dessinés par le jeu, Jimee assis sur la banquette (absent pendant une mission). Étiquettes « Carte stellaire » et « Jimee's Corp » décalées (`data-align`) pour ne pas se chevaucher sur écran étroit.
+- Atelier et marché : fond cadré en haut (`center top/cover`) et voile crème allégé, pour mieux voir le décor.
+
+---
+
 ## 3. Limites connues (honnêtes)
-- V24 : tant que les décors ne sont pas refaits, l'accueil, le hangar et la carte mélangent une interface cartoon et des images de science-fiction bleutées (atténué par le filtre sépia, pas résolu).
+- V25 : les 11 planètes de la carte sont encore les images peintes de l'ancien style (seules images non refaites).
+- V25 : décors vérifiés sur un écran de 400 × 860 et 400 × 700 ; sur un écran très large, les bords du vaisseau sont coupés (cadrage inchangé).
 - V24 : les icônes des ressources et des produits (SVG existants) n'ont pas été redessinées dans le nouveau style ; elles sont posées sur des pastilles bleu nuit cerclées d'encre.
-- V24 : les étiquettes de l'accueil en mode `DECORS.cartoon` ont été vérifiées sur l'ancienne image ; leurs positions seront à reprendre sur la nouvelle.
 - V24 : la carte stellaire (soleil, trajectoires, galaxies) garde ses dessins d'origine, seuls les textes ont été restylés.
 - V23 : un rapport très court (2-3 lignes) demande quand même un toucher sur « Suivant » pour voir le butin.
 - G sur G reste à 92 % (cible 88) et G sur B à 17 % (cible 10) : les plus petites planètes n'ont souvent qu'une seule épreuve.

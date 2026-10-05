@@ -8,7 +8,8 @@ Lire **JIMEE-RECAP.md** en entier avant toute modification : c'est le document d
 - `serveur/` : script SQL Supabase du mode multijoueur (non servi aux joueurs).
 - `netlify.toml` : réglages de publication.
 - `polices/` : polices du thème cartoon, hébergées avec le jeu.
-- `DIRECTION-ARTISTIQUE.md` : style graphique (V24), consignes ChatGPT pour les décors et procédure d'intégration des images.
+- `decors/` : décors en SVG, générés par `outils/decors.py` (modifier le script, puis le relancer).
+- `DIRECTION-ARTISTIQUE.md` : style graphique, palette, consignes pour les images encore à refaire (planètes).
 
 ## Déploiement
 - Site Netlify : https://startling-kheer-17da0d.netlify.app
