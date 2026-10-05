@@ -1,0 +1,29 @@
+# Jimee : site statique, aucune étape de build.
+[build]
+  publish = "."
+  command = ""
+
+# Le service worker et la page doivent toujours être relus,
+# sinon les joueurs gardent une ancienne version après un déploiement.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Les tests et le script SQL ne sont pas destinés aux joueurs.
+[[redirects]]
+  from = "/tests/*"
+  to = "/404"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/serveur/*"
+  to = "/404"
+  status = 404
+  force = true
