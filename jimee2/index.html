@@ -130,7 +130,7 @@ b{font-weight:800}
 .btns{display:flex;gap:8px}.btns .btn{flex:1}
 .voile{position:fixed;inset:0;z-index:40;background:rgba(34,27,22,.5);display:none}
 .voile.ouvert{display:block}
-.feuille{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:520px;margin:0 auto;max-height:78vh;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 18px);background:var(--papier);border:3px solid var(--encre);border-bottom:0;border-radius:22px 22px 0 0;box-shadow:0 -4px 0 rgba(34,27,22,.35);transform:translateY(105%);transition:transform .28s cubic-bezier(.3,1.2,.5,1)}
+.feuille{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:520px;margin:0 auto;max-height:78vh;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 84px);background:var(--papier);border:3px solid var(--encre);border-bottom:0;border-radius:22px 22px 0 0;box-shadow:0 -4px 0 rgba(34,27,22,.35);transform:translateY(105%);transition:transform .28s cubic-bezier(.3,1.2,.5,1)}
 .feuille.ouverte{transform:none}
 .feuille h2{font-family:var(--titre);font-weight:400;font-size:1.4rem;line-height:1.1;letter-spacing:.03em;color:var(--corp);text-shadow:1.5px 1.5px 0 var(--encre)}
 .feuille h3{font-family:var(--titre);font-weight:400;font-size:1rem;letter-spacing:.04em;margin:14px 0 6px;color:var(--corp)}
@@ -182,7 +182,7 @@ b{font-weight:800}
 .noeud .navette{position:absolute;left:-6px;top:-8px;font-size:1.3rem}
 
 /* ----- transmission (carte à la Reigns) ----- */
-#transmission,#rapport{position:fixed;inset:0;z-index:50;max-width:520px;margin:0 auto;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 14px);background:var(--papier)}
+#transmission,#rapport{position:fixed;inset:0;z-index:50;max-width:520px;margin:0 auto;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 70px);background:var(--papier)}   /* marge du bas : place pour le badge Netlify */
 #transmission.ouvert,#rapport.ouvert{display:flex}
 .entete-tr{text-align:center;font-family:var(--titre);letter-spacing:.04em;color:var(--corp);text-shadow:1.5px 1.5px 0 var(--encre);font-size:1.15rem}
 .entete-tr small{display:block;font-family:var(--corps);text-shadow:none;color:var(--doux);font-size:.8rem;font-weight:800;letter-spacing:0}
