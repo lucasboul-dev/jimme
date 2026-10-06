@@ -1,7 +1,7 @@
-# PROJET JIMEE — Document de référence (V25)
+# PROJET JIMEE — Document de référence (V26)
 
 > **À lire en premier par toute nouvelle session de travail.**
-> Version décrite : **V25 (décors cartoon dessinés en SVG) sur la V24 (thème cartoon années 30 : interface, personnages, icône), sauvegarde v20 inchangée** (5 octobre 2026).
+> Version décrite : **V26 (jeu plus accessible : arrivée progressive, première mission guidée, rapport animé, bilan vivant, bruitages), sauvegarde v21** (6 octobre 2026). Style : V24 (thème cartoon) et V25 (décors SVG).
 > ⚠️ Le travail « V14 » d'une session précédente (météo du jour, objectifs de mission, événements galactiques, anomalies) n'a jamais été livré : il n'est PAS dans le code. Seule l'idée des tailles a été reprise ici.
 > **Le code fait foi** : depuis le 5 octobre 2026, la référence est la branche `main` du dépôt GitHub `lucasboul-dev/jimme` ; chaque push redéploie Netlify (https://startling-kheer-17da0d.netlify.app). Plus de ZIP : faire `git pull` avant de travailler. En cas de contradiction entre ce document et le code, suivre le code et signaler l'écart.
 > **Style graphique** : voir `DIRECTION-ARTISTIQUE.md` (palette, consignes ChatGPT pour les décors, procédure d'intégration).
@@ -15,7 +15,7 @@
 3. **Valeurs d'équilibrage centralisées** dans les constantes en haut du script (`CONFIG`, `EPREUVES`, `RECUP`, `STOCK_EQUIPEMENTS`, `MIN_ETAPES_DANGEREUSES`, `CLASSES_JIMEE`, `CLASSES_PLANETE`, `RARETES`…). Jamais de nombre magique dispersé.
 4. **Ne jamais casser la sauvegarde** : changement de format = incrément de `versionSauvegarde` + étape dans `migrer()`.
 5. **Déterminisme** : tout résultat important est tiré une fois à partir d'une seed et sauvegardé. Ajouter un tirage dans un générateur existant = utiliser un **flux séparé** (`creerRng(seed+'/QUELQUECHOSE')`) pour ne pas modifier le reste.
-6. **Tests** : `node tests/tests.js` (65 vérifications), `node tests/tests-v13.js` (30) et `node tests/tests-v14.js` (28) `node tests/tests-v15.js` (42) `node tests/tests-v16.js` (16) `node tests/tests-v17.js` (30, serveur factice) `node tests/tests-v18.js` (36) `node tests/tests-v19.js` (27) `node tests/tests-v20.js` (27) `node tests/tests-v21.js` (20) `node tests/tests-v22.js` (20) et `node tests/tests-v23.js` (22), tous doivent passer. Prérequis : Node 18+ et `npm i jsdom`.
+6. **Tests** : `node tests/tests.js` (65 vérifications), `node tests/tests-v13.js` (30) et `node tests/tests-v14.js` (28) `node tests/tests-v15.js` (42) `node tests/tests-v16.js` (16) `node tests/tests-v17.js` (30, serveur factice) `node tests/tests-v18.js` (36) `node tests/tests-v19.js` (27) `node tests/tests-v20.js` (27) `node tests/tests-v21.js` (20) `node tests/tests-v22.js` (20), `node tests/tests-v23.js` (22) et `node tests/tests-v26.js` (50), tous doivent passer (413 vérifications). Prérequis : Node 18+ et `npm i jsdom`.
 7. **Humour Jimee's Corp partout, jamais au détriment de l'information** : pourcentages, prix et conséquences toujours affichés.
 8. **Livrable** : commit poussé sur `main` (Netlify redéploie seul) + compte rendu (changements, chiffres du simulateur, tests, limites honnêtes).
 9. **Style** : aucune couleur en dur dans le CSS ou le HTML généré ; passer par les variables du thème (`--papier`, `--carte`, `--encre`, `--corp`, `--ia`, `--ia-txt` pour un texte moutarde lisible…). Texte des explications et de l'IA en `--main` (écriture à la main), titres et chiffres en `--titre`.
@@ -311,7 +311,44 @@ Demande de Lucas : passer le jeu dans un style graphique plus cartoon (référen
 
 ---
 
+## 2 quattuordecies. V26 — accessible et fun (arrivée progressive, guide, rapport animé)
+
+Constat de Lucas : « le jeu est trop textuel, on arrive sur un écran rempli de texte qui fait peur à jouer ». Aucune règle de jeu ni équilibrage modifié, sauf la durée de la première mission guidée.
+
+### Arrivée progressive (`DEBLOCAGES`, sauvegarde v21)
+- Au départ : vaisseau, armurerie, carte (vue galaxie), recrutement, Labo. Le reste se débloque en jouant :
+  commerce = 1re mission **réussie** (`reussites`) ; rapports et succès = 1 mission terminée ; atelier et contrats = 2 ; hangar et vue univers = 3 ; expéditions = 4 ; agence et mémorial = premier Jimee perdu (ou un abandon).
+  « Missions terminées » = `stats.missions + stats.morts`.
+- Accueil : Hangar / Atelier / Commerce affichés avec un cadenas ; les toucher affiche la condition (« encore N ») dans l'IA et dans une bulle temporaire (`toast`). Onglets Corp masqués tant qu'ils sont fermés (barre absente s'il n'y a que le recrutement). Le contenu reste accessible par le code (tests inchangés).
+- Annonces de la Corp (`#annonce`, `montrerAnnonce`) : une carte « Nouveau ! » avec le représentant de la Corp, une phrase, « Aller voir » / « Plus tard ». Jamais par-dessus un rapport ; une à la fois.
+- Migration v20 → v21 : une partie existante a **tout débloqué** et pas de guide. Labo → « Tout débloquer (test) » et « Relancer le guide ».
+
+### Première mission guidée (`GUIDE`, `etapeGuide`, `majGuide`)
+- Partie neuve : carte d'accueil « Capitaine, voici votre vaisseau » à la place du diaporama de 9 pages (toujours disponible au Labo).
+- Puis la bulle de l'IA devient la consigne et une main gantée montre où toucher : guichet Corp → recruter un G → (retour au vaisseau, le Jimee s'assoit sur la banquette) → carte stellaire → planète conseillée (la moins dangereuse, `planeteConseillee`) → Envoyer → attendre → Lire le rapport. Bouton « Passer ».
+- **Mission express** : la première mission guidée dure `GUIDE.missionExpressMs` (60 s) au lieu de 10 min à 4 h ; son résultat est tiré normalement. Pas d'express en mode test.
+- Le guide s'arrête dès qu'une mission est terminée.
+
+### Rapport animé (`sceneRapport`, `sceneEtape`)
+- Missions et morts : une scène dessinée au-dessus du journal (ciel et sol du biome, décor propre à chacun des 11 biomes, capsule, chemin). Une vignette par ligne du journal (pictogramme selon l'étape : minerai, coffre, monstre, danger, eau, marchand…, couleur selon le ton). Le Jimee saute d'étape en étape ; à sa mort il passe en version « mort » et s'élève avec son auréole.
+- La simulation note l'identifiant de l'étape dans chaque ligne (`id`), sans aucun tirage supplémentaire : déterminisme conservé. Les anciennes missions sans `id` ont des vignettes selon le ton.
+- 750 ms par ligne au lieu de 500 (avec scène). Les archives gardent la scène (`journal[].scene`).
+
+### Bilan vivant et bruitages
+- Mission réussie : gros chiffres (crédits s'il y en a, unités ramenées, valeur) qui comptent, tuiles de butin et cartes d'objets qui surgissent ; confettis et fanfare pour un objet A ou mieux, un légendaire, un éveil ou une promotion. Mort : Jimee à auréole et tampon « Contrat terminé ». Les lignes détaillées restent dessous.
+- Bruitages rétro synthétisés (aucun fichier) : départ, étapes, pièces, fanfare, trombone triste, refus. Réglage Labo → Son (`etat.son`, activé par défaut).
+
+### Tests
+- `tests/tests-v26.js` : 50 vérifications (partie neuve, verrous, guide pas à pas, mission express, scène, bilan, annonces, seuils, Labo, migration, déterminisme).
+- `tests/tests-v19.js` : les deux vérifications « diaporama au premier lancement » sont remplacées par « accueil de la Corp au premier lancement » et « diaporama relancé depuis le Labo ».
+
+---
+
 ## 3. Limites connues (honnêtes)
+- V26 : la fiche planète, le marché et l'atelier restent chargés en texte (prochain lot : fiches en images, jauge de survie illustrée).
+- V26 : la première mission guidée peut mal finir (≈ 3 à 8 % de mort sur la planète conseillée) : c'est assumé, l'agence et le mémorial s'ouvrent alors.
+- V26 : les bruitages sont synthétisés (simples bips rétro), pas de musique.
+- V26 : le guide se repère sur l'écran : si le joueur se perd dans un autre écran, la consigne lui dit de revenir au vaisseau.
 - V25 : les 11 planètes de la carte sont encore les images peintes de l'ancien style (seules images non refaites).
 - V25 : décors vérifiés sur un écran de 400 × 860 et 400 × 700 ; sur un écran très large, les bords du vaisseau sont coupés (cadrage inchangé).
 - V24 : les icônes des ressources et des produits (SVG existants) n'ont pas été redessinées dans le nouveau style ; elles sont posées sur des pastilles bleu nuit cerclées d'encre.

@@ -444,6 +444,81 @@ body.decors-cartoon #ecran-vaisseau .etiquette-vaisseau{display:block;position:a
 body.decors-cartoon #ecran-vaisseau .hotspot-img[data-align="droite"] .etiquette-vaisseau{left:auto;right:4px;top:22%;transform:none}
 body.decors-cartoon #ecran-vaisseau .hotspot-img[data-align="gauche"] .etiquette-vaisseau{transform:translate(-78%,-70%)}
 body.decors-cartoon #ecran-vaisseau .hotspot-img.bas .etiquette-vaisseau{top:50%;transform:translate(-50%,-50%);padding:9px 14px 7px;font-size:.95rem;border-width:3px;box-shadow:0 4px 0 var(--encre)}
+/* ===== V26 : arrivée progressive, guide, annonces, rapport animé, bilan vivant ===== */
+/* Services verrouillés de l'accueil */
+body.decors-cartoon #ecran-vaisseau .hotspot-img.verrou .etiquette-vaisseau{background:var(--carte2);color:var(--doux);box-shadow:0 2px 0 var(--encre)}
+body.decors-cartoon #ecran-vaisseau .hotspot-img.verrou .etiquette-vaisseau::before{content:'🔒 ';font-size:.85em}
+.carte-vues button.verrou{opacity:.55}.carte-vues button.verrou::before{content:'🔒 ';font-size:.8em}
+@keyframes secoue{0%,100%{transform:none}20%{transform:translateX(-6px) rotate(-1deg)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.ia.secoue{animation:secoue .4s}
+/* Guide : la bulle de l'IA devient la consigne, une main gantée montre la cible */
+.ia.guide{background:#FFF1CF;border-width:2.5px;font-size:1.08rem}
+.ia.guide::before{content:"👉 "}
+.ia .passer-guide{float:right;margin:2px 0 0 8px;font-family:var(--corps);font-size:.78rem;color:var(--doux)}
+#guide-doigt{position:fixed;z-index:58;width:44px;height:60px;display:none;pointer-events:none;animation:doigt 1s ease-in-out infinite}
+#guide-doigt svg{width:100%;height:100%;filter:drop-shadow(2px 3px 0 rgba(34,27,22,.35))}
+#guide-doigt.vers-bas svg{transform:rotate(180deg)}
+@keyframes doigt{0%,100%{translate:0 0}50%{translate:0 8px}}
+#guide-doigt.vers-bas{animation-name:doigt-bas}
+@keyframes doigt-bas{0%,100%{translate:0 0}50%{translate:0 -8px}}
+.guide-cible:not(svg *){position:relative;z-index:4;animation:cible 1.1s ease-in-out infinite}
+@keyframes cible{0%,100%{box-shadow:0 0 0 0 rgba(233,169,58,.9),var(--ombre-p)}60%{box-shadow:0 0 0 9px rgba(233,169,58,0),var(--ombre-p)}}
+.hotspot-img.guide-cible{animation:cible-zone 1.1s ease-in-out infinite;border-radius:14px}
+@keyframes cible-zone{0%,100%{box-shadow:0 0 0 3px #E9A93A,0 0 0 0 rgba(233,169,58,.8)}60%{box-shadow:0 0 0 3px #E9A93A,0 0 0 14px rgba(233,169,58,0)}}
+#statut.guide-cible{position:relative}
+.planete.guide-cible{transform-box:fill-box;transform-origin:center;animation:cible-planete 1s ease-in-out infinite}
+@keyframes cible-planete{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 #E9A93A)}50%{transform:scale(1.12);filter:drop-shadow(0 0 6px #E9A93A)}}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 74px);z-index:65;max-width:min(92vw,440px);padding:9px 14px;background:var(--carte);border:2.5px solid var(--encre);border-radius:14px 16px 13px 15px;box-shadow:var(--ombre);font-family:var(--main);font-size:1.05rem;line-height:1.25;text-align:center;opacity:0;transform:translate(-50%,16px);pointer-events:none;transition:opacity .2s,transform .25s cubic-bezier(.3,1.6,.5,1)}
+#toast.vu{opacity:1;transform:translate(-50%,0)}
+/* Annonces */
+#annonce{position:fixed;inset:0;background:rgba(34,27,22,.66);display:none;align-items:center;justify-content:center;padding:18px;z-index:70}
+#annonce .carte{position:relative;max-width:420px;width:100%;background:var(--carte);border:3px solid var(--encre);border-radius:var(--arrondi);box-shadow:6px 7px 0 var(--encre);padding:16px 18px 18px;text-align:center;animation:annonce .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes annonce{from{transform:scale(.6) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+.annonce-perso{display:flex;justify-content:center;align-items:flex-end;gap:2px;height:130px;margin-bottom:4px}
+.annonce-perso svg{height:100%;width:auto}
+#annonce .tampon{position:absolute;top:14px;right:12px;transform:rotate(12deg);padding:4px 10px 2px;border:3px solid var(--corp);border-radius:8px;color:var(--corp);font-family:var(--titre);font-size:1rem;letter-spacing:.05em;background:var(--carte)}
+#annonce h2{font-family:var(--titre);font-weight:400;font-size:1.45rem;line-height:1.1;letter-spacing:.03em;color:var(--corp);text-shadow:1.5px 1.5px 0 var(--encre);margin:4px 0 6px}
+#annonce p:not(.tampon){font-family:var(--main);font-size:1.12rem;line-height:1.3}
+#annonce .cmds{display:flex;gap:8px;margin-top:4px}#annonce .cmds .btn{flex:1}
+@media (prefers-reduced-motion:reduce){#annonce .carte,#guide-doigt,.guide-cible,.ia.secoue{animation:none!important}}
+/* Rapport animé */
+#rap-scene{margin:10px -4px 0;border:3px solid var(--encre);border-radius:var(--arrondi);overflow:hidden;box-shadow:var(--ombre);background:var(--carte);flex-shrink:0}
+#rap-scene svg.scene{display:block;width:100%;height:auto;max-height:30vh}
+.scene .marque{transform-box:view-box}
+.scene .marque>*{transform-box:fill-box;transform-origin:center bottom;transform:scale(0);opacity:0;transition:transform .35s cubic-bezier(.3,1.7,.5,1),opacity .2s}
+.scene .marque.vue>*{transform:scale(1);opacity:1}
+.scene #scene-jimee{transform-box:view-box}
+.scene .jimee-pas{transform-box:fill-box;transform-origin:center bottom}
+.scene .jimee-pas.saute{animation:saut .55s ease-out}
+@keyframes saut{0%{transform:none}35%{transform:translateY(-14px) scaleY(1.06)}70%{transform:translateY(0) scale(1.1,.88)}100%{transform:none}}
+.scene #scene-jimee.mort .jimee-pas{animation:monte 2.4s ease-in-out .3s forwards}
+@keyframes monte{to{transform:translateY(-40px);opacity:.85}}
+@media (prefers-reduced-motion:reduce){.scene *{transition:none!important;animation:none!important}}
+#journal li.vu:last-of-type p{font-weight:800}
+/* Bilan vivant */
+.butin{margin:-2px 0 12px;text-align:center}
+.butin-chiffres{display:flex;gap:8px;justify-content:center}
+.butin-chiffres>span{flex:1;padding:8px 4px 6px;background:var(--carte);border:2.5px solid var(--encre);border-radius:12px 10px 13px 11px;box-shadow:var(--ombre-p)}
+.butin-chiffres b{display:block;font-family:var(--titre);font-weight:400;font-size:1.7rem;line-height:1;color:var(--ia-txt);text-shadow:1.5px 1.5px 0 var(--encre)}
+.butin-chiffres small{font-size:.74rem;font-weight:700;color:var(--doux)}
+.tuiles-butin{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.tuile-butin{display:inline-flex;align-items:center;gap:4px;padding:3px 9px 3px 3px;border:2px solid var(--encre);border-radius:999px;background:var(--carte);font-family:var(--titre);box-shadow:var(--ombre-p)}
+.tuile-butin .icone-res{width:30px;height:30px;padding:3px;border-radius:999px;border-width:1.5px}
+.tuile-butin.res-peu_commune{background:#DCE8F5}.tuile-butin.res-rare{background:#EADCF3}.tuile-butin.res-tres_rare{background:#FBE3B3}
+.cartes-objets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.carte-objet{display:flex;flex-direction:column;padding:8px 12px;border:2.5px solid var(--encre);border-radius:12px 10px 13px 11px;background:var(--carte);box-shadow:var(--ombre-p);max-width:100%}
+.carte-objet small{color:var(--doux);font-size:.74rem;font-weight:700}
+.rar-fond-A{background:#EADCF3}.rar-fond-S{background:#FBE3B3}.rar-fond-SS{background:#F9D2BE}.rar-fond-SSS,.rar-fond-L{background:#FBE3B3;box-shadow:0 0 0 3px #E9A93A,var(--ombre)}
+.butin.joue .tuile-butin,.butin.joue .carte-objet,.butin.joue .butin-chiffres>span{animation:surgit .45s cubic-bezier(.3,1.7,.5,1) both;animation-delay:calc(var(--k,0)*90ms + 150ms)}
+.butin.joue .butin-chiffres>span:nth-child(2){--k:1}.butin.joue .butin-chiffres>span:nth-child(3){--k:2}
+@keyframes surgit{from{transform:scale(0) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+.butin.fin .fin-perso{height:150px;display:flex;justify-content:center}.butin.fin .fin-perso svg{height:100%;width:auto}
+.tampon-fin{display:inline-block;margin-top:6px;padding:4px 14px 2px;border:3px solid var(--mort);border-radius:8px;color:var(--mort);font-family:var(--titre);font-size:1.3rem;letter-spacing:.05em;transform:rotate(-6deg)}
+.fin-nom{margin-top:8px;font-family:var(--main);font-size:1.05rem;color:var(--doux)}
+.confetti{position:absolute;top:-12px;width:9px;height:14px;border:1.5px solid var(--encre);border-radius:2px;z-index:12;pointer-events:none;animation:tombe 2s cubic-bezier(.3,.6,.6,1) forwards}
+@keyframes tombe{to{transform:translate(var(--d),105vh) rotate(var(--r))}}
+#rapport{overflow:hidden}
+@media (prefers-reduced-motion:reduce){.butin.joue *{animation:none!important}.confetti{display:none}}
 .jimee-banquette{position:absolute;left:30%;bottom:18%;height:105%;aspect-ratio:330/520;pointer-events:none}
 .jimee-banquette svg{width:100%;height:100%}
 /* V24 : personnages animés (balancement « rubber hose ») */
@@ -520,11 +595,26 @@ body.decors-cartoon #ecran-vaisseau .hotspot-img.bas .etiquette-vaisseau{top:50%
     <button class="btn sec" id="tuto-passer" style="margin-top:8px">Passer le tutoriel</button>
   </div>
 </div>
+<!-- V26 : annonces de la Corp (accueil, service débloqué) et main du guide -->
+<div id="annonce" role="dialog" aria-modal="true" aria-labelledby="annonce-titre">
+  <div class="carte">
+    <div class="annonce-perso" id="annonce-perso" aria-hidden="true"></div>
+    <p class="tampon" id="annonce-tampon">Nouveau !</p>
+    <h2 id="annonce-titre"></h2>
+    <p id="annonce-texte"></p>
+    <div class="cmds"><button class="btn sec" id="annonce-plus-tard">Plus tard</button><button class="btn" id="annonce-aller">Aller voir</button></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="guide-doigt" aria-hidden="true"><svg viewBox="0 0 44 60"><g fill="#FFFCF2" stroke="#221B16" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="16" y="2" width="11" height="28" rx="5.5"/><path d="M9 26Q7 50 22 52Q37 50 36 28Q36 23 31 23H12Q9 23 9 26Z"/>
+  <path d="M27 28V36M20 30V36M13 30V36" fill="none" stroke-width="2.5"/><rect x="11" y="48" width="22" height="9" rx="3"/></g></svg></div>
 <div id="rapport" role="dialog" aria-modal="true">
   <div class="contenu">
     <div class="rap-tete"><div id="rap-perso" aria-hidden="true"></div><div>
     <h2 id="rap-titre"></h2>
     <p class="sous" id="rap-sous"></p></div></div>
+    <div id="rap-scene" aria-hidden="true"></div>
     <ol id="journal"></ol>
     <div id="bilan"></div>
     <div class="rap-boutons">
@@ -559,8 +649,25 @@ function creerRng(str){
 // V25 : décors cartoon dessinés en SVG (decors/*.svg, produits par outils/decors.py). cartoon:true = l'accueil dessine
 // lui-même ses étiquettes et ses boutons, et le Jimee s'assoit sur la banquette. false = anciennes images avec texte peint.
 const DECORS={cartoon:true};
+// V26 : arrivée progressive. Un service se débloque quand le nombre de missions terminées (réussies + morts) atteint « missions »,
+// ou au premier Jimee perdu (« morts »). Les services avec un « nom » sont annoncés par la Corp ; les autres (onglets Corp) arrivent sans bruit.
+// « reussites » ne compte que les missions réussies (le commerce s'ouvre quand il y a enfin quelque chose à vendre).
+// Une partie commencée avant la V26 a tout débloqué (migration). Labo → « Tout débloquer » pour les tests.
+const DEBLOCAGES={
+  marche:     {reussites:1,nom:'Commerce',aller:'marche',phrase:'Votre Jimee a rapporté des cailloux. Bonne nouvelle : la Corp accepte de vous les racheter.'},
+  rapports:   {missions:1},
+  atelier:    {missions:2,nom:'Atelier',aller:'atelier',phrase:'Un établi, des plans, des outils. Fabriquez de l\'équipement : votre Jimee reviendra plus souvent. Statistiquement.'},
+  contrats:   {missions:2},
+  hangar:     {missions:3,nom:'Hangar et voyages',aller:'hangar',phrase:'Améliorez le vaisseau et partez vers d\'autres galaxies. Plus loin, plus riche, plus mortel.'},
+  succes:     {missions:1},
+  expeditions:{missions:4},
+  agence:     {morts:1,nom:'Agence de récupération',aller:'agence',phrase:'Quand un Jimee ne revient pas, son équipement reste sur place. Nos équipes peuvent tenter de le rapporter, une seule fois. Son nom, lui, rejoint le Mémorial.'},
+  memorial:   {morts:1}
+};
+// V26 : première mission guidée. Elle dure GUIDE.missionExpressMs (au lieu de 10 min à 4 h) : on découvre le rapport tout de suite.
+const GUIDE={missionExpressMs:60*1000};
 const CONFIG={
-  versionSauvegarde:20,
+  versionSauvegarde:21,
   prixJimeeG:50,
     creditsDepart:150,
   dureeMissionMs:12*3600*1000,
@@ -2154,7 +2261,7 @@ function simuler(planete,jimee,seed){
       lampe:effetUtil(jimee,'lampe'),detecteur:effetUtil(jimee,'detecteur'),drone:effetUtil(jimee,'drone'),scaphandre:effetUtil(jimee,'scaphandre'),gourde:effetUtil(jimee,'gourde')},
     // Sets : nombre de pièces portées
     set:(()=>{const sp=setsPortes(jimee);return id=>sp[id]||0})(),
-    dit:(h,ton,txt)=>ev.push({h,ton,txt}),
+    dit:(h,ton,txt)=>ev.push({h,ton,txt,id:etatM.idCourant}),   // V26 : id de l'étape (vignette du rapport animé)
     // V13 : écart de classe effectif (planète − Jimee, réduit par l'équipement)
     ecart:ecartEffectif(planete,jimee),
     palier:marge=>palier(marge-malusMarge(c.ecart)),
@@ -2164,8 +2271,8 @@ function simuler(planete,jimee,seed){
     lib:(o,court)=>o?(court?`${o.nom} (niv. ${o.niveau})`:`${o.nom} (niv. ${o.niveau}, classe ${o.rarete})`):'rien du tout : il n\'y a plus aucun équipement à trouver sur cette planète',
     mourir(h,txt){
       if(c.a('increvable')&&!etatM.increvable){etatM.increvable=true;etatM.blessures++;c.s.endurance=Math.max(0,c.s.endurance-1);
-        ev.push({h,ton:'mauvais',txt:txt.replace(/ ?Signal perdu\.?/,'')+` … mais ${jimee.nom} se relève, couvert de bleus. Increvable (endurance −1).`});return}
-      etatM.mortH=h;etatM.causeMort=etatM.idCourant;ev.push({h,ton:'mort',txt})},
+        ev.push({h,ton:'mauvais',txt:txt.replace(/ ?Signal perdu\.?/,'')+` … mais ${jimee.nom} se relève, couvert de bleus. Increvable (endurance −1).`,id:etatM.idCourant});return}
+      etatM.mortH=h;etatM.causeMort=etatM.idCourant;ev.push({h,ton:'mort',txt,id:etatM.idCourant})},
     blesser(endu=true){
       if(c.consommer('trousse','Trousse de soin utilisée : la blessure est soignée sur place.'))return;
       etatM.blessures++;
@@ -2248,7 +2355,7 @@ function simuler(planete,jimee,seed){
   }
   for(const id in cargaison)if(!cargaison[id])delete cargaison[id];
   if(c.p('aurores'))for(const e of ev.slice(1)){if(e.ton!=='mort'&&r.chance(EPREUVES.aurores.brouille)){const k=Math.floor(e.txt.length*.6);e.txt=e.txt.slice(0,k)+'▒▒▒ ▒▒▒▒ ▒▒ (transmission brouillée par les aurores)'}}
-  if(etatM.mortH===null&&jimee.perso){const P=PERSONNALITES.find(x=>x.id===jimee.perso);if(P)ev.push({h:12,ton:'neutre',txt:`${jimee.nom} (${P.nom.toLowerCase()}) : « ${r.pick(P.repliques)} »`})}
+  if(etatM.mortH===null&&jimee.perso){const P=PERSONNALITES.find(x=>x.id===jimee.perso);if(P)ev.push({h:12,ton:'neutre',txt:`${jimee.nom} (${P.nom.toLowerCase()}) : « ${r.pick(P.repliques)} »`,id:'perso'})}
   if(etatM.mortH===null&&c.a('negociant'))etatM.credits=Math.round(etatM.credits*1.2);
   const survie=etatM.mortH===null;
   return {etapes:ev,survie,heureMort:etatM.mortH,causeMort:etatM.causeMort,blessures:etatM.blessures,capacite:cap,emplacements:cap,
@@ -2290,12 +2397,13 @@ function resoudreRecuperation(objets,niveauAgence,seed,bonusBalise=0){
    12. ÉTAT DU JOUEUR (sauvegardé dans le téléphone) + migrations V1 → V13
    ========================================================= */
 const CLE='jimee-v1';
+const toutDebloque=()=>Object.fromEntries(Object.keys(DEBLOCAGES).map(k=>[k,true]));
 const statsVides=()=>({gardiens:0,missions:0,morts:0,donjons:0,dragons:0,perleS:0,fabrications:0,contrats:0,retraites:0,legendes:0});
 const etatInitial=()=>({version:CONFIG.versionSauvegarde,credits:CREDITS_DEPART,ressources:{},inventaire:[],jimee:null,mission:null,compteur:0,morts:0,
   abandons:[],recuperations:[],compteurRecup:0,compteurAbandon:0,
   vaisseau:{carburant:RESERVOIRS[0].capacite,reservoir:1,scanner:1,reacteur:1},galaxieActuelle:'G0',galaxiesVisitees:['G0'],
   plans:[...PLANS_DEPART],atelier:{file:[]},consommables:{},memorial:[],tenues:[],
-  reputation:0,contrats:{jour:null,renouv:0,offres:[],actifs:[]},succes:[],stats:statsVides(),cartographie:{},equipementsPris:{},bossVus:{},expeditions:[],compteurExpe:0,voyage:null,journal:[],compteurJournal:0,tutoVu:false,aide:false,multi:{partie:'',pseudo:'',id:'J'+Math.random().toString(36).slice(2,10)+Date.now().toString(36),url:'',cle:'',dernierEvt:null,publiees:{},fil:[]},
+  reputation:0,contrats:{jour:null,renouv:0,offres:[],actifs:[]},succes:[],stats:statsVides(),cartographie:{},equipementsPris:{},bossVus:{},expeditions:[],compteurExpe:0,voyage:null,journal:[],compteurJournal:0,tutoVu:false,aide:false,deblocages:{},guide:true,son:true,multi:{partie:'',pseudo:'',id:'J'+Math.random().toString(36).slice(2,10)+Date.now().toString(36),url:'',cle:'',dernierEvt:null,publiees:{},fil:[]},
   quete:0,gardiensVaincus:[],legendairesObtenus:[],marcheVivant:{},
   params:{galaxie:'JIMEE-001',test:false,ntfy:''},ia:'Systèmes en ligne. Recrutez un Jimee auprès de la Jimee\'s Corp.'});
 
@@ -2394,9 +2502,11 @@ function migrer(e){
   if(e.version<17){if(Array.isArray(e.plans)&&!e.plans.includes('e_infrarouge'))e.plans.push('e_infrarouge');e.voyage=null;e.version=17}   // V18 : voyages, détecteur infrarouge
   if(e.voyage===undefined)e.voyage=null;
   if(e.version<20)e.version=20;   // V22 : durée des planètes à gardien (+75 % une fois le gardien croisé)
+  if(e.version<21){e.deblocages=toutDebloque();e.guide=false;e.version=21}   // V26 : une partie existante garde tous ses services, sans guide
   if(!e.bossVus||typeof e.bossVus!=='object'){e.bossVus={};for(const g of (e.gardiensVaincus||[]))e.bossVus[e.params.galaxie+'/'+g]='vaincu'}
   if(typeof e.tutoVu!=='boolean')e.tutoVu=true;   // une partie existante ne relance pas le tutoriel
   if(typeof e.aide!=='boolean')e.aide=false;
+  if(!e.deblocages||typeof e.deblocages!=='object')e.deblocages=toutDebloque();if(typeof e.guide!=='boolean')e.guide=false;if(typeof e.son!=='boolean')e.son=true;
   if(!Array.isArray(e.journal))e.journal=[];if(typeof e.compteurJournal!=='number')e.compteurJournal=0;e.version=Math.max(e.version,CONFIG.versionSauvegarde);   // V17 : mode à deux (bloc multi ci-dessous)
   if(!e.multi||typeof e.multi!=='object')e.multi={partie:'',pseudo:'',id:'J'+Math.random().toString(36).slice(2,10)+Date.now().toString(36),url:'',cle:'',dernierEvt:null,publiees:{},fil:[]};
   if(!e.multi.publiees)e.multi.publiees={};if(!Array.isArray(e.multi.fil))e.multi.fil=[];   // V16 : clés de cartographie par galaxie (conversion après le chargement de l'univers)
@@ -2527,7 +2637,9 @@ function recruter(classe='G'){
         F:`${etat.jimee.nom} (classe F) embarque. Il a lu la première ligne du mode d'emploi, ce qui le place déjà dans le haut du panier.`,
         A:`${etat.jimee.nom} (classe A) monte à bord. Il a demandé où était le spa. Il n'y a pas de spa.`,
         S:`${etat.jimee.nom} (classe S) monte à bord sans un regard pour personne. Il a déjà rédigé son propre éloge funèbre, au cas où.`}[cl.id]||`Contrat signé avec ${etat.jimee.nom}.`);
-  ecran='jimee'; jimeeStatsSeules=false; tout();
+  bruit('fanfare');
+  if(etat.guide)ecran='vaisseau'; else {ecran='jimee'; jimeeStatsSeules=false}   // V26 : pendant le guide, on voit le Jimee s'installer à bord
+  tout();
 }
 function pret(){etat.credits=PRIX_JIMEE_G;dire('Prêt accordé par la Jimee\'s Corp. Taux d\'intérêt : confidentiel.');tout()}
 function vendreRessource(id){
@@ -2611,9 +2723,12 @@ function envoyer(){
   const dureeH=dureeMissionH(p);
   const colis=etat.contrats.actifs.find(c=>c.type==='colis');
   zoneAtterrissage='standard';
-  etat.mission={planeteId:p.id,cleCarto:cleCarto(p),nomPlanete:p.nom,classe:p.classe,biome:p.biome.id,depart:maint,fin:maint+dureeMission(p),dureeH,resultat,notifie:false,colis:colis?colis.id:null};
-  dire(`${etat.jimee.nom} est en route vers ${p.nom}. Retour prévu ${etat.params.test?'dans 30 secondes':`dans ${fmtDuree(dureeH)}`}.`);
-  const delai=etat.params.test?'30s':`${Math.round(dureeH*60)}m`;
+  const express=missionExpress();   // V26 : première mission guidée, raccourcie
+  etat.mission={planeteId:p.id,cleCarto:cleCarto(p),nomPlanete:p.nom,classe:p.classe,biome:p.biome.id,depart:maint,fin:maint+(express?GUIDE.missionExpressMs:dureeMission(p)),dureeH,resultat,notifie:false,colis:colis?colis.id:null,express};
+  dire(express?`${etat.jimee.nom} décolle vers ${p.nom}. Mission express offerte par la Corp : retour dans ${Math.round(GUIDE.missionExpressMs/1000)} secondes.`
+    :`${etat.jimee.nom} est en route vers ${p.nom}. Retour prévu ${etat.params.test?'dans 30 secondes':`dans ${fmtDuree(dureeH)}`}.`);
+  bruit('depart');
+  const delai=express?Math.round(GUIDE.missionExpressMs/1000)+'s':etat.params.test?'30s':`${Math.round(dureeH*60)}m`;
   if(resultat.survie)programmerNtfy('Jimee de retour',`Mission terminée sur ${p.nom}. Le rapport vous attend à bord.`,delai,'rocket');
   else{
     const nb=objetsEquipes(etat.jimee).length;
@@ -4154,7 +4269,8 @@ function panneauCorp(){
   const rec=corpOnglet==='recrutement';
   if(!['contrats','recrutement','expeditions','agence','rapports','memorial','succes'].includes(corpOnglet))corpOnglet='recrutement';
   return `<div class="corp-banniere"><div><div class="corp-logo">JIMEE'S CORP<sup>™</sup></div><p>Fournisseur officiel de Jimees. Remboursement impossible, satisfaction non garantie.</p></div><div class="perso-corp">${persoCorp()}</div></div>
-  <div class="puces-filtre onglets-corp" role="group" aria-label="Services de la Corp">${[['contrats','Contrats',etat.contrats.actifs.length],['recrutement','Recrutement',0],['expeditions','Expéditions',expeditionsActives().length+(etat.expeditions||[]).filter(x=>x.statut==='terminee'&&!x.lu).length],['agence','Agence',nbAgence],['rapports','Rapports',0],['memorial','Mémorial',0],['succes','Succès',0]].map(([id,n,b])=>`<button type="button" data-corp-onglet="${id}" aria-pressed="${corpOnglet===id}">${n}${b?` <span class="pastille">${b}</span>`:''}</button>`).join('')}</div>
+  ${(()=>{const ong=[['contrats','Contrats',etat.contrats.actifs.length],['recrutement','Recrutement',0],['expeditions','Expéditions',expeditionsActives().length+(etat.expeditions||[]).filter(x=>x.statut==='terminee'&&!x.lu).length],['agence','Agence',nbAgence],['rapports','Rapports',0],['memorial','Mémorial',0],['succes','Succès',0]].filter(([id])=>id==='recrutement'||debloque(id));   // V26 : onglets débloqués au fil de la partie
+    return ong.length>1?`<div class="puces-filtre onglets-corp" role="group" aria-label="Services de la Corp">${ong.map(([id,n,b])=>`<button type="button" data-corp-onglet="${id}" aria-pressed="${corpOnglet===id}">${n}${b?` <span class="pastille">${b}</span>`:''}</button>`).join('')}</div>`:''})()}
   ${corpOnglet==='rapports'?panneauRapports():corpOnglet==='expeditions'?panneauExpeditions():corpOnglet==='contrats'?panneauContrats():corpOnglet==='succes'?panneauSucces():corpOnglet==='memorial'?panneauMemorial():rec?panneauRecrutement():panneauRecuperation()}`;
 }
 function panneauMemorial(){
@@ -4165,6 +4281,8 @@ function panneauMemorial(){
 
 function panneauLabo(){
   return `<h2>Labo</h2><p class="sous">Réglages du prototype et tests du générateur.</p>
+  <h3>Son</h3>
+  <label class="bascule"><span>Bruitages</span><input type="checkbox" data-param="son" ${etat.son?'checked':''}></label>
   <h3>Durée des missions</h3>
   <label class="bascule"><span>Mode test : missions de 30 secondes, récupérations de ${Math.round(RECUP.dureeTestMs/1000)} secondes</span><input type="checkbox" data-param="test" ${etat.params.test?'checked':''}></label>
   <h3>Notifications</h3>
@@ -4186,6 +4304,8 @@ function panneauLabo(){
   <h3>Outils de développement</h3>
   <button class="btn sec" data-action="renouveler-contrats">Renouveler les contrats du jour</button>
   <button class="btn sec" data-action="tuto">Revoir le tutoriel</button>
+  <button class="btn sec" data-action="tout-debloquer">Tout débloquer (test)</button>
+  <button class="btn sec" data-action="guide-relancer">Relancer le guide de la première mission</button>
   ${etat.voyage?`<button class="btn sec" data-action="finir-voyage">Arriver tout de suite (test)</button>`:''}
   <button class="btn sec" data-action="reset">Recommencer à zéro</button>`;
 }
@@ -4259,18 +4379,19 @@ function lancerMatrice(){
 
 function tout(){
   $('#r-credits').textContent=etat.credits;$('#r-cargo').textContent=totalRessources(etat.ressources);$('#r-carbu').textContent=etat.vaisseau.carburant;$('#ia').textContent=etat.ia;
-  dessinerEcran();dessinerStatut();sauver();
+  verifierDeblocages();
+  dessinerEcran();dessinerStatut();appliquerVerrous();majGuide();sauver();montrerAnnonce();
 }
 
 /* ---------- Rapports (mission et récupération) : révélation ligne par ligne ---------- */
 // V19 : tout rapport affiché est archivé (les 20 derniers) pour être relu depuis Corp → Rapports
-function archiverRapport(titre,sous,lignes,bilanHTML,type){
-  etat.journal=[{id:'J'+(++etat.compteurJournal),date:Date.now(),type:type||'mission',titre,sous,lignes,bilan:bilanHTML},...(etat.journal||[])].slice(0,JOURNAL_MAX);
+function archiverRapport(titre,sous,lignes,bilanHTML,type,scene){
+  etat.journal=[{id:'J'+(++etat.compteurJournal),date:Date.now(),type:type||'mission',titre,sous,lignes,bilan:bilanHTML,...(scene?{scene}:{})},...(etat.journal||[])].slice(0,JOURNAL_MAX);
   sauver();
 }
 const JOURNAL_MAX=20;
 const ICONES_JOURNAL={mission:'🛰️',mort:'✝',recup:'🛟',expedition:'📦',pillage:'🏴'};
-function ouvrirArchive(id){const e=(etat.journal||[]).find(x=>x.id===id);if(!e)return;etat._typeRapport=e.type;reveler(e.titre,e.sous,e.lignes,e.bilan,true)}
+function ouvrirArchive(id){const e=(etat.journal||[]).find(x=>x.id===id);if(!e)return;etat._typeRapport=e.type;etat._sceneRapport=e.scene||null;reveler(e.titre,e.sous,e.lignes,e.bilan,true)}
 // V24 : personnage en tête du rapport — Jimee content (mission), Jimee mort (mort), représentant de la Corp (agence, pillage, escouade)
 function persoRapport(type){
   if(type==='mort')return persoJimee({etat:'mort'});
@@ -4293,19 +4414,23 @@ function etapeRapport(etape){
   $('#rap-suivant').style.display=j?'block':'none';
   $('#rap-retour').style.display=j?'none':'block';
   $('#rap-fermer').style.display=j?'none':'block';
-  if(!j)$('#bilan').scrollTop=0;
+  if(!j){$('#bilan').scrollTop=0;animerBilan()}
 }
 // Fin du défilement (naturelle, ou accélérée en touchant le journal) : tout est visible, « Suivant » apparaît
 function finJournal(){
   minuteursRapport.forEach(clearTimeout);minuteursRapport=[];
   const ol=$('#journal');ol.classList.remove('en-cours');
   [...ol.children].forEach(li=>li.classList.add('vu'));
+  if(ol.children.length&&$('#rap-scene').innerHTML)sceneEtape(ol.children.length-1,false);
   if($('#journal').style.display!=='none')$('#rap-suivant').style.display='block';
 }
 function reveler(titre,sous,lignes,bilanHTML,archive){
   $('#rap-titre').textContent=titre;
   $('#rap-sous').textContent=sous;
-  $('#rap-perso').innerHTML=persoRapport(etat._typeRapport||'mission');
+  const scene=etat._sceneRapport;etat._sceneRapport=null;
+  $('#guide-doigt').style.display='none';document.querySelectorAll('.guide-cible').forEach(x=>x.classList.remove('guide-cible'));
+  $('#rap-perso').innerHTML=scene?'':persoRapport(etat._typeRapport||'mission');
+  $('#rap-scene').innerHTML=scene?sceneRapport(scene,lignes):'';$('#rap-scene').style.display=scene?'block':'none';
   const ol=$('#journal');ol.innerHTML='';
   lignes.forEach(e=>{const li=document.createElement('li');li.className=e.ton;li.innerHTML=`<time>${e.etiquette}</time><p>${e.txt}</p>`;ol.appendChild(li)});
   // V23 : le bilan est préparé tout de suite mais reste caché ; il s'affiche en plein écran après « Suivant »
@@ -4314,9 +4439,10 @@ function reveler(titre,sous,lignes,bilanHTML,archive){
   etapeRapport('journal');$('#rap-suivant').style.display='none';ol.classList.add('en-cours');
   $('#rapport').style.display='flex';
   const reduit=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  [...ol.children].forEach((li,i)=>minuteursRapport.push(setTimeout(()=>{li.classList.add('vu');li.scrollIntoView({block:'nearest'})},reduit?0:500*i+200)));
-  minuteursRapport.push(setTimeout(finJournal,reduit?0:500*lignes.length+400));
-  if(!archive)archiverRapport(titre,sous,lignes,bilanHTML,etat._typeRapport||'mission');
+  const pas=scene?RAPPORT_ANIME.pasMs:500;   // V26 : la scène prend un peu plus de temps par étape
+  [...ol.children].forEach((li,i)=>minuteursRapport.push(setTimeout(()=>{li.classList.add('vu');li.scrollIntoView({block:'nearest'});if(scene)sceneEtape(i,!reduit)},reduit?0:pas*i+200)));
+  minuteursRapport.push(setTimeout(finJournal,reduit?0:pas*lignes.length+400));
+  if(!archive)archiverRapport(titre,sous,lignes,bilanHTML,etat._typeRapport||'mission',scene);
   etat._typeRapport=null;
 }
 
@@ -4431,7 +4557,10 @@ function ouvrirRapport(){
     ?`${j.nom} est rentré vivant${r.blessures?`, avec ${r.blessures} blessure${r.blessures>1?'s':''} à soigner à l'infirmerie`:''}.`
     :`${j.nom} n'est pas rentré. Décès estimé à T${hFmt(r.heureMort*fh)} après l'atterrissage.`;
   etat._typeRapport=r.survie?'mission':'mort';
-  reveler(`Rapport de mission : ${m.nomPlanete}`,sous,r.etapes.map(e=>({ton:e.ton,etiquette:'T'+hFmt(e.h*fh),txt:e.txt})),bilan);
+  etat._sceneRapport={biome:m.biome,survie:!!r.survie,classe:j.classe};   // V26 : scène animée du rapport
+  verifierDeblocages();if(etat.guide&&missionsTerminees()>0){etat.guide=false;$('#ia').classList.remove('guide')}   // V26 : fin du guide, services gagnés (annoncés à la fermeture du rapport)
+  if(r.survie)bilan=butinVisuel(r,r.ressources||{})+bilan;else bilan=finVisuelle(j)+bilan;
+  reveler(`Rapport de mission : ${m.nomPlanete}`,sous,r.etapes.map(e=>({ton:e.ton,etiquette:'T'+hFmt(e.h*fh),txt:e.txt,id:e.id})),bilan);
 }
 
 function ouvrirRapportRecup(id){
@@ -4463,14 +4592,289 @@ function ouvrirRapportRecup(id){
 }
 $('#rap-fermer').onclick=()=>{minuteursRapport.forEach(clearTimeout);minuteursRapport=[];$('#rapport').style.display='none';tout()};
 $('#rap-suivant').onclick=()=>etapeRapport('bilan');
+// V26 : annonces et main du guide
+$('#annonce-aller').onclick=()=>fermerAnnonce($('#annonce-aller').dataset.aller);
+$('#annonce-plus-tard').onclick=()=>fermerAnnonce(null);
+for(const sel of ['#panneau','#panneau-carte','#hangar-fiche'])$(sel).addEventListener('scroll',()=>{if(etat.guide)placerDoigt()},{passive:true});
+window.addEventListener('resize',()=>{if(etat.guide)placerDoigt()});
 $('#rap-retour').onclick=()=>{etapeRapport('journal');finJournal()};
 $('#journal').addEventListener('click',()=>{if(minuteursRapport.length)finJournal()});
+
+/* =========================================================
+   15 bis. V26 — ARRIVÉE PROGRESSIVE, GUIDE, ANNONCES, BRUITAGES, RAPPORT ANIMÉ
+   ========================================================= */
+// ---------- Déblocages ----------
+const debloque=k=>!etat.deblocages||!DEBLOCAGES[k]||etat.deblocages[k]===true;
+const missionsTerminees=()=>(etat.stats.missions||0)+(etat.stats.morts||0);
+let annonces=[];   // services débloqués à annoncer (non sauvegardé : une annonce manquée n'est pas grave, le service reste ouvert)
+function verifierDeblocages(){
+  if(!etat.deblocages)return;
+  const n=missionsTerminees();
+  for(const [k,d] of Object.entries(DEBLOCAGES)){
+    if(etat.deblocages[k])continue;
+    const ok=(d.missions&&n>=d.missions)||(d.reussites&&(etat.stats.missions||0)>=d.reussites)||(d.morts&&(etat.stats.morts||0)>=d.morts)||(k==='agence'&&etat.abandons.length>0);
+    if(!ok)continue;
+    etat.deblocages[k]=true;
+    if(d.nom&&!annonces.includes(k))annonces.push(k);
+  }
+}
+// Un clic sur un service verrouillé : quel service ?
+function verrouClic(t){
+  const d=t.dataset;
+  if(d.marche&&!debloque('marche'))return 'marche';
+  if(d.atelier&&!debloque('atelier'))return 'atelier';
+  if(d.hangar&&!debloque('hangar'))return 'hangar';
+  if(d.vue==='univers'&&!debloque('hangar'))return 'hangar';
+  if(d.corpOnglet&&DEBLOCAGES[d.corpOnglet]&&!debloque(d.corpOnglet))return d.corpOnglet;
+  return null;
+}
+const NOMS_SERVICES={rapports:'Rapports',contrats:'Contrats',succes:'Succès',expeditions:'Expéditions',memorial:'Mémorial'};
+function messageVerrou(k){
+  const d=DEBLOCAGES[k],nom=d.nom||NOMS_SERVICES[k]||k;
+  if(d.morts)return `🔒 ${nom} : s'ouvre le jour où un Jimee ne revient pas. La Corp vous le souhaite le plus tard possible.`;
+  if(d.reussites)return `🔒 ${nom} : s'ouvre quand un Jimee revient avec quelque chose à vendre.`;
+  const reste=Math.max(1,d.missions-missionsTerminees());
+  return `🔒 ${nom} : disponible après ${d.missions} mission${d.missions>1?'s':''} terminée${d.missions>1?'s':''} (encore ${reste}).`;
+}
+function refuserVerrou(k){const m=messageVerrou(k);dire(m);bruit('non');tout();toast(m)}
+// Petite bulle temporaire en bas de l'écran (visible même quand le guide occupe la bulle de l'IA)
+let minuteurToast=0;
+function toast(m){const t=$('#toast');if(!t)return;t.textContent=m;t.classList.remove('vu');void t.offsetWidth;t.classList.add('vu');clearTimeout(minuteurToast);minuteurToast=setTimeout(()=>t.classList.remove('vu'),2800)}
+function appliquerVerrous(){
+  for(const [sel,k] of [['#ecran-vaisseau [data-marche]','marche'],['#ecran-vaisseau [data-atelier]','atelier'],['#ecran-vaisseau [data-hangar]','hangar'],['[data-vue="univers"]','hangar']])
+    document.querySelectorAll(sel).forEach(el=>{const v=!debloque(k);el.classList.toggle('verrou',v);if(v)el.setAttribute('aria-disabled','true');else el.removeAttribute('aria-disabled')});
+}
+
+// ---------- Annonces de la Corp (accueil, service débloqué) ----------
+function montrerAnnonce(){
+  const boite=$('#annonce');if(!boite||!annonces.length||boite.style.display==='flex')return;
+  if($('#rapport').style.display==='flex'||$('#tuto').style.display==='flex')return;
+  const k=annonces.shift(),bienvenue=k==='bienvenue',d=DEBLOCAGES[k]||{};
+  $('#annonce-perso').innerHTML=bienvenue?persoJimee({etat:'heureux'})+persoCorp():persoCorp();
+  $('#annonce-tampon').textContent=bienvenue?'Bienvenue !':'Nouveau !';
+  $('#annonce-titre').textContent=bienvenue?'Capitaine, voici votre vaisseau':d.nom;
+  $('#annonce-texte').textContent=bienvenue
+    ?'Vous ne partez pas en mission : vous louez un Jimee, vous l\'envoyez explorer, et vous espérez qu\'il revienne. La Corp vous guide pour la première fois.'
+    :d.phrase;
+  $('#annonce-plus-tard').style.display=bienvenue?'none':'block';
+  $('#annonce-aller').textContent=bienvenue?'C\'est parti':'Aller voir';
+  $('#annonce-aller').dataset.aller=bienvenue?'':(d.aller||'');
+  boite.style.display='flex';bruit('fanfare');
+}
+function fermerAnnonce(aller){
+  $('#annonce').style.display='none';
+  if(aller==='agence'){ecran='corp';corpOnglet='agence'}
+  else if(aller){ecran=aller;$('#panneau').scrollTop=0}
+  tout();
+}
+
+// ---------- Guide de la première mission ----------
+let guidePlanete=null;
+const missionExpress=()=>!!(etat.guide&&!etat.params.test&&missionsTerminees()===0);
+function etapeGuide(){
+  if(!etat.guide)return null;
+  if(missionsTerminees()>0){etat.guide=false;return null}
+  const m=etat.mission;
+  if(m)return Date.now()>=m.fin?'rapport':'attendre';
+  if(!etat.jimee)return 'recruter';
+  if(ecran!=='carte')return 'carte';
+  if(!selection)return 'planete';
+  return 'envoyer';
+}
+// La planète conseillée : la moins dangereuse de la galaxie (à danger égal, la plus courte)
+function planeteConseillee(){
+  if(!guidePlanete||!galaxie.planetes.some(p=>p.id===guidePlanete))
+    guidePlanete=[...galaxie.planetes].sort((a,b)=>a.danger-b.danger||dureeExplorationH(a)-dureeExplorationH(b))[0].id;
+  return galaxie.planetes.find(p=>p.id===guidePlanete);
+}
+function infoGuide(){
+  const e=etapeGuide();if(!e)return null;
+  const nom=etat.jimee?etat.jimee.nom:'votre Jimee';
+  if(e==='recruter')return ecran==='corp'?{txt:'Recrutez « L\'Essentiel » : un Jimee de classe G, 50 crédits.',cible:'[data-action="recruter"][data-classe="G"]'}
+    :ecran==='vaisseau'?{txt:'Touchez le guichet de la Jimee\'s Corp pour louer votre premier Jimee.',cible:'#ecran-vaisseau [data-ecran-corp]'}
+    :{txt:'Revenez au vaisseau, puis touchez le guichet de la Jimee\'s Corp.',cible:'.retour-flottant'};
+  if(e==='carte')return ecran==='vaisseau'?{txt:`${nom} est à bord. Ouvrez la carte stellaire pour lui choisir une planète.`,cible:'#ecran-vaisseau [data-holo]'}
+    :{txt:`Revenez au vaisseau, puis ouvrez la carte stellaire.`,cible:'.retour-flottant'};
+  if(e==='planete'){const p=planeteConseillee();
+    return carteVue!=='galaxie'?{txt:'Revenez à la vue Galaxie.',cible:'[data-vue="galaxie"]'}
+      :{txt:`Touchez ${p.nom} : la planète la plus calme du coin, selon la Corp.`,cible:`#carte-svg [data-planete="${p.id}"]`}}
+  if(e==='envoyer')return {txt:`Envoyez ${nom} ! Première mission express : retour dans une minute.`,cible:'[data-action="envoyer"]'};
+  if(e==='attendre')return {txt:`${nom} explore. D'habitude, une mission dure de 10 minutes à 4 heures : le jeu vous prévient au retour.`,cible:null};
+  return {txt:`${nom} a terminé, dans un sens ou dans l'autre. Ouvrez le rapport !`,cible:'[data-action="rapport"]'};
+}
+// Visible à l'écran ? Sans moteur de mise en page (tests jsdom), on se contente de vérifier qu'aucun parent n'est masqué.
+const sansMiseEnPage=()=>!document.body.getClientRects().length;
+const estVisible=el=>{if(!el)return false;if(el.getClientRects().length)return true;if(!sansMiseEnPage())return false;
+  for(let x=el;x&&x.nodeType===1;x=x.parentElement)if(x.style.display==='none'||getComputedStyle(x).display==='none')return false;return true};
+function majGuide(){
+  document.querySelectorAll('.guide-cible').forEach(x=>x.classList.remove('guide-cible'));
+  const g=infoGuide(),ia=$('#ia'),doigt=$('#guide-doigt');
+  ia.classList.toggle('guide',!!g);
+  if(!g){if(doigt)doigt.style.display='none';return}
+  ia.innerHTML=`${g.txt} <button type="button" class="lien passer-guide" data-action="guide-passer">Passer</button>`;
+  const cible=g.cible?[...document.querySelectorAll(g.cible)].find(estVisible):null;
+  if(!cible){doigt.style.display='none';return}
+  cible.classList.add('guide-cible');
+  placerDoigt();
+}
+// La main gantée pointe la cible : dessous si la place le permet, sinon dessus
+function placerDoigt(){
+  const d=$('#guide-doigt'),c=document.querySelector('.guide-cible');if(!d)return;
+  if(!c||!estVisible(c)){d.style.display='none';return}
+  const r=c.getBoundingClientRect(),haut=r.bottom+70>innerHeight;
+  d.style.display='block';d.classList.toggle('vers-bas',haut);
+  d.style.left=(r.left+r.width/2-22)+'px';d.style.top=(haut?r.top-66:r.bottom+4)+'px';
+}
+
+// ---------- Bruitages rétro (synthétisés, aucun fichier) ----------
+let ctxAudio=null;
+function bruit(type){
+  if(!etat||!etat.son)return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    ctxAudio=ctxAudio||new AC();const c=ctxAudio;if(c.state==='suspended')c.resume();
+    const t0=c.currentTime+.01;
+    const note=(f,deb,dur,forme,vol,vers)=>{const o=c.createOscillator(),g=c.createGain();o.type=forme||'square';o.frequency.setValueAtTime(f,t0+deb);
+      if(vers)o.frequency.exponentialRampToValueAtTime(vers,t0+deb+dur);g.gain.setValueAtTime(vol||.05,t0+deb);g.gain.exponentialRampToValueAtTime(.0001,t0+deb+dur);
+      o.connect(g);g.connect(c.destination);o.start(t0+deb);o.stop(t0+deb+dur+.03)};
+    const sons={
+      pop:()=>note(520,0,.09,'triangle',.09,900),
+      bon:()=>{note(660,0,.08,'square',.035);note(990,.07,.12,'square',.035)},
+      mauvais:()=>note(240,0,.2,'sawtooth',.035,150),
+      piece:()=>{note(988,0,.07,'square',.035);note(1319,.07,.2,'square',.035)},
+      fanfare:()=>[523,659,784,1047].forEach((f,i)=>note(f,i*.1,i===3?.35:.14,'square',.035)),
+      mort:()=>[392,370,349].forEach((f,i)=>note(f,i*.3,.28,'sawtooth',.04))||note(330,.9,.9,'sawtooth',.04,260),
+      depart:()=>note(150,0,.55,'sawtooth',.03,900),
+      non:()=>{note(210,0,.09,'square',.035);note(160,.11,.13,'square',.035)}};
+    (sons[type]||(()=>{}))();
+  }catch(e){}
+}
+
+// ---------- Rapport animé : scène du biome, le Jimee avance d'étape en étape ----------
+const RAPPORT_ANIME={pasMs:750};
+const CATEGORIE_ETAPE={atterrissage:'capsule',retour:'capsule',mine_fer:'minerai',filon_rare:'minerai',recolte:'plante',source_cristalline:'plante',champignons:'plante',
+  tresor:'coffre',epave:'coffre',autel:'coffre',ruines_anciennes:'coffre',embuscade:'monstre',essaim:'monstre',parasites:'monstre',faune_curieuse:'monstre',chasse:'monstre',
+  drones:'monstre',nid_dragon:'dragon',dragon:'dragon',gardien:'dragon',falaise:'danger',ravin:'danger',avalanche:'danger',eruption:'danger',geyser:'danger',tempete:'danger',
+  gaz_toxique:'danger',sables_mouvants:'danger',piege_ancien:'danger',reflets:'danger',desert:'danger',lac:'eau',riviere:'eau',pont_glace:'eau',donjon:'porte',grotte:'porte',
+  villageois:'marchand',marchand:'marchand',marche_nomade:'marchand',marche:'pas',carrefour:'pas',mirage:'pas',perso:'bulle'};
+// Pictogrammes au trait (dessinés autour de 0,0, environ 16 px)
+const PICTOS={
+  capsule:'<path d="M0 -8C5 -4 5 3 4 7H-4C-5 3 -5 -4 0 -8Z" fill="#FFFCF2"/><circle cx="0" cy="-1" r="2.2" fill="#3C5C8C"/>',
+  minerai:'<path d="M-6 -1L-3 -6H3L6 -1L0 7Z" fill="#8FD3E0"/><path d="M-6 -1H6M-3 -6L-1 -1L0 7M3 -6L1 -1" fill="none"/>',
+  plante:'<path d="M0 7V-1M0 1C-6 0 -7 -5 -6 -7C-2 -7 0 -4 0 1M0 -1C5 -2 6 -6 6 -8C2 -8 0 -5 0 -1" fill="#5E9E4A"/>',
+  coffre:'<rect x="-7" y="-3" width="14" height="10" rx="1.5" fill="#B9824F"/><path d="M-7 -3C-7 -8 7 -8 7 -3" fill="#D9A441"/><rect x="-1.5" y="-1" width="3" height="4" fill="#D9A441"/>',
+  monstre:'<path d="M-7 6C-8 -2 -5 -7 0 -7C5 -7 8 -2 7 6L4 3L1 6L-2 3L-5 6Z" fill="#8A5AA8"/><circle cx="-2.5" cy="-1" r="1.6" fill="#221B16"/><circle cx="2.5" cy="-1" r="1.6" fill="#221B16"/>',
+  dragon:'<path d="M-7 6L-3 -7L0 0L3 -6L7 6Z" fill="#E07B2A"/><path d="M-3 6L0 1L3 6" fill="#E9A93A"/>',
+  danger:'<path d="M0 -7L7 6H-7Z" fill="#E9A93A"/><path d="M0 -2V2" fill="none"/><circle cx="0" cy="4" r=".9" fill="#221B16"/>',
+  eau:'<path d="M0 -7C4 -1 6 2 6 3.5A6 6 0 0 1 -6 3.5C-6 2 -4 -1 0 -7Z" fill="#3F7CB8"/>',
+  porte:'<path d="M-6 7V0A6 6 0 0 1 6 0V7Z" fill="#6E5B49"/><circle cx="2.5" cy="3" r="1" fill="#221B16"/>',
+  marchand:'<path d="M-6 -2H6L5 7H-5Z" fill="#D9A441"/><path d="M-3 -2C-3 -7 3 -7 3 -2" fill="none"/>',
+  pas:'<ellipse cx="-3" cy="2" rx="2.2" ry="3.4" fill="#6E5B49"/><ellipse cx="3" cy="-2" rx="2.2" ry="3.4" fill="#6E5B49"/>',
+  bulle:'<path d="M-7 -6H7V3H-1L-5 7V3H-7Z" fill="#FFFCF2"/>',
+  crane:'<path d="M-6 1A6 6 0 1 1 6 1V4H3V7H-3V4H-6Z" fill="#FFFCF2"/><circle cx="-2.4" cy="0" r="1.6" fill="#221B16"/><circle cx="2.4" cy="0" r="1.6" fill="#221B16"/>',
+  etoile:'<path d="M0 -8Q1.3 -1.3 8 0Q1.3 1.3 0 8Q-1.3 1.3 -8 0Q-1.3 -1.3 0 -8Z" fill="#E9A93A"/>'};
+const pictoEtape=l=>l.ton==='mort'?'crane':CATEGORIE_ETAPE[l.id]||(l.ton==='bon'?'etoile':l.ton==='mauvais'?'danger':'bulle');
+const FOND_TON={bon:'#DDEFD3',mauvais:'#FBE3C8',mort:'#F4C9C2',neutre:'#FFF7E4'};
+// Ciel et décor par biome (le sol prend la couleur du biome)
+const CIEL_BIOME={roche:'#EBD3AE',ocean:'#C7E4EC',jungle:'#D3E8BE',volcan:'#F2BF98',glace:'#E0F0F7',desert:'#F7E1AA',marecage:'#D9DDB0',cristal:'#E6D6F2',ville:'#DCD5CA',fongique:'#F2D6E4',metal:'#CFD8DB'};
+function decorBiome(id,coul){
+  const E='stroke="#221B16" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"';
+  const rep=(xs,f)=>xs.map(f).join('');
+  switch(id){
+    case 'jungle':return rep([40,120,250,330],x=>`<path d="M${x} 112V78" ${E} fill="none"/><circle cx="${x}" cy="70" r="20" fill="#3F7A35" ${E}/><circle cx="${x-14}" cy="80" r="12" fill="#5E9E4A" ${E}/>`);
+    case 'glace':return rep([60,150,290,350],x=>`<path d="M${x-14} 112L${x} 64L${x+14} 112Z" fill="#FFFCF2" ${E}/><path d="M${x} 64L${x+4} 112" ${E} fill="none" opacity=".4"/>`);
+    case 'desert':return rep([70,280],x=>`<path d="M${x} 112V70Q${x} 62 ${x+6} 62Q${x+12} 62 ${x+12} 70V112Z M${x} 86H${x-10}V76" fill="#5E9E4A" ${E}/>`)+`<path d="M150 112Q200 84 250 112Z" fill="#E8C87A" ${E}/>`;
+    case 'volcan':return `<path d="M230 112L290 46H316L376 112Z" fill="#6E5B49" ${E}/><path d="M290 46Q303 58 316 46" fill="#E07B2A" ${E}/><circle cx="296" cy="30" r="9" fill="#CDBF9F" ${E}/><circle cx="312" cy="20" r="7" fill="#CDBF9F" ${E}/>`;
+    case 'ocean':return `<rect x="0" y="96" width="400" height="16" fill="#3F7CB8" ${E}/>`+rep([30,110,190,270,350],x=>`<path d="M${x} 100q8 -6 16 0" fill="none" ${E}/>`);
+    case 'marecage':return rep([50,90,270,320],x=>`<path d="M${x} 112V80M${x+8} 112V86" ${E} fill="none"/><ellipse cx="${x}" cy="78" rx="3" ry="8" fill="#6E5B49" ${E}/>`);
+    case 'cristal':return rep([60,140,300],x=>`<path d="M${x-12} 112L${x-4} 70L${x+4} 112Z" fill="#B48CD0" ${E}/><path d="M${x} 112L${x+10} 80L${x+18} 112Z" fill="#8A5AA8" ${E}/>`);
+    case 'ville':return rep([30,90,280,340],(x,i)=>`<path d="M${x} 112V${60+i*8}H${x+34}V${72+i*6}L${x+40} 112Z" fill="#B9AE9A" ${E}/><rect x="${x+8}" y="${76+i*8}" width="8" height="8" fill="#6E5B49"/>`);
+    case 'fongique':return rep([50,130,290,350],(x,i)=>`<path d="M${x-4} 112V${88-i*2}H${x+4}V112Z" fill="#FFFCF2" ${E}/><path d="M${x-18} ${90-i*2}Q${x} ${62-i*4} ${x+18} ${90-i*2}Z" fill="${i%2?'#E8A6A0':'#B48CD0'}" ${E}/>`);
+    case 'metal':return rep([40,300],x=>`<rect x="${x}" y="80" width="56" height="32" rx="3" fill="#9DB3AC" ${E}/><path d="M${x+28} 80V54" ${E} fill="none"/><circle cx="${x+28}" cy="52" r="5" fill="#D63A2F" ${E}/>`);
+    default:return rep([50,140,300,350],(x,i)=>`<path d="M${x-16} 112L${x-8} ${92-i*3}L${x+6} ${88-i*2}L${x+16} 112Z" fill="#B9AE9A" ${E}/>`);
+  }
+}
+// Abscisse et ordonnée d'une étape sur le chemin (le chemin ondule doucement)
+const xEtape=(i,n)=>n<2?200:36+i*(328/(n-1));
+const yChemin=x=>132+Math.sin(x/38)*4;
+function sceneRapport(scene,lignes){
+  const B=BIOMES.find(b=>b.id===scene.biome)||BIOMES[0],ciel=CIEL_BIOME[B.id]||'#EBD3AE',n=lignes.length;
+  const E='stroke="#221B16" stroke-linejoin="round" stroke-linecap="round"';
+  let chemin='M20 '+yChemin(20).toFixed(1);for(let x=30;x<=384;x+=10)chemin+=` L${x} ${yChemin(x).toFixed(1)}`;
+  const marques=lignes.map((l,i)=>{const x=xEtape(i,n),haut=n>9&&i%2?74:46,y=yChemin(x)-haut;
+    return `<g class="marque" data-i="${i}" style="transform:translate(${x.toFixed(1)}px,${y.toFixed(1)}px)"><line x1="0" y1="14" x2="0" y2="${haut-4}" ${E} stroke-width="2"/>
+      <circle r="14" fill="${FOND_TON[l.ton]||FOND_TON.neutre}" ${E} stroke-width="2.5"/><g ${E} stroke-width="1.5" transform="scale(1.3)">${PICTOS[pictoEtape(l)]}</g></g>`}).join('');
+  const cl=CLASSES_JIMEE.find(c=>c.id===scene.classe)||CLASSES_JIMEE[0];
+  return `<svg viewBox="0 0 400 170" class="scene" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+    <rect width="400" height="170" fill="${ciel}"/><rect y="70" width="400" height="60" fill="#FFF7E4" opacity=".35"/>
+    <circle cx="352" cy="30" r="15" fill="#FFF7E4" ${E} stroke-width="2.5"/>
+    <path d="M40 34q4 -12 16 -8q6 -10 18 -2q12 -2 10 10z" fill="#FFF7E4" ${E} stroke-width="2.2"/><path d="M200 22q4 -10 14 -6q6 -8 15 0q10 0 7 8z" fill="#FFF7E4" ${E} stroke-width="2.2"/>
+    <path d="M0 108Q60 88 130 102T260 96T400 104V170H0Z" fill="${B.couleur}" ${E} stroke-width="2.5" opacity=".45"/>
+    <g transform="translate(0 6)">${decorBiome(B.id,B.couleur)}</g>
+    <path d="M-5 118Q80 110 200 118T405 116V175H-5Z" fill="${B.couleur}" ${E} stroke-width="3"/>
+    <path d="M-5 150Q100 142 200 150T405 148V175H-5Z" fill="#221B16" opacity=".12"/>
+    <path d="${chemin}" fill="none" stroke="#221B16" stroke-width="2.5" stroke-dasharray="7 7" opacity=".55"/>
+    <g transform="translate(14 ${yChemin(14)-2})"><path d="M0 -26C9 -18 9 -4 7 4H-7C-9 -4 -9 -18 0 -26Z" fill="#FFFCF2" ${E} stroke-width="2.5"/><path d="M-7 -2L-12 6M7 -2L12 6" ${E} stroke-width="3"/><circle cx="0" cy="-12" r="3.5" fill="#3C5C8C" ${E} stroke-width="2"/></g>
+    ${marques}
+    <g id="scene-jimee" style="transform:translate(${xEtape(0,n)-20}px,${yChemin(xEtape(0,n))-60}px)"><g class="jimee-pas">${persoJimee({couleur:cl.couleur,lettre:cl.id,etat:'normal'}).replace('<svg ','<svg width="40" height="63" ')}</g></g>
+  </svg>`;
+}
+function sceneEtape(i,anime){
+  const svg=$('#rap-scene svg');if(!svg)return;
+  const n=svg.querySelectorAll('.marque').length;
+  svg.querySelectorAll('.marque').forEach(m=>{if(+m.dataset.i<=i)m.classList.add('vue')});
+  const j=svg.querySelector('#scene-jimee'),x=xEtape(i,n);
+  const li=$('#journal').children[i],ton=li?li.className.split(' ')[0]:'neutre';
+  const dx=ton==='mort'||j.classList.contains('mort')?46:20;   // mort : il s'écarte, le crâne de l'étape reste visible
+  j.style.transition=anime?'transform .55s cubic-bezier(.4,1.4,.6,1)':'none';
+  j.style.transform=`translate(${(x-dx).toFixed(1)}px,${(yChemin(x)-60).toFixed(1)}px)`;
+  const pas=j.querySelector('.jimee-pas');pas.classList.remove('saute');void pas.getBoundingClientRect();if(anime)pas.classList.add('saute');
+  if(ton==='mort'&&!j.classList.contains('mort')){j.classList.add('mort');
+
+    pas.innerHTML=persoJimee({etat:'mort'}).replace('<svg ','<svg width="40" height="63" ')}
+  if(anime)bruit(ton==='mort'?'mort':ton==='bon'?'bon':ton==='mauvais'?'mauvais':'pop');
+}
+
+// ---------- Bilan vivant : gros chiffres, butin qui saute, confettis ----------
+function butinVisuel(r,gains){
+  const nb=totalRessources(gains),val=valeurRessources(gains),objs=r.objets||[];
+  const fete=objs.some(o=>(RANG_RARETE[o.rarete]||0)>=RANG_RARETE.A)||!!r.legendaire||(r.eveils||[]).length>0||!!r.palier;
+  const tuiles=Object.entries(gains).sort((a,b)=>RES[b[0]].prix*b[1]-RES[a[0]].prix*a[1]).slice(0,12)
+    .map(([id,q],k)=>`<span class="tuile-butin res-${RES[id].rarete}" style="--k:${k}"><span class="icone-res">${iconeRessource(id)}</span><b>${q}</b></span>`).join('');
+  const cartes=objs.map((o,k)=>`<span class="carte-objet rar-fond-${o.rarete}" style="--k:${k+4}"><b class="rar-${o.rarete}">${o.nom}</b><small>classe ${o.rarete} · niv. ${o.niveau}</small></span>`).join('');
+  return `<div class="butin"${fete?' data-fete="1"':''}>
+    <div class="butin-chiffres">${r.credits?`<span><b data-compte="${r.credits}">${r.credits}</b><small>crédits</small></span>`:''}<span><b data-compte="${nb}">${nb}</b><small>unités ramenées</small></span><span><b data-compte="${val}">${val}</b><small>cr de valeur</small></span></div>
+    ${tuiles?`<div class="tuiles-butin">${tuiles}</div>`:''}
+    ${cartes?`<div class="cartes-objets">${cartes}</div>`:''}
+  </div>`;
+}
+function finVisuelle(j){
+  return `<div class="butin fin"><div class="fin-perso">${persoJimee({etat:'mort'})}</div><p class="tampon-fin">Contrat terminé</p><p class="fin-nom">${j.nom} · classe ${j.classe} · ${j.missions} mission${j.missions>1?'s':''}</p></div>`;
+}
+function animerBilan(){
+  const b=$('#butin-anime')||$('#bilan .butin');if(!b)return;
+  const reduit=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(b.classList.contains('fin')){if(!reduit)bruit('mort');return}
+  b.classList.remove('joue');void b.offsetWidth;b.classList.add('joue');
+  if(reduit)return;
+  b.querySelectorAll('[data-compte]').forEach(el=>{const cible=+el.dataset.compte,t0=performance.now(),d=900;
+    const pas=t=>{const f=Math.min(1,(t-t0)/d);el.textContent=Math.round(cible*(1-Math.pow(1-f,3)));if(f<1)requestAnimationFrame(pas)};requestAnimationFrame(pas)});
+  bruit('piece');
+  if(b.dataset.fete){setTimeout(()=>bruit('fanfare'),350);confettis()}
+}
+function confettis(){
+  const zone=$('#rapport'),coul=['#D63A2F','#E9A93A','#3F7CB8','#5E9E4A','#8A5AA8','#FFF7E4'];
+  for(let k=0;k<46;k++){const c=document.createElement('i');c.className='confetti';
+    c.style.cssText=`left:${Math.random()*100}%;background:${coul[k%coul.length]};animation-delay:${(Math.random()*.4).toFixed(2)}s;animation-duration:${(1.6+Math.random()*1.2).toFixed(2)}s;--d:${(Math.random()*120-60).toFixed(0)}px;--r:${(Math.random()*720-360).toFixed(0)}deg`;
+    zone.appendChild(c);setTimeout(()=>c.remove(),3400)}
+}
 
 /* =========================================================
    16. ÉVÉNEMENTS
    ========================================================= */
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-galaxie],[data-vue],[data-zoom],[data-planete],[data-action],[data-equiper],[data-retirer],[data-armoire],[data-ecran-corp],[data-holo],[data-labo],[data-retour-vaisseau],[data-jimee-ship],[data-marche],[data-hangar],[data-mode-marche],[data-marche-sel],[data-qte-delta],[data-qte-set],[data-piece],[data-corp-onglet],[data-filtre-type],[data-filtre-reset],[data-atelier],[data-atelier-onglet],[data-zone],[data-retour-carte],[data-retour-hangar],[data-soute]');if(!t)return;
+  {const v=verrouClic(t);if(v){refuserVerrou(v);return}}   // V26 : service pas encore débloqué
   if(t.dataset.galaxie){if(aGlisse){aGlisse=false;return}selectionGalaxie=t.dataset.galaxie;return tout()}
   if(t.dataset.vue){carteVue=t.dataset.vue;if(carteVue==='univers'&&!selectionGalaxie)vueU=vueU||vueUniversParDefaut();return tout()}
   if(t.dataset.zoom)return zoomer(t.dataset.zoom);
@@ -4507,6 +4911,9 @@ document.addEventListener('click',e=>{
   else if(a==='voyager')voyager(t.dataset.galaxieCible);
   else if(a==='finir-voyage')finirVoyageTest();
   else if(a==='tuto')lancerTuto();
+  else if(a==='tout-debloquer'){etat.deblocages=toutDebloque();annonces.length=0;dire('Tous les services sont débloqués (mode test).');tout()}
+  else if(a==='guide-relancer'){etat.guide=true;dire('Guide relancé : il s\'arrête après la prochaine mission terminée.');ecran='vaisseau';tout()}
+  else if(a==='guide-passer'){etat.guide=false;dire('Guide rangé. Bonne chance, capitaine.');tout()}
   else if(a==='carburant')acheterCarburant(+t.dataset.qte);
   else if(a==='ameliorer')ameliorer(t.dataset.quoi);
   else if(a==='acheter-manquant')acheterManquant(t.dataset.quoi);
@@ -4544,7 +4951,7 @@ document.addEventListener('click',e=>{
   else if(a==='grille'){t.textContent='Calcul…';setTimeout(()=>{lancerGrille();t.textContent='Relancer la grille'},30)}
   else if(a==='matrice'){t.textContent='Calcul…';setTimeout(()=>{lancerMatrice();t.textContent='Relancer la matrice'},30)}
   else if(a==='permission'&&'Notification' in window)Notification.requestPermission().then(tout);
-  else if(a==='reset'&&confirm('Effacer la partie et recommencer ?')){etat=etatInitial();marche={mode:'vendre',sel:null,qte:1};hangarSel=null;souteOuverte=false;corpOnglet='recrutement';expeSel=null;expeDuree=1;filtreSoute={...FILTRE_SOUTE_DEFAUT};atelierOnglet='equipement';univers=genererUnivers(etat.params.galaxie);galaxie=chargerGalaxie();selection=null;selectionGalaxie=null;vueU=null;carteVue='galaxie';cacheInfoGal.clear();ecran='vaisseau';tout()}
+  else if(a==='reset'&&confirm('Effacer la partie et recommencer ?')){etat=etatInitial();marche={mode:'vendre',sel:null,qte:1};hangarSel=null;souteOuverte=false;corpOnglet='recrutement';expeSel=null;expeDuree=1;filtreSoute={...FILTRE_SOUTE_DEFAUT};atelierOnglet='equipement';univers=genererUnivers(etat.params.galaxie);galaxie=chargerGalaxie();selection=null;selectionGalaxie=null;vueU=null;carteVue='galaxie';cacheInfoGal.clear();ecran='vaisseau';guidePlanete=null;annonces.length=0;if(!etat.tutoVu){etat.tutoVu=true;annonces.push('bienvenue')}tout()}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-planete],[data-galaxie],[data-retour-vaisseau]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}});
 // Quantité saisie au clavier sur le marché
@@ -4561,6 +4968,7 @@ document.addEventListener('change',e=>{
     sauver();derniereSync=0;synchroniser(true);return tout()}
   const k=e.target.dataset.param;if(!k)return;
   if(k==='test')etat.params.test=e.target.checked;
+  if(k==='son'){etat.son=e.target.checked;bruit('pop')}
   if(k==='ntfy')etat.params.ntfy=e.target.value;
   if(k==='galaxie'&&!etat.mission){etat.params.galaxie=e.target.value.trim()||'JIMEE-001';univers=genererUnivers(etat.params.galaxie);etat.galaxieActuelle='G0';etat.galaxiesVisitees=['G0'];galaxie=chargerGalaxie();cacheInfoGal.clear();selection=null;selectionGalaxie=null;vueU=null;dire(`Nouvel univers généré à partir de la graine « ${etat.params.galaxie} ». Retour à la galaxie de départ.`)}
   tout();
@@ -4598,7 +5006,9 @@ majAide();
 $('#tuto-suiv').addEventListener('click',()=>{tutoEtape===TUTO.length-1?fermerTuto():montrerTuto(tutoEtape+1)});
 $('#tuto-prec').addEventListener('click',()=>montrerTuto(tutoEtape-1));
 $('#tuto-passer').addEventListener('click',fermerTuto);
-if(!etat.tutoVu)lancerTuto();
+// V26 : une partie neuve commence par l'accueil de la Corp et le guide de la première mission (le diaporama reste au Labo)
+if(!etat.tutoVu){etat.tutoVu=true;annonces.unshift('bienvenue');sauver()}
+montrerAnnonce();
 finaliserRecuperations();
 finaliserExpeditions();
 finaliserVoyage();

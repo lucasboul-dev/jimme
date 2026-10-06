@@ -3,6 +3,7 @@
 Prérequis : Node 18+ et `npm i jsdom` (dans ce dossier ou au-dessus).
 
     node tests/tests.js        # 65 vérifications : missions, mort, agence, rechargement, duplication, univers, migration, probabilités, simulateur
+    node tests/tests-v26.js    # 50 vérifications : arrivée progressive, guide de la première mission, rapport animé, bilan, migration v21
     node tests/tests-v23.js    # 22 vérifications : rapport en deux temps, pièces du hangar visibles, fiches de la carte univers, marché / atelier sans vide
     node tests/tests-v22.js    # 20 vérifications : issues du gardien selon l'écart de puissance, +75 % de durée après la rencontre
     node tests/tests-v21.js    # 20 vérifications : fiche sans vignette, hangar flottant, armurerie sectionnée, tiroir de soute

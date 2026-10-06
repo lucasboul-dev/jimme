@@ -5,8 +5,10 @@ let w=ouvrir();let E=c=>w.ev(c);
 const txt=()=>{const b=w.document.body.cloneNode(true);b.querySelectorAll('script,style').forEach(x=>x.remove());return b.textContent.replace(/\s+/g,' ')};
 
 // --- Tutoriel
-t('tutoriel affiché au premier lancement',w.document.querySelector('#tuto').style.display==='flex'&&/Bienvenue à bord/.test(txt()));
-t('9 étapes, repères affichés',E('TUTO.length')===9&&w.document.querySelectorAll('#tuto-points i').length===9);
+// V26 : une partie neuve ne lance plus le diaporama ; elle commence par l'accueil de la Corp et le guide de la première mission (tests-v26.js).
+t('premier lancement : accueil de la Corp au lieu du diaporama',w.document.querySelector('#tuto').style.display!=='flex'&&w.document.querySelector('#annonce').style.display==='flex');
+E("document.querySelector('#annonce-aller').click();lancerTuto()");
+t('9 étapes, repères affichés (diaporama relancé depuis le Labo)',E('TUTO.length')===9&&w.document.querySelectorAll('#tuto-points i').length===9&&/Bienvenue à bord/.test(txt()));
 E("montrerTuto(0)");t('première étape : pas de « Précédent »',w.document.querySelector('#tuto-prec').style.visibility==='hidden');
 E("montrerTuto(TUTO.length-1)");
 t('dernière étape : bouton « Commencer », plus de « Passer »',w.document.querySelector('#tuto-suiv').textContent==='Commencer'&&w.document.querySelector('#tuto-passer').style.display==='none');
