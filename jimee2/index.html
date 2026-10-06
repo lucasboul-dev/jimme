@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#221B16">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Jimee 2</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="../icon-192.png">
+<style>
+/* ===== Jimee 2 — thème cartoon années 30 (repris de Jimee 1, V24) ===== */
+@font-face{font-family:'Luckiest Guy';src:url(../polices/luckiest-guy.woff2) format('woff2');font-display:swap}
+@font-face{font-family:'Nunito';src:url(../polices/nunito-500.woff2) format('woff2');font-weight:400 500;font-display:swap}
+@font-face{font-family:'Nunito';src:url(../polices/nunito-700.woff2) format('woff2');font-weight:600 700;font-display:swap}
+@font-face{font-family:'Nunito';src:url(../polices/nunito-800.woff2) format('woff2');font-weight:800 900;font-display:swap}
+@font-face{font-family:'Patrick Hand';src:url(../polices/patrick-hand.woff2) format('woff2');font-display:swap}
+:root{
+  --papier:#F4E7C8;--carte:#FFF7E4;--carte2:#F0DFBA;--sep:#DCC69B;--encre:#221B16;--doux:#6E5B49;
+  --corp:#D63A2F;--ia:#E9A93A;--ia-txt:#9A600A;--bon:#3F8A3A;--mauvais:#C8641C;--mort:#C42E26;--bleu:#3F7CB8;--violet:#8A5AA8;--sarcelle:#2F8F8B;--nuit:#1F2A45;
+  --ombre:3px 4px 0 var(--encre);--ombre-p:2px 3px 0 var(--encre);--bord:2.5px solid var(--encre);
+  --arrondi:16px 13px 17px 12px / 13px 17px 12px 16px;
+  --titre:'Luckiest Guy','Arial Black',Impact,sans-serif;--corps:'Nunito','Trebuchet MS',system-ui,sans-serif;--main:'Patrick Hand','Comic Sans MS',cursive;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;color:var(--encre);font-family:var(--corps);font-size:15px;line-height:1.4;font-weight:500;-webkit-tap-highlight-color:transparent}
+body{background:var(--nuit) url(../decors/carte.svg) center top/cover fixed;overflow:hidden}
+html::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(40,25,10,.3) 100%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .18 0 0 0 0 .1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  opacity:.45;mix-blend-mode:multiply;animation:grain .5s steps(2) infinite}
+@keyframes grain{0%{background-position:0 0,0 0}50%{background-position:0 0,-37px 21px}100%{background-position:0 0,13px -29px}}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px dashed var(--corp);outline-offset:2px}
+b{font-weight:800}
+.app{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+
+/* ----- barre du haut ----- */
+.barre{display:flex;align-items:center;gap:6px;margin:8px 8px 4px;padding:6px 6px 6px 8px;background:var(--carte);border:var(--bord);border-radius:var(--arrondi);box-shadow:var(--ombre);position:relative;z-index:5}
+.res{flex:1;display:flex;align-items:center;justify-content:center;gap:3px;padding:3px 2px;border-radius:10px;font-family:var(--titre);font-size:.95rem;letter-spacing:.02em;white-space:nowrap;transition:transform .2s}
+.res i{font-style:normal;font-size:1rem}
+.res.bump{animation:bump .35s}
+.res.vide{color:var(--mort)}
+@keyframes bump{50%{transform:scale(1.25)}}
+.rond{width:36px;height:36px;flex-shrink:0;border-radius:50%;border:var(--bord);background:var(--carte);font-family:var(--titre);font-size:1.05rem;box-shadow:var(--ombre-p)}
+.rond:active{transform:translate(2px,3px);box-shadow:none}
+
+/* ----- bulle de la Corp (guide et messages) ----- */
+.bulle{position:relative;margin:4px 12px 6px;padding:7px 12px;background:var(--carte);border:2px solid var(--encre);border-radius:14px 18px 15px 16px;box-shadow:var(--ombre-p);font-family:var(--main);font-size:1.05rem;line-height:1.25;z-index:5}
+.bulle:empty{display:none}
+.bulle::before{content:"IA de bord › ";color:var(--corp)}
+.bulle.guide{background:#FFF1CF;border-width:2.5px}
+.bulle.guide::before{content:"👉 "}
+.bulle .passer{float:right;margin:2px 0 0 8px;font-family:var(--corps);font-size:.76rem;color:var(--doux);text-decoration:underline}
+
+/* ----- missions en cours ----- */
+#missions{display:flex;flex-direction:column;gap:6px;margin:0 12px 6px;position:relative;z-index:5}
+#missions:empty{display:none}
+.mission{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--carte);border:var(--bord);border-radius:12px 10px 13px 11px;box-shadow:var(--ombre-p)}
+.mission .info{flex:1;min-width:0;font-size:.82rem;font-weight:700}
+.mission .info small{display:block;font-weight:600;color:var(--doux)}
+.mission .jauge{height:8px;margin-top:3px;border:2px solid var(--encre);border-radius:6px;background:var(--carte2);overflow:hidden}
+.mission .jauge i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--ia) 0 7px,#F3C463 7px 14px)}
+.mission .pastille-mission{width:34px;height:34px;flex-shrink:0;border-radius:50%;border:2px solid var(--encre);background:var(--carte2);overflow:hidden}
+.mission .pastille-mission img{width:100%;height:100%;object-fit:cover}
+.btn-transmission{padding:7px 10px 5px;border:2.5px solid var(--encre);border-radius:12px;background:var(--corp);color:var(--carte);font-family:var(--titre);font-size:.82rem;letter-spacing:.03em;text-shadow:1px 1px 0 var(--encre);box-shadow:0 3px 0 var(--encre);animation:clignote 1s ease-in-out infinite}
+.btn-transmission.rapport{background:var(--ia);color:var(--encre);text-shadow:none}
+@keyframes clignote{50%{transform:scale(1.07)}}
+
+/* ----- la fusée ----- */
+#vue-fusee{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 0 120px;-webkit-overflow-scrolling:touch}
+.fusee{position:relative;width:min(100% - 24px,430px);margin:0 auto}
+.nez{display:block;width:100%;height:auto;margin-bottom:-4px}
+.coque{position:relative;background:#9DB3AC;border-left:6px solid var(--encre);border-right:6px solid var(--encre);padding:0 10px}
+.coque::before,.coque::after{content:'';position:absolute;top:0;bottom:0;width:4px;background:repeating-linear-gradient(transparent 0 26px,rgba(34,27,22,.55) 26px 33px)}
+.coque::before{left:2px}.coque::after{right:2px}
+.etage{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 0;border-bottom:6px solid #76918B;position:relative}
+.etage:last-child{border-bottom:0}
+.piece{position:relative;height:128px;border:3px solid var(--encre);border-radius:10px;overflow:hidden;background:var(--carte2);text-align:left}
+.piece.large{grid-column:span 2}
+.piece>svg.fond{position:absolute;inset:0;width:100%;height:100%}
+.piece .nom-piece{position:absolute;left:5px;top:4px;z-index:3;padding:1px 7px 0;border:2px solid var(--encre);border-radius:999px;background:var(--carte);font-family:var(--titre);font-size:.7rem;letter-spacing:.03em;max-width:calc(100% - 10px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.piece .nom-piece small{font-family:var(--corps);font-weight:800;color:var(--doux)}
+.piece .places{position:absolute;right:5px;top:4px;z-index:3;font-size:.7rem;font-weight:900;padding:0 6px;border-radius:999px;background:rgba(255,247,228,.85);border:1.5px solid var(--encre)}
+.piece .habitants{position:absolute;left:0;right:0;bottom:4px;height:62px;z-index:2;pointer-events:none}
+.piece.cible{outline:4px dashed var(--ia);outline-offset:-4px}
+.piece.vide-piece{background:rgba(255,247,228,.35);border-style:dashed;display:flex;align-items:center;justify-content:center;font-family:var(--titre);font-size:.9rem;color:var(--encre);letter-spacing:.03em}
+.piece.vide-piece span{padding:6px 12px 4px;background:var(--carte);border:2px solid var(--encre);border-radius:999px;box-shadow:var(--ombre-p)}
+.piece.affame::after{content:'🍞?';position:absolute;right:6px;bottom:6px;z-index:4;font-size:.8rem}
+/* bulle de récolte */
+.recolte{position:absolute;right:8px;top:30px;z-index:4;display:flex;align-items:center;gap:3px;padding:3px 9px 2px 5px;border:2.5px solid var(--encre);border-radius:999px;background:#FFF1CF;font-family:var(--titre);font-size:.9rem;box-shadow:var(--ombre-p);animation:flotte 1.4s ease-in-out infinite;pointer-events:auto}
+.recolte.pleine{background:var(--ia)}
+@keyframes flotte{50%{transform:translateY(-5px)}}
+.vole{position:fixed;z-index:80;font-size:1.4rem;pointer-events:none;transition:transform .7s cubic-bezier(.5,-.3,.7,1),opacity .7s}
+/* un Jimee dans sa pièce */
+.habitant{position:absolute;bottom:0;width:38px;height:60px;pointer-events:auto;cursor:pointer;animation:marche var(--duree,9s) ease-in-out infinite alternate;animation-delay:var(--delai,0s)}
+.habitant svg{width:100%;height:100%;display:block}
+.habitant .tourne{width:100%;height:100%;animation:demi-tour var(--duree,9s) steps(1) infinite alternate;animation-delay:var(--delai,0s)}
+.habitant.dort{animation:none}.habitant.dort .tourne{animation:none}
+.habitant.dort::after{content:'z';position:absolute;right:-6px;top:-2px;font-family:var(--titre);font-size:.9rem;animation:zz 2s ease-in-out infinite}
+.habitant.blesse::before{content:'🩹';position:absolute;left:-4px;top:0;font-size:.8rem;z-index:2}
+.habitant.sel svg{filter:drop-shadow(0 0 3px var(--ia)) drop-shadow(0 0 3px var(--ia))}
+@keyframes marche{from{left:var(--de,6%)}to{left:var(--a,70%)}}
+@keyframes demi-tour{0%{transform:none}50%{transform:scaleX(-1)}}
+@keyframes zz{0%{opacity:0;transform:translate(0,4px)}50%{opacity:1}100%{opacity:0;transform:translate(6px,-10px)}}
+.moteurs{display:block;width:100%;height:auto;margin-top:-4px}
+.flamme{transform-origin:50% 0;animation:flamme .18s ease-in-out infinite alternate}
+@keyframes flamme{to{transform:scaleY(.82)}}
+.btn-etage{display:block;margin:10px auto 0;padding:8px 14px 6px;border:2.5px dashed var(--encre);border-radius:999px;background:rgba(255,247,228,.85);font-family:var(--titre);font-size:.85rem;letter-spacing:.03em}
+
+/* ----- boutons, feuilles, cartes ----- */
+.btn{display:block;width:100%;padding:11px 12px 9px;margin-top:10px;border:3px solid var(--encre);border-radius:14px 16px 13px 15px;background:var(--ia);color:var(--encre);font-family:var(--titre);font-size:1.02rem;letter-spacing:.04em;line-height:1.15;box-shadow:0 4px 0 var(--encre);transition:transform .06s,box-shadow .06s}
+.btn:active:not(:disabled){transform:translateY(4px);box-shadow:none}
+.btn.rouge{background:var(--corp);color:var(--carte);text-shadow:1.5px 1.5px 0 var(--encre)}
+.btn.sec{background:var(--carte)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:0 2px 0 var(--encre)}
+.btns{display:flex;gap:8px}.btns .btn{flex:1}
+.voile{position:fixed;inset:0;z-index:40;background:rgba(34,27,22,.5);display:none}
+.voile.ouvert{display:block}
+.feuille{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:520px;margin:0 auto;max-height:78vh;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 18px);background:var(--papier);border:3px solid var(--encre);border-bottom:0;border-radius:22px 22px 0 0;box-shadow:0 -4px 0 rgba(34,27,22,.35);transform:translateY(105%);transition:transform .28s cubic-bezier(.3,1.2,.5,1)}
+.feuille.ouverte{transform:none}
+.feuille h2{font-family:var(--titre);font-weight:400;font-size:1.4rem;line-height:1.1;letter-spacing:.03em;color:var(--corp);text-shadow:1.5px 1.5px 0 var(--encre)}
+.feuille h3{font-family:var(--titre);font-weight:400;font-size:1rem;letter-spacing:.04em;margin:14px 0 6px;color:var(--corp)}
+.fermer{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;border:var(--bord);background:var(--carte);font-weight:900;font-size:1.1rem;box-shadow:var(--ombre-p)}
+.sous{color:var(--doux);font-weight:700;font-size:.88rem;margin:2px 0 8px}
+.note{color:var(--doux);font-size:.85rem;margin-top:6px}
+.main{font-family:var(--main);font-size:1.08rem;line-height:1.25}
+.carte-blanche{padding:10px 12px;background:var(--carte);border:var(--bord);border-radius:var(--arrondi);box-shadow:var(--ombre-p);margin-top:8px}
+.ligne{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:2px dotted var(--sep)}
+.ligne:last-child{border-bottom:0}
+.puce{display:inline-block;padding:2px 9px;margin:2px 4px 2px 0;border:2px solid var(--encre);border-radius:999px;background:var(--carte);font-size:.8rem;font-weight:800}
+.puce.bon{background:#DDEFD3}.puce.mauvais{background:#F8D9C2}.puce.rare{background:#DCE8F5}.puce.legendaire{background:#FBE3B3}
+.etoiles{color:var(--ia);letter-spacing:1px;font-size:.95rem;text-shadow:1px 1px 0 var(--encre)}
+.etoiles .eteinte{color:#CDBF9F;text-shadow:none}
+/* fiche d'un Jimee */
+.tete-jimee{display:flex;gap:12px;align-items:flex-end}
+.portrait{width:84px;height:104px;flex-shrink:0;border:var(--bord);border-radius:14px 12px 15px 11px;padding:6px 4px 2px;background:radial-gradient(circle at 50% 40%,var(--carte),var(--carte2))}
+.portrait svg{width:100%;height:100%}
+.stat{display:grid;grid-template-columns:24px 82px 1fr 34px;align-items:center;gap:6px;margin:5px 0;font-weight:800;font-size:.9rem}
+.stat .j{height:12px;border:2px solid var(--encre);border-radius:7px;background:var(--carte2);overflow:hidden}
+.stat .j i{display:block;height:100%;background:var(--bon);border-right:2px solid var(--encre)}
+.stat .j i.bonus{background:var(--ia)}
+.stat>span:last-child{font-family:var(--titre);font-weight:400;text-align:right}
+.xp{height:8px;border:2px solid var(--encre);border-radius:6px;background:var(--carte2);overflow:hidden;margin-top:4px}.xp i{display:block;height:100%;background:var(--bleu)}
+.choix-jimee{display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;margin:6px 0;border:var(--bord);border-radius:12px 10px 13px 11px;background:var(--carte);box-shadow:var(--ombre-p);text-align:left}
+.choix-jimee.on{background:#FFF1CF;outline:3px solid var(--ia)}
+.choix-jimee:disabled{opacity:.5}
+.choix-jimee .mini{width:34px;height:52px;flex-shrink:0}.choix-jimee .mini svg{width:100%;height:100%}
+.choix-jimee .txt{flex:1;min-width:0;font-weight:800;font-size:.9rem}.choix-jimee .txt small{display:block;font-weight:600;color:var(--doux);font-size:.78rem}
+.choix-jimee .val{font-family:var(--titre);font-size:1.1rem}
+
+/* ----- carte des galaxies ----- */
+.ecran{position:fixed;inset:0;z-index:30;max-width:520px;margin:0 auto;display:none;flex-direction:column;background:var(--nuit) url(../decors/carte.svg) center/cover}
+.ecran.ouvert{display:flex}
+.ecran .tete-ecran{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 6px}
+.retour{padding:7px 15px 6px;border-radius:999px;background:var(--carte);border:var(--bord);box-shadow:var(--ombre-p);font-family:var(--titre);font-size:.88rem;letter-spacing:.03em}
+.titre-ecran{flex:1;text-align:center;font-family:var(--titre);font-size:1.15rem;letter-spacing:.04em;color:var(--carte);text-shadow:2px 2px 0 var(--encre)}
+#chemin{flex:1;overflow-y:auto;position:relative}
+#chemin svg.trace{position:absolute;left:0;top:0;width:100%;pointer-events:none}
+.galaxie-titre{position:absolute;left:50%;transform:translateX(-50%);padding:5px 14px 3px;border:var(--bord);border-radius:999px;background:var(--carte);box-shadow:var(--ombre-p);font-family:var(--titre);font-size:.95rem;letter-spacing:.03em;white-space:nowrap}
+.noeud{position:absolute;width:96px;transform:translate(-50%,-50%);text-align:center}
+.noeud .astre{position:relative;width:76px;height:76px;margin:0 auto;border-radius:50%;filter:drop-shadow(2px 3px 0 rgba(34,27,22,.6))}
+.noeud .astre img{width:100%;height:100%}
+.noeud.verrou .astre{filter:grayscale(1) brightness(.55)}
+.noeud.verrou .astre::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1.4rem}
+.noeud.gardien .astre::before{content:'☠';position:absolute;right:-6px;top:-6px;z-index:2;width:26px;height:26px;line-height:22px;border-radius:50%;border:2px solid var(--encre);background:var(--ia);font-size:.9rem}
+.noeud .nom{display:inline-block;margin-top:2px;padding:1px 8px 0;border:2px solid var(--encre);border-radius:999px;background:var(--carte);font-family:var(--titre);font-size:.72rem;letter-spacing:.02em;white-space:nowrap}
+.noeud.ici .astre{animation:flotte 1.4s ease-in-out infinite}
+.noeud .navette{position:absolute;left:-6px;top:-8px;font-size:1.3rem}
+
+/* ----- transmission (carte à la Reigns) ----- */
+#transmission,#rapport{position:fixed;inset:0;z-index:50;max-width:520px;margin:0 auto;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 14px);background:var(--papier)}
+#transmission.ouvert,#rapport.ouvert{display:flex}
+.entete-tr{text-align:center;font-family:var(--titre);letter-spacing:.04em;color:var(--corp);text-shadow:1.5px 1.5px 0 var(--encre);font-size:1.15rem}
+.entete-tr small{display:block;font-family:var(--corps);text-shadow:none;color:var(--doux);font-size:.8rem;font-weight:800;letter-spacing:0}
+.zone-carte{flex:1;position:relative;display:flex;align-items:center;justify-content:center;margin:8px 0;min-height:0}
+.carte-tr{position:relative;width:100%;max-width:440px;max-height:100%;overflow:hidden;display:flex;flex-direction:column;background:var(--carte);border:3px solid var(--encre);border-radius:var(--arrondi);box-shadow:5px 6px 0 var(--encre);touch-action:none;user-select:none;transition:transform .25s}
+.carte-tr.glisse{transition:none}
+.carte-tr .illu{flex-shrink:0;border-bottom:3px solid var(--encre)}
+.carte-tr .illu>svg{display:block;width:100%;height:auto}
+.carte-tr .texte{padding:12px 14px 14px;overflow-y:auto}
+.carte-tr h3{font-family:var(--titre);font-weight:400;font-size:1.5rem;letter-spacing:.03em;line-height:1.1;margin-bottom:4px}
+.carte-tr p{font-family:var(--main);font-size:1.3rem;line-height:1.25}
+.carte-tr .texte{padding:14px 16px 18px}
+.indice{position:absolute;top:14px;z-index:3;padding:6px 10px 4px;border:3px solid var(--encre);border-radius:10px;background:var(--carte);font-family:var(--titre);font-size:.9rem;letter-spacing:.02em;max-width:62%;opacity:0;transition:opacity .15s;box-shadow:var(--ombre-p)}
+.indice.g{left:10px;transform:rotate(-6deg)}.indice.d{right:10px;transform:rotate(6deg)}
+.options{display:flex;gap:10px}
+.option{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 8px 8px;border:3px solid var(--encre);border-radius:14px 12px 15px 11px;background:var(--carte);box-shadow:0 4px 0 var(--encre);text-align:center}
+.option:active{transform:translateY(4px);box-shadow:none}
+.option b{font-family:var(--titre);font-weight:400;font-size:.95rem;letter-spacing:.02em;line-height:1.1}
+.option .details{display:flex;gap:6px;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;flex-wrap:wrap}
+.option .visage{font-size:1.25rem;line-height:1}
+.option .fleche{font-family:var(--titre);color:var(--doux);font-size:.75rem}
+.resultat-tr{text-align:center}
+.tampon{display:inline-block;margin:6px 0;padding:5px 14px 3px;border:4px solid currentColor;border-radius:10px;font-family:var(--titre);font-size:1.6rem;letter-spacing:.06em;transform:rotate(-6deg);animation:tampon .35s cubic-bezier(.3,1.8,.5,1)}
+.tampon.ok{color:var(--bon)}.tampon.ko{color:var(--mauvais)}.tampon.mort{color:var(--mort)}
+@keyframes tampon{from{transform:scale(2.2) rotate(-14deg);opacity:0}to{transform:rotate(-6deg);opacity:1}}
+.gains{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+
+/* ----- rapport ----- */
+#rap-scene{border:3px solid var(--encre);border-radius:var(--arrondi);overflow:hidden;box-shadow:var(--ombre);background:var(--carte);flex-shrink:0;margin-top:8px}
+#rap-scene>svg{display:block;width:100%;height:auto}
+#rap-corps{flex:1;overflow-y:auto;margin:10px 0}
+.ligne-rap{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:2px dotted var(--sep);opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
+.ligne-rap.vu{opacity:1;transform:none}
+.ligne-rap .ic{width:30px;height:30px;flex-shrink:0}
+.ligne-rap p{flex:1}.ligne-rap.ko p{color:#8A3E0E}.ligne-rap.mort p{color:var(--mort);font-weight:800}
+.butin-chiffres{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.butin-chiffres span{flex:1;padding:8px 4px 6px;text-align:center;background:var(--carte);border:2.5px solid var(--encre);border-radius:12px 10px 13px 11px;box-shadow:var(--ombre-p);animation:surgit .45s cubic-bezier(.3,1.7,.5,1) both}
+.butin-chiffres b{display:block;font-family:var(--titre);font-weight:400;font-size:1.55rem;line-height:1;color:var(--ia-txt);text-shadow:1.5px 1.5px 0 var(--encre)}
+.butin-chiffres small{font-size:.74rem;font-weight:800;color:var(--doux)}
+@keyframes surgit{from{transform:scale(0) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+.grandes-etoiles{text-align:center;font-size:2.1rem;letter-spacing:6px;margin-top:6px}
+.grandes-etoiles span{display:inline-block;color:#CDBF9F;animation:surgit .4s both}
+.grandes-etoiles span.on{color:var(--ia);text-shadow:2px 2px 0 var(--encre)}
+.confetti{position:fixed;top:-12px;width:9px;height:14px;border:1.5px solid var(--encre);border-radius:2px;z-index:90;pointer-events:none;animation:tombe 2s cubic-bezier(.3,.6,.6,1) forwards}
+@keyframes tombe{to{transform:translate(var(--d),105vh) rotate(var(--r))}}
+
+/* ----- affiche commémorative de la Corp ----- */
+.affiche{position:relative;margin:10px auto 0;max-width:330px;padding:14px 14px 12px;text-align:center;border:4px solid var(--encre);border-radius:6px;background:repeating-conic-gradient(from 0deg at 50% 38%,#E14A3B 0 9deg,#D63A2F 9deg 18deg);box-shadow:6px 7px 0 var(--encre);color:var(--carte);overflow:hidden}
+.affiche::after{content:'';position:absolute;inset:6px;border:2px solid rgba(255,247,228,.7);border-radius:3px;pointer-events:none}
+.affiche .bandeau{font-family:var(--titre);font-size:.8rem;letter-spacing:.12em}
+.affiche .titre-aff{font-family:var(--titre);font-size:1.55rem;line-height:1.05;letter-spacing:.03em;text-shadow:2px 2px 0 var(--encre),-1px -1px 0 var(--encre)}
+.affiche .defunt{height:120px;margin:6px 0 2px}.affiche .defunt svg{height:100%;width:auto}
+.affiche .slogan-aff{font-family:var(--main);font-size:1.12rem;line-height:1.2;text-shadow:1px 1px 0 rgba(34,27,22,.6)}
+.affiche .reduc{position:absolute;right:10px;top:46px;width:70px;height:70px;border-radius:50%;border:3px solid var(--encre);background:var(--ia);color:var(--encre);font-family:var(--titre);font-size:1.25rem;line-height:64px;transform:rotate(12deg);box-shadow:var(--ombre-p)}
+.affiche .mentions{margin-top:6px;font-size:.62rem;opacity:.85}
+.affiches{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.affiches .affiche{margin:0;padding:8px;transform:rotate(var(--rot,0deg))}
+.affiches .affiche .titre-aff{font-size:1rem}.affiches .affiche .defunt{height:70px}.affiches .affiche .slogan-aff{font-size:.85rem}.affiches .affiche .reduc{display:none}
+
+/* ----- distributeur à capsules ----- */
+.distributeur{position:relative;width:220px;margin:6px auto 0}
+.distributeur svg{width:100%;height:auto;display:block}
+.manivelle{transform-box:fill-box;transform-origin:center;transition:transform .9s cubic-bezier(.4,1.5,.5,1)}
+.distributeur.tourne .manivelle{transform:rotate(360deg)}
+.capsule-tombe{position:absolute;left:50%;top:62%;width:44px;height:44px;margin-left:-22px;opacity:0}
+.distributeur.tourne .capsule-tombe{animation:chute .9s .5s cubic-bezier(.5,0,.7,1.4) forwards}
+@keyframes chute{0%{opacity:1;transform:translateY(-30px)}60%{transform:translateY(40px)}100%{opacity:1;transform:translateY(34px)}}
+.revelation{text-align:center;animation:surgit .5s cubic-bezier(.3,1.7,.5,1)}
+.revelation .grand{height:170px}.revelation .grand svg{height:100%;width:auto}
+.rarete{display:inline-block;padding:2px 12px 0;border:2.5px solid var(--encre);border-radius:999px;font-family:var(--titre);letter-spacing:.05em}
+.rarete.commun{background:var(--carte2)}.rarete.rare{background:#DCE8F5}.rarete.legendaire{background:var(--ia);animation:clignote 1s infinite}
+.album{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.album span{aspect-ratio:3/4;border:2px solid var(--encre);border-radius:6px;background:var(--carte2);display:flex;align-items:center;justify-content:center;font-weight:900;color:#CDBF9F}
+.album span svg{width:100%;height:100%}
+.onglets{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+.onglets button{padding:6px 12px 4px;border:2px solid var(--encre);border-radius:999px;background:var(--carte);font-family:var(--titre);font-size:.86rem;letter-spacing:.03em;box-shadow:var(--ombre-p)}
+.onglets button[aria-pressed="true"]{background:var(--ia)}
+
+/* ----- annonces, guide, toast ----- */
+#annonce{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(34,27,22,.6)}
+#annonce.ouvert{display:flex}
+#annonce .boite{position:relative;width:100%;max-width:400px;padding:16px 18px 18px;text-align:center;background:var(--carte);border:3px solid var(--encre);border-radius:var(--arrondi);box-shadow:6px 7px 0 var(--encre);animation:surgit .45s cubic-bezier(.3,1.6,.5,1)}
+#annonce .persos{display:flex;justify-content:center;align-items:flex-end;gap:2px;height:120px}
+#annonce .persos svg{height:100%;width:auto}
+#annonce h2{font-family:var(--titre);font-weight:400;font-size:1.4rem;line-height:1.1;color:var(--corp);text-shadow:1.5px 1.5px 0 var(--encre);margin:6px 0}
+#guide-doigt{position:fixed;z-index:58;width:44px;height:60px;display:none;pointer-events:none;animation:doigt 1s ease-in-out infinite}
+#guide-doigt svg{width:100%;height:100%;filter:drop-shadow(2px 3px 0 rgba(34,27,22,.35))}
+#guide-doigt.vers-bas svg{transform:rotate(180deg)}
+@keyframes doigt{0%,100%{translate:0 0}50%{translate:0 8px}}
+#guide-doigt.vers-bas{animation-name:doigt-bas}@keyframes doigt-bas{0%,100%{translate:0 0}50%{translate:0 -8px}}
+.guide-cible{animation:cible 1.1s ease-in-out infinite!important;position:relative;z-index:6}
+@keyframes cible{0%,100%{box-shadow:0 0 0 3px #E9A93A,0 0 0 0 rgba(233,169,58,.8)}60%{box-shadow:0 0 0 3px #E9A93A,0 0 0 14px rgba(233,169,58,0)}}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);z-index:95;max-width:min(92vw,440px);padding:9px 14px;background:var(--carte);border:2.5px solid var(--encre);border-radius:14px 16px 13px 15px;box-shadow:var(--ombre);font-family:var(--main);font-size:1.05rem;line-height:1.25;text-align:center;opacity:0;transform:translate(-50%,16px);pointer-events:none;transition:opacity .2s,transform .25s cubic-bezier(.3,1.6,.5,1)}
+#toast.vu{opacity:1;transform:translate(-50%,0)}
+input[type=text]{width:100%;padding:9px;margin-top:4px;border:var(--bord);border-radius:10px;background:var(--carte);font:inherit}
+label.bascule{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-weight:700}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="barre">
+    <span class="res" id="r-credits"><i>💰</i><b>0</b></span>
+    <span class="res" id="r-rations"><i>🍞</i><b>0</b></span>
+    <span class="res" id="r-carburant"><i>⛽</i><b>0</b></span>
+    <span class="res" id="r-ferraille"><i>⚙️</i><b>0</b></span>
+    <button class="rond" data-action="reglages" aria-label="Réglages">☰</button>
+  </div>
+  <p class="bulle" id="bulle"></p>
+  <div id="missions"></div>
+  <div id="vue-fusee"><div class="fusee" id="fusee"></div></div>
+</div>
+
+<div class="ecran" id="ecran-carte">
+  <div class="tete-ecran"><button class="retour" data-action="fermer-carte">‹ Fusée</button><span class="titre-ecran">Carte stellaire</span><span style="width:78px"></span></div>
+  <div id="chemin"></div>
+</div>
+
+<div class="voile" id="voile" data-action="fermer-feuille"></div>
+<div class="feuille" id="feuille" role="dialog" aria-modal="true"></div>
+
+<div id="transmission" role="dialog" aria-modal="true"></div>
+<div id="rapport" role="dialog" aria-modal="true"></div>
+
+<div id="annonce" role="dialog" aria-modal="true"><div class="boite" id="annonce-boite"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="guide-doigt" aria-hidden="true"><svg viewBox="0 0 44 60"><g fill="#FFFCF2" stroke="#221B16" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="16" y="2" width="11" height="28" rx="5.5"/><path d="M9 26Q7 50 22 52Q37 50 36 28Q36 23 31 23H12Q9 23 9 26Z"/>
+  <path d="M27 28V36M20 30V36M13 30V36" fill="none" stroke-width="2.5"/><rect x="11" y="48" width="22" height="9" rx="3"/></g></svg></div>
+
+<script>
+/* =====================================================================
+   JIMEE 2 — « Fallout Shelter dans une fusée, des cartes à la Reigns pendant les missions,
+   et une Corp qui transforme chaque mort en argument de vente. »  Conception : CONCEPTION.md
+   ===================================================================== */
+/* ---------- 1. Outils ---------- */
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+function seedDe(str){let h=2166136261>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function mulberry32(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function creerRng(str){const r=mulberry32(seedDe(String(str)));return{f:r,int:(a,b)=>a+Math.floor(r()*(b-a+1)),pick:arr=>arr[Math.floor(r()*arr.length)],chance:p=>r()<p,
+  pondere:(l,c='poids')=>{const tot=l.reduce((s,x)=>s+x[c],0);let x=r()*tot;for(const it of l){x-=it[c];if(x<0)return it}return l[l.length-1]},
+  melanger:arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}}}
+const borne=(x,a,b)=>Math.max(a,Math.min(b,x));
+const pluriel=(n,mot,motP)=>`${n} ${n>1?(motP||mot+'s'):mot}`;
+function fmtTemps(ms){ms=Math.max(0,ms);const s=Math.ceil(ms/1000);if(s<60)return s+' s';const m=Math.floor(s/60),r=s%60;if(m<60)return r?`${m} min ${String(r).padStart(2,'0')}`:`${m} min`;const h=Math.floor(m/60);return `${h} h ${String(m%60).padStart(2,'0')}`}
+const maintenant=()=>Date.now();
+
+/* ---------- 2. Configuration (toutes les valeurs d'équilibrage sont ici) ---------- */
+const CONFIG={
+  version:1, cle:'jimee2-sauvegarde',
+  depart:{credits:250,rations:30,carburant:24,ferraille:12},
+  rationToutesLesMin:6,              // un Jimee mange 1 ration toutes les 6 minutes (pas en mission)
+  facteurFaim:.5,                    // production divisée par deux sans rations
+  maxEtages:8, coutEtage:{credits:300,ferraille:30},
+  soinMin:{dehors:30,infirmerie:[10,7,4]},   // minutes pour guérir une blessure
+  xpNiveaux:[0,2,5,9,14,20,27,35,44,54],      // XP cumulée pour atteindre les niveaux 1 à 10
+  mission:{dureeMin:3,dureeParPalier:3.2,carburant:6,carburantParPalier:2,difficulte:2.2,difficultePalier:.42,gardienBonus:1,
+    chanceBase:55,chanceParPoint:12,chanceMin:5,chanceMax:97,equipeBonus:1,expressMs:45000,testFacteur:.1},
+  risques:{
+    sur:   {diff:-2,gain:.4,blessure:0,  mort:0,     mortPalier:0,     nom:'prudent'},
+    normal:{diff:0, gain:1, blessure:.5, mort:.04,   mortPalier:.005,  nom:'normal'},
+    risque:{diff:1.5,gain:2,blessure:1,  mort:.25,   mortPalier:.015,  nom:'risqué'}},
+  butin:{credits:20,creditsPalier:8,ferraille:3,ferraillePalier:1,gadgetRisque:.3},
+  capsule:{prix:100,rarete:[{id:'commun',poids:75},{id:'rare',poids:22},{id:'legendaire',poids:3}],hommageReduc:.3,deuilBonusLeg:.01,deuilBonusMax:.1},
+  vente:{gadget:[15,40,90]}
+};
+const STATS={muscles:{nom:'Muscles',ic:'💪'},jambes:{nom:'Jambes',ic:'🦵'},cervelle:{nom:'Cervelle',ic:'🧠'}};
+const CLES_STATS=Object.keys(STATS);
+const RARETES={commun:{nom:'Commun',stats:[1,4],etoiles:1},rare:{nom:'Rare',stats:[2,6],etoiles:2},legendaire:{nom:'Légendaire',stats:[4,8],etoiles:3}};
+const PERSONNALITES={
+  temeraire:{nom:'Téméraire',desc:'Sans réponse, il choisit l\'option la plus risquée.',repliques:['On y va, on verra bien.','Le danger, c\'est mon deuxième prénom. Le premier, c\'est Jimee.','J\'ai pas peur. J\'ai juste les jambes qui tremblent.']},
+  prudent:  {nom:'Prudent',desc:'Sans réponse, il choisit l\'option la plus sûre.',repliques:['Il y a sûrement un chemin plus long et plus sûr.','J\'ai relu le contrat. Deux fois.','Je préfère revenir avec rien qu\'avec un nuage au-dessus de la tête.']},
+  curieux:  {nom:'Curieux',desc:'Sans réponse, il choisit l\'option qui rapporte le plus.',repliques:['Et si je touchais ce truc qui brille ?','C\'est quoi, ce bruit ? Je vais voir.','Tout ce qui est inconnu mérite d\'être léché.']},
+  flemmard: {nom:'Flemmard',desc:'Sans réponse, il tire à pile ou face.',repliques:['On est obligés de marcher ?','Je fais une pause et j\'arrive.','Réveillez-moi quand il y a du butin.']}};
+const TRAITS={
+  costaud:    {nom:'Costaud',desc:'+2 muscles en mission.',mission:{muscles:2}},
+  pied_leger: {nom:'Pied léger',desc:'+2 jambes en mission.',mission:{jambes:2}},
+  petit_genie:{nom:'Petit génie',desc:'+2 cervelle en mission.',mission:{cervelle:2}},
+  chanceux:   {nom:'Chanceux',desc:'Butin des missions ×1,3.',butin:1.3},
+  increvable: {nom:'Increvable',desc:'Survit une fois par mission à ce qui aurait dû le tuer (blessé à la place).',increvable:true},
+  gourmand:   {nom:'Gourmand',desc:'Mange double ration, mais travaille 25 % plus vite.',faim:2,travail:1.25},
+  maladroit:  {nom:'Maladroit',desc:'−1 à toutes les épreuves, mais ramasse tout ce qui traîne (butin ×1,2).',mission:{muscles:-1,jambes:-1,cervelle:-1},butin:1.2},
+  bavard:     {nom:'Bavard',desc:'Remonte le moral de la pièce : +15 % de production.',travail:1.15}};
+const SYL1=['Bim','Glo','Zu','Pat','Kro','Mi','Tur','Bo','Fli','Ga','Pim','Zo','Ru','Lu','Ta'];
+const SYL2=['zo','rp','bert','lou','nk','mo','dule','x','pi','ston','ble','gus','ric','lin','pou'];
+const COULEURS_JIMEE=['#E9A93A','#5E9E4A','#3F7CB8','#D63A2F','#8A5AA8','#2F8F8B','#E07B2A','#C9BBA0','#E8A6A0'];
+const CHAPEAUX=['aucun','casquette','melon','haut','noeud','helice'];
+const NOMS_CHAPEAUX={aucun:'tête nue',casquette:'casquette',melon:'chapeau melon',haut:'haut-de-forme',noeud:'nœud',helice:'casquette à hélice'};
+
+/* Pièces de la fusée. prod : ressource produite par minute et par Jimee = base[niveau] × (0,5 + 0,1 × caractéristique) */
+const PIECES={
+  cockpit:  {nom:'Cockpit',fixe:true,large:true,desc:'Le poste de pilotage. Touchez-le pour ouvrir la carte stellaire et lancer des missions.',missions:[1,2,3]},
+  guichet:  {nom:'Guichet de la Corp',fixe:true,desc:'Capsules de recrutement, vente de gadgets et mémorial des Jimees. La Corp vous remercie de votre fidélité.'},
+  dortoir:  {nom:'Dortoir',places:[2,3,4],desc:'Des couchettes. Chaque dortoir accueille des Jimees ; ceux qui ne travaillent pas y font la sieste.',cout:{credits:150,ferraille:10}},
+  cantine:  {nom:'Cantine',prod:'rations',stat:'jambes',base:[1,1.6,2.4],cap:[30,60,100],desc:'Produit les rations. Les Jimees aux grandes jambes servent plus vite.',cout:{credits:150,ferraille:10}},
+  reacteur: {nom:'Réacteur',prod:'carburant',stat:'muscles',base:[1,1.6,2.4],cap:[30,60,100],desc:'Produit le carburant des missions. Il faut des muscles pour pelleter.',cout:{credits:180,ferraille:15}},
+  atelier:  {nom:'Atelier',prod:'gadget',stat:'cervelle',base:[1,1.5,2.2],cap:[2,3,4],progres:10,ferraille:5,desc:'Fabrique des gadgets (+1 à +3 à une caractéristique) avec 5 ferrailles chacun. La cervelle accélère le travail.',cout:{credits:250,ferraille:25}},
+  infirmerie:{nom:'Infirmerie',places:[2,2,3],desc:'Les Jimees blessés y guérissent trois fois plus vite qu\'ailleurs.',cout:{credits:200,ferraille:20}}};
+const CONSTRUCTIBLES=['dortoir','cantine','reacteur','atelier','infirmerie'];
+const COUT_NIVEAU=[null,{credits:300,ferraille:30},{credits:700,ferraille:70}];   // pour passer au niveau 2, puis 3
+const RESSOURCES={credits:{nom:'crédits',ic:'💰'},rations:{nom:'rations',ic:'🍞'},carburant:{nom:'carburant',ic:'⛽'},ferraille:{nom:'ferraille',ic:'⚙️'},gadget:{nom:'gadgets',ic:'🔧'}};
+
+/* Biomes (repris de Jimee 1) */
+const BIOMES=[
+  {id:'roche',nom:'Rocheux',couleur:'#9A8F84'},{id:'ocean',nom:'Océanique',couleur:'#3D8BD9'},{id:'jungle',nom:'Jungle',couleur:'#3FA65C'},
+  {id:'volcan',nom:'Volcanique',couleur:'#E07A2E'},{id:'glace',nom:'Glacial',couleur:'#BFE3F2'},{id:'desert',nom:'Désert',couleur:'#D9B36C'},
+  {id:'marecage',nom:'Marécage',couleur:'#5E7A4A'},{id:'cristal',nom:'Monde cristallin',couleur:'#A77BE8'},{id:'ville',nom:'Ville morte',couleur:'#9C958A'},
+  {id:'fongique',nom:'Forêt fongique',couleur:'#C58FB0'},{id:'metal',nom:'Lune de métal',couleur:'#8E9AA3'}];
+const IMAGE_BIOME={ville:'metal',fongique:'jungle'};
+const imageBiome=id=>`../planetes/${IMAGE_BIOME[id]||id}.webp`;
+
+/* Galaxies : chemin de planètes de difficulté croissante (palier = rang global de la planète) */
+const GALAXIES=[
+  {nom:'Le Faubourg',slogan:'Idéal pour débuter. Selon la brochure.',biomes:['roche','jungle','desert','ocean','marecage','glace']},
+  {nom:'Les Confins',slogan:'Ici, les assurances ne remboursent plus.',biomes:['volcan','fongique','glace','cristal','desert','ville']},
+  {nom:'Le Grand Vide',slogan:'Personne n\'en est revenu. Enfin, presque personne.',biomes:['metal','cristal','volcan','ville','fongique','metal']}];
+const SYL_PLANETE=['Kep','Zar','Nym','Vex','Tru','Olo','Quo','Bra','Mel','Fyr','Gon','Ixa','Pol','Rhu','Sel','Tam'];
+function genererPlanetes(){
+  const r=creerRng('JIMEE2/PLANETES'),l=[];
+  GALAXIES.forEach((g,gi)=>g.biomes.forEach((b,i)=>{const t=gi*6+i,M=CONFIG.mission,gardien=i===5;
+    l.push({id:'P'+t,palier:t,galaxie:gi,rang:i,gardien,biome:b,nom:r.pick(SYL_PLANETE)+r.pick(['ban','lune','tor','ion','ar','ox','ia','eth'])+'-'+r.int(10,99),
+      dureeMin:Math.round(M.dureeMin+t*M.dureeParPalier),carburant:M.carburant+t*M.carburantParPalier,
+      difficulte:+(M.difficulte+t*M.difficultePalier+(gardien?M.gardienBonus:0)).toFixed(1)})}));
+  return l;
+}
+const PLANETES=genererPlanetes();
+
+/* Transmissions (cartes à la Reigns). {nom} = le Jimee qui agit. biomes : null = partout.
+   Chaque option : texte, caractéristique testée, risque (sur / normal / risque). */
+const CARTES=[
+  {id:'pont',titre:'Le pont de lianes',biomes:['jungle','marecage','fongique'],picto:'danger',texte:'Un pont de lianes au-dessus d\'un ravin. Il grince. Il grince beaucoup.',
+    o:[{txt:'Traverser en courant',stat:'jambes',risque:'risque'},{txt:'Faire le grand tour',stat:'jambes',risque:'sur'}]},
+  {id:'coffre',titre:'Le coffre rouillé',biomes:null,picto:'coffre',texte:'Un coffre à moitié enterré. Le cadenas a l\'air plus solide que {nom}.',
+    o:[{txt:'Le fracasser',stat:'muscles',risque:'normal'},{txt:'Crocheter la serrure',stat:'cervelle',risque:'normal'}]},
+  {id:'bete',titre:'Une bête affamée',biomes:['jungle','roche','desert','glace'],picto:'monstre',texte:'Une créature pleine de dents bloque le passage. Elle a l\'air de trouver {nom} appétissant.',
+    o:[{txt:'Se battre',stat:'muscles',risque:'risque'},{txt:'Lui jeter une ration et filer',stat:'jambes',risque:'sur'}]},
+  {id:'ruines',titre:'Les ruines anciennes',biomes:['desert','ville','cristal','roche'],picto:'porte',texte:'Des ruines couvertes d\'inscriptions. Une porte, un mécanisme, et une odeur de piège.',
+    o:[{txt:'Déchiffrer le mécanisme',stat:'cervelle',risque:'normal'},{txt:'Forcer la porte',stat:'muscles',risque:'risque'}]},
+  {id:'lave',titre:'La rivière de lave',biomes:['volcan'],picto:'danger',texte:'Une rivière de lave. De l\'autre côté, un éclat de minerai brillant.',
+    o:[{txt:'Sauter de rocher en rocher',stat:'jambes',risque:'risque'},{txt:'Construire une passerelle',stat:'cervelle',risque:'normal'}]},
+  {id:'tempete',titre:'La tempête',biomes:['desert','glace','metal'],picto:'danger',texte:'Une tempête se lève. On ne voit plus ses propres pieds, ce qui est dommage pour marcher.',
+    o:[{txt:'Avancer quand même',stat:'muscles',risque:'normal'},{txt:'S\'abriter et attendre',stat:'cervelle',risque:'sur'}]},
+  {id:'marchand',titre:'Le marchand louche',biomes:null,picto:'marchand',texte:'Un marchand propose « un objet unique, pas cher, pas volé ». Il cligne de l\'œil. Les deux.',
+    o:[{txt:'Marchander',stat:'cervelle',risque:'sur'},{txt:'Lui faucher son sac',stat:'jambes',risque:'risque'}]},
+  {id:'grotte',titre:'La grotte sombre',biomes:['roche','glace','cristal','volcan'],picto:'porte',texte:'Une grotte. Il fait noir. Quelque chose respire, et ce n\'est pas {nom}.',
+    o:[{txt:'Explorer à tâtons',stat:'cervelle',risque:'risque'},{txt:'Ramasser ce qui traîne à l\'entrée',stat:'jambes',risque:'sur'}]},
+  {id:'falaise',titre:'La falaise',biomes:['roche','glace','ville','metal'],picto:'danger',texte:'Un filon de minerai, tout en haut d\'une falaise. Évidemment.',
+    o:[{txt:'Escalader',stat:'muscles',risque:'risque'},{txt:'Chercher un sentier',stat:'jambes',risque:'normal'}]},
+  {id:'source',titre:'La source étrange',biomes:['jungle','fongique','cristal','ocean'],picto:'eau',texte:'Une source qui brille. Elle sent la fraise et le danger.',
+    o:[{txt:'Boire une gorgée',stat:'muscles',risque:'normal'},{txt:'Analyser l\'eau',stat:'cervelle',risque:'sur'}]},
+  {id:'epave',titre:'L\'épave d\'une navette',biomes:null,picto:'coffre',texte:'Une navette écrasée. Sur la carlingue : « Propriété de la Jimee\'s Corp ». Personne à bord. Tant mieux, ou tant pis.',
+    o:[{txt:'Démonter le moteur',stat:'cervelle',risque:'normal'},{txt:'Fouiller la soute',stat:'muscles',risque:'sur'}]},
+  {id:'sables',titre:'Les sables mouvants',biomes:['desert','marecage'],picto:'danger',texte:'{nom} s\'enfonce. Doucement. Mais sûrement.',
+    o:[{txt:'Se débattre',stat:'muscles',risque:'risque'},{txt:'Ne plus bouger et réfléchir',stat:'cervelle',risque:'normal'}]},
+  {id:'champignons',titre:'Les spores',biomes:['fongique','marecage','jungle'],picto:'plante',texte:'Des champignons géants relâchent des spores. Tout devient très beau. Trop beau.',
+    o:[{txt:'Retenir sa respiration et courir',stat:'jambes',risque:'normal'},{txt:'Cueillir quelques chapeaux',stat:'cervelle',risque:'risque'}]},
+  {id:'drones',titre:'Les drones gardiens',biomes:['metal','ville','cristal'],picto:'monstre',texte:'Trois drones de sécurité. Ils scannent {nom}. Ils n\'ont pas l\'air convaincus.',
+    o:[{txt:'Les pirater',stat:'cervelle',risque:'risque'},{txt:'Se cacher derrière un mur',stat:'jambes',risque:'sur'}]},
+  {id:'iceberg',titre:'La glace qui craque',biomes:['glace','ocean'],picto:'eau',texte:'La banquise craque sous les pieds de {nom}. Il y a des poissons dessous. Des gros.',
+    o:[{txt:'Sauter jusqu\'à la rive',stat:'jambes',risque:'normal'},{txt:'Pêcher un gros poisson',stat:'muscles',risque:'risque'}]},
+  {id:'villageois',titre:'Les villageois',biomes:['jungle','desert','ocean','fongique'],picto:'marchand',texte:'Des villageois accueillent {nom} comme un dieu. C\'est flatteur, mais les dieux finissent souvent sur un autel.',
+    o:[{txt:'Jouer le dieu',stat:'cervelle',risque:'risque'},{txt:'Remercier et s\'éclipser',stat:'jambes',risque:'sur'}]},
+  {id:'gisement',titre:'Le gisement',biomes:null,picto:'minerai',texte:'Un gisement de ferraille à ciel ouvert. Il n\'y a plus qu\'à creuser.',
+    o:[{txt:'Creuser à fond',stat:'muscles',risque:'normal'},{txt:'Ramasser en surface',stat:'muscles',risque:'sur'}]},
+  {id:'cristaux',titre:'Les cristaux chantants',biomes:['cristal','glace'],picto:'minerai',texte:'Des cristaux qui chantent faux. Ils valent une fortune, et ils coupent comme des rasoirs.',
+    o:[{txt:'Les arracher',stat:'muscles',risque:'risque'},{txt:'Les accorder pour qu\'ils se détachent',stat:'cervelle',risque:'normal'}]},
+  {id:'geyser',titre:'Le geyser',biomes:['volcan','glace','ocean'],picto:'eau',texte:'Le sol tremble. Un geyser va jaillir sous les pieds de {nom}. Dans trois, deux…',
+    o:[{txt:'Se laisser propulser',stat:'jambes',risque:'risque'},{txt:'S\'écarter tranquillement',stat:'jambes',risque:'sur'}]},
+  {id:'robot',titre:'Le robot abandonné',biomes:['metal','ville','desert'],picto:'monstre',texte:'Un vieux robot de la Corp. Il demande à {nom} son numéro de contrat.',
+    o:[{txt:'Inventer un numéro',stat:'cervelle',risque:'normal'},{txt:'Le débrancher',stat:'muscles',risque:'normal'}]}
+];
+const CARTES_GARDIEN=[
+  {id:'gardien',titre:'Le gardien de la planète',biomes:null,picto:'dragon',gardien:true,texte:'Le gardien de la planète se dresse devant {nom}. Il est grand. Il est très grand. Et il garde un trésor.',
+    o:[{txt:'L\'affronter',stat:'muscles',risque:'risque'},{txt:'Le contourner par ruse',stat:'cervelle',risque:'risque'}]}];
+const TEXTES_RESULTAT={
+  ok:{muscles:['{nom} pousse, tire, cogne. Ça cède.','Un grand coup bien placé. Problème réglé.'],jambes:['{nom} file comme une flèche. Personne n\'a rien vu.','Trois bonds, une pirouette, et c\'est passé.'],cervelle:['{nom} réfléchit très fort. Et ça marche.','Une idée lumineuse. Rare, mais efficace.']},
+  ko:{muscles:['{nom} pousse de toutes ses forces. La chose ne bouge pas, {nom} si.','Trop lourd. Beaucoup trop lourd.'],jambes:['{nom} trébuche au pire moment.','Un faux pas, puis un deuxième.'],cervelle:['{nom} réfléchit très fort. Rien ne se passe.','L\'idée semblait bonne. Elle ne l\'était pas.']},
+  mort:['Le signal de {nom} s\'interrompt. La Corp prépare déjà l\'affiche.','{nom} ne répond plus. Silence radio. Silence tout court.','Un dernier « oups » dans la radio, puis plus rien.']};
+
+/* ---------- 3. Dessins (trait d'encre, d'après les croquis de Lucas) ---------- */
+const ENCRE='#221B16',PAPIER_PERSO='#FFFCF2';
+const TETE_JIMEE='M318 860 C300 780 360 728 440 742 C520 755 588 800 590 880 C592 948 548 972 490 966 C420 960 334 940 318 860 Z';
+let numPerso=0;
+function chapeauSvg(type,coul){
+  const S=`stroke="${ENCRE}" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"`;
+  const g=c=>`<g transform="translate(452 752) rotate(14)">${c}</g>`;
+  switch(type){
+    case 'haut':return g(`<rect x="-44" y="-112" width="88" height="104" rx="8" fill="${ENCRE}" ${S}/><rect x="-44" y="-40" width="88" height="20" fill="${coul}" ${S} stroke-width="9"/><ellipse cx="0" cy="-6" rx="80" ry="14" fill="${ENCRE}" ${S}/>`);
+    case 'melon':return g(`<path d="M-56 -4Q-58 -76 0 -78Q58 -76 56 -4Z" fill="#3A2E25" ${S}/><path d="M-50 -20H50" stroke="${coul}" stroke-width="14"/><ellipse cx="0" cy="-2" rx="82" ry="14" fill="#3A2E25" ${S}/>`);
+    case 'casquette':return g(`<path d="M-56 2Q-52 -64 4 -64Q58 -60 58 2Z" fill="${coul}" ${S}/><path d="M44 0Q104 -4 126 18Q80 28 36 14Z" fill="${coul}" ${S}/><circle cx="2" cy="-64" r="9" fill="${coul}" ${S} stroke-width="8"/>`);
+    case 'noeud':return g(`<path d="M10 -14L-34 -44L-34 18Z" fill="${coul}" ${S}/><path d="M10 -14L54 -44L54 18Z" fill="${coul}" ${S}/><circle cx="10" cy="-14" r="13" fill="${coul}" ${S}/>`);
+    case 'helice':return g(`<path d="M-56 2Q-52 -58 0 -58Q52 -58 56 2Z" fill="${coul}" ${S}/><path d="M-56 2Q0 -10 56 2" fill="none" ${S} stroke="${PAPIER_PERSO}" stroke-width="10"/><path d="M0 -58V-92" fill="none" ${S}/><g class="helice"><ellipse cx="-34" cy="-94" rx="34" ry="9" fill="#D63A2F" ${S} stroke-width="9"/><ellipse cx="34" cy="-94" rx="34" ry="9" fill="#3F7CB8" ${S} stroke-width="9"/></g>`);
+    default:return '';
+  }
+}
+// etat : normal, heureux, mort, blesse ; chapeau et couleur : apparence tirée à la capsule
+function persoJimee({couleur='#E9A93A',chapeau='aucun',etat='normal',etoiles=false,lettre=''}={}){
+  const id='jt'+(++numPerso),mort=etat==='mort',gris='#B9AE9A',ceinture=mort?gris:couleur;
+  const yeux=mort
+    ?`<g stroke="${ENCRE}" stroke-width="16" stroke-linecap="round"><path d="M372 822l60 62M432 822l-60 62"/><path d="M470 790l64 56M534 790l-64 56"/></g>`
+    :`<g clip-path="url(#${id})" stroke="none"><ellipse cx="392" cy="862" rx="54" ry="34" transform="rotate(62 392 862)" fill="${ENCRE}"/><ellipse cx="520" cy="818" rx="70" ry="42" transform="rotate(24 520 818)" fill="${ENCRE}"/>
+      ${etat==='heureux'?`<ellipse cx="404" cy="832" rx="11" ry="15" fill="${PAPIER_PERSO}"/><ellipse cx="528" cy="796" rx="13" ry="17" fill="${PAPIER_PERSO}"/>`:''}</g>`;
+  return `<svg class="perso jimee${mort?' mort':''}" viewBox="270 640 340 570" aria-hidden="true">
+  <defs><clipPath id="${id}"><path d="${TETE_JIMEE}"/></clipPath></defs>
+  <ellipse cx="450" cy="1190" rx="135" ry="14" fill="${ENCRE}" opacity=".18"/>
+  <g class="j-corps" fill="${mort?'#E4DCCB':PAPIER_PERSO}" stroke="${ENCRE}" stroke-width="13" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="528" cy="1168" rx="34" ry="21"/>
+    <path d="M326 930 C318 1000 322 1080 330 1146 L512 1146 C516 1080 516 1000 514 930 Z"/>
+    <path d="M330 1100 L512 1100 L512 1122 L330 1122 Z" fill="${ceinture}" stroke-width="10"/>
+    <ellipse cx="425" cy="1170" rx="76" ry="24"/>
+    <path d="M368 994 C370 1040 368 1080 372 1112 C360 1118 344 1116 334 1110" fill="none"/>
+    ${lettre?`<circle cx="455" cy="1030" r="26" fill="${ceinture}" stroke-width="9"/><text x="455" y="1041" text-anchor="middle" font-family="Luckiest Guy,Arial Black,sans-serif" font-size="32" fill="${ENCRE}" stroke="none">${lettre}</text>`:''}
+    ${etat==='blesse'?`<path d="M360 1010l60 40M370 1050l40 -50" stroke="#D63A2F" stroke-width="10"/>`:''}
+  </g>
+  <g class="j-tete" fill="${mort?'#ECE5D6':PAPIER_PERSO}" stroke="${ENCRE}" stroke-width="13" stroke-linejoin="round">
+    <path d="${TETE_JIMEE}"/>${yeux}<path d="${TETE_JIMEE}" fill="none"/>
+    ${etat==='blesse'?`<rect x="470" y="880" width="70" height="26" rx="6" fill="#F4E7C8" transform="rotate(-20 505 893)" stroke-width="8"/>`:''}
+    ${mort?`<ellipse cx="450" cy="700" rx="70" ry="16" fill="none" stroke="#E9A93A" stroke-width="11" transform="rotate(12 450 700)"/>`:chapeauSvg(chapeau,couleur)}
+  </g>
+  ${etoiles?`<g fill="#E9A93A" stroke="${ENCRE}" stroke-width="6" stroke-linejoin="round"><path d="M560 950l9 20 20 9-20 9-9 20-9-20-20-9 20-9z"/><path d="M296 860l7 15 15 7-15 7-7 15-7-15-15-7 15-7z"/></g>`:''}
+  </svg>`;
+}
+const dessinJimee=(j,etat)=>persoJimee({couleur:j.couleur,chapeau:j.chapeau,etat:etat||(j.blesse>0?'blesse':'normal'),etoiles:j.rarete==='legendaire'});
+function persoCorp(){
+  return `<svg class="perso corp" viewBox="285 495 250 850" aria-hidden="true">
+  <ellipse cx="445" cy="1322" rx="80" ry="10" fill="${ENCRE}" opacity=".18"/>
+  <g fill="${PAPIER_PERSO}" stroke="${ENCRE}" stroke-width="13" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M378 1000 L386 1302 L446 1302 L455 1002 Z" fill="#E6D7B8"/><path d="M428 1080 L434 1298" fill="none" stroke-width="9"/>
+    <path d="M384 1300 C380 1336 492 1342 504 1322 C510 1304 470 1300 446 1300 Z"/>
+    <path d="M362 776 C356 860 366 940 374 1012 L456 1012 C462 940 462 860 452 776 Z"/>
+    <path d="M404 778 L398 806 L410 860 L424 806 L416 778 Z" fill="#D63A2F" stroke-width="8"/>
+    <path d="M402 812 C410 880 404 940 398 980" fill="none"/><path d="M372 960 C384 994 410 1004 432 990" fill="none" stroke-width="10"/>
+    <path d="M362 690 C364 720 366 750 364 778 L452 778 C440 752 430 740 422 736"/>
+  </g>
+  <g class="c-tete" fill="${PAPIER_PERSO}" stroke="${ENCRE}" stroke-width="13" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M352 700 C300 660 296 560 352 522 C404 488 470 512 474 580 C476 600 472 612 470 618 C500 604 538 628 524 660 C514 682 486 676 474 670 C470 690 462 700 458 704 C450 730 432 742 412 740 C384 738 366 722 352 700 Z"/>
+    <path d="M362 628 C336 622 330 664 356 672" fill="none" stroke-width="11"/>
+    <circle cx="410" cy="590" r="30"/><circle cx="452" cy="584" r="27"/>
+    <circle cx="420" cy="592" r="8" fill="${ENCRE}" stroke="none"/><circle cx="460" cy="586" r="8" fill="${ENCRE}" stroke="none"/>
+    <path d="M402 698 C420 712 446 708 466 688" fill="none" stroke-width="10"/>
+  </g></svg>`;
+}
+
+// Intérieur des pièces (viewBox 200×128 ; le cockpit 400×128)
+function fondPiece(type,niveau){
+  const E=`stroke="${ENCRE}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
+  const mur={cockpit:'#3C5C8C',guichet:'#F2D6C8',dortoir:'#DCE8F5',cantine:'#F7E1AA',reacteur:'#E8D3A8',atelier:'#E8D3A8',infirmerie:'#E3F0E6'}[type]||'#E8D3A8';
+  const w=type==='cockpit'?400:200;
+  let s=`<rect width="${w}" height="128" fill="${mur}"/><rect y="100" width="${w}" height="28" fill="#B9824F" ${E}/>`;
+  for(let x=24;x<w;x+=48)s+=`<line x1="${x}" y1="100" x2="${x-10}" y2="128" stroke="${ENCRE}" stroke-width="2" opacity=".3"/>`;
+  switch(type){
+    case 'cockpit':
+      s=`<rect width="400" height="128" fill="#9DB3AC"/><path d="M60 92Q60 18 200 14Q340 18 340 92Z" fill="#2B3F66" ${E} stroke-width="4"/>
+        <circle cx="270" cy="62" r="20" fill="#E07B2A" ${E}/><path d="M120 40l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#FFF7E4"/><circle cx="170" cy="30" r="2" fill="#FFF7E4"/><circle cx="310" cy="40" r="2" fill="#FFF7E4"/>
+        <path d="M200 14V92M60 70H340" ${E} stroke-width="3" opacity=".5"/>
+        <rect y="92" width="400" height="36" fill="#76918B" ${E}/>
+        ${[90,140,260,310].map((x,i)=>`<circle cx="${x}" cy="110" r="10" fill="#FFF7E4" ${E}/><line x1="${x}" y1="110" x2="${x+6}" y2="${104+i}" stroke="#D63A2F" stroke-width="2.5"/>`).join('')}
+        <path d="M180 128V100Q180 88 200 88Q220 88 220 100V128Z" fill="#D63A2F" ${E}/>`;break;
+    case 'guichet':
+      s+=`<rect x="20" y="58" width="160" height="42" fill="#B9824F" ${E}/>`;
+      for(let k=0;k<6;k++)s+=`<path d="M${16+k*28} 14H${44+k*28}L${44+k*28} 34Q${30+k*28} 44 ${16+k*28} 34Z" fill="${k%2?'#FFF7E4':'#D63A2F'}" ${E}/>`;
+      s+=`<circle cx="100" cy="72" r="13" fill="#D63A2F" ${E}/><ellipse cx="100" cy="72" rx="7" ry="6" fill="#FFF7E4" stroke="${ENCRE}" stroke-width="2"/><path d="M150 58q0 -14 12 -14q12 0 12 14z" fill="#D9A441" ${E}/>`;break;
+    case 'dortoir':
+      for(const y of [40,72]){s+=`<rect x="14" y="${y}" width="74" height="16" rx="4" fill="#FFF7E4" ${E}/><rect x="14" y="${y-6}" width="22" height="10" rx="4" fill="#F4E7C8" ${E}/>`;
+        s+=`<rect x="112" y="${y}" width="74" height="16" rx="4" fill="#FFF7E4" ${E}/><rect x="164" y="${y-6}" width="22" height="10" rx="4" fill="#F4E7C8" ${E}/>`}
+      s+=`<path d="M14 30V100M88 30V100M112 30V100M186 30V100" ${E}/><circle cx="100" cy="20" r="9" fill="#FFF7E4" ${E}/>`;break;
+    case 'cantine':
+      s+=`<rect x="12" y="56" width="176" height="44" fill="#D9A441" ${E}/><rect x="12" y="50" width="176" height="10" fill="#B9824F" ${E}/>`;
+      s+=`<path d="M40 50V34H76V50" fill="#9DB3AC" ${E}/><path d="M48 28q4 -8 0 -14M60 28q4 -8 0 -14" fill="none" ${E} stroke-width="2"/><path d="M120 50Q120 30 142 30Q164 30 164 50Z" fill="#D63A2F" ${E}/><rect x="96" y="66" width="40" height="22" fill="#FFF7E4" ${E}/>`;break;
+    case 'reacteur':
+      s+=`<rect x="60" y="22" width="80" height="78" rx="18" fill="#76918B" ${E}/><circle cx="100" cy="58" r="20" fill="#E07B2A" ${E}/><path d="M92 62q8 -18 16 0" fill="#E9A93A" ${E} stroke-width="2"/>
+        <circle cx="34" cy="40" r="14" fill="#FFF7E4" ${E}/><line x1="34" y1="40" x2="42" y2="32" stroke="#D63A2F" stroke-width="3"/><path d="M140 40H180M140 76H186" ${E} stroke-width="8" stroke="#B07F25"/><path d="M140 40H180M140 76H186" ${E} stroke-width="3" opacity=".4"/>`;break;
+    case 'atelier':
+      s+=`<rect x="14" y="16" width="100" height="56" fill="#B9824F" ${E}/>`;
+      for(let x=24;x<110;x+=14)for(let y=24;y<70;y+=14)s+=`<circle cx="${x}" cy="${y}" r="1.8" fill="${ENCRE}" opacity=".5"/>`;
+      s+=`<path d="M34 30l6 26M58 28v30M80 34l-4 22" ${E} stroke-width="5"/><rect x="120" y="60" width="70" height="12" fill="#B9824F" ${E}/><path d="M128 72V100M182 72V100" ${E}/><circle cx="155" cy="48" r="11" fill="#D9A441" ${E}/><circle cx="155" cy="48" r="4" fill="#B9824F" ${E} stroke-width="2"/>`;break;
+    case 'infirmerie':
+      s+=`<rect x="20" y="64" width="90" height="16" rx="4" fill="#FFF7E4" ${E}/><path d="M24 80V100M106 80V100" ${E}/><rect x="20" y="56" width="26" height="10" rx="4" fill="#FFF7E4" ${E}/>
+        <rect x="134" y="20" width="44" height="44" rx="6" fill="#FFF7E4" ${E}/><path d="M156 30V54M144 42H168" stroke="#D63A2F" stroke-width="9" stroke-linecap="round"/><path d="M130 100V74H180V100" fill="#9DB3AC" ${E}/>`;break;
+  }
+  // niveau : petites étoiles au mur
+  if(niveau>1)for(let k=0;k<niveau-1;k++)s+=`<path d="M${w-20-k*16} 18l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" fill="#E9A93A" stroke="${ENCRE}" stroke-width="1.5"/>`;
+  return `<svg class="fond" viewBox="0 0 ${w} 128" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${s}</svg>`;
+}
+const NEZ_SVG=`<svg class="nez" viewBox="0 0 430 150" aria-hidden="true"><path d="M3 150Q20 60 215 6Q410 60 427 150Z" fill="#D63A2F" stroke="${ENCRE}" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M60 150Q90 80 215 40Q340 80 370 150" fill="none" stroke="#A92A22" stroke-width="6"/><circle cx="215" cy="98" r="26" fill="#D9A441" stroke="${ENCRE}" stroke-width="5"/><circle cx="215" cy="98" r="16" fill="#3C5C8C" stroke="${ENCRE}" stroke-width="4"/>
+  <path d="M205 90q6 -8 14 -6" fill="none" stroke="#FFF7E4" stroke-width="4" stroke-linecap="round"/></svg>`;
+const MOTEURS_SVG=`<svg class="moteurs" viewBox="0 0 430 170" aria-hidden="true">
+  <g class="flamme"><path d="M150 96Q160 150 190 168Q200 140 215 168Q230 140 240 168Q270 150 280 96Z" fill="#E9A93A" stroke="${ENCRE}" stroke-width="5" stroke-linejoin="round"/><path d="M180 96Q195 130 215 140Q235 130 250 96Z" fill="#FFF7E4"/></g>
+  <path d="M3 0H427L400 70H30Z" fill="#9DB3AC" stroke="${ENCRE}" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M30 20Q-30 60 -10 130L70 70Z" fill="#D63A2F" stroke="${ENCRE}" stroke-width="6" stroke-linejoin="round" transform="translate(14 0)"/>
+  <path d="M400 20Q460 60 440 130L360 70Z" fill="#D63A2F" stroke="${ENCRE}" stroke-width="6" stroke-linejoin="round" transform="translate(-14 0)"/>
+  <rect x="150" y="66" width="130" height="32" rx="8" fill="#76918B" stroke="${ENCRE}" stroke-width="6"/>
+  ${[60,110,320,370].map(x=>`<circle cx="${x}" cy="30" r="5" fill="${ENCRE}" opacity=".5"/>`).join('')}</svg>`;
+function distributeurSvg(){
+  const E=`stroke="${ENCRE}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"`;
+  const billes=[[80,70,'#D63A2F'],[112,62,'#3F7CB8'],[142,74,'#E9A93A'],[96,96,'#5E9E4A'],[128,98,'#8A5AA8'],[156,104,'#E8A6A0'],[70,104,'#2F8F8B'],[110,124,'#E07B2A']];
+  return `<svg viewBox="0 0 220 300" aria-hidden="true"><circle cx="110" cy="92" r="80" fill="#DCE8F5" ${E}/>
+    ${billes.map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="16" fill="${c}" ${E} stroke-width="3"/><path d="M${x-16} ${y}H${x+16}" stroke="${ENCRE}" stroke-width="2"/>`).join('')}
+    <path d="M60 40q20 -24 50 -26" fill="none" stroke="#FFF7E4" stroke-width="7" stroke-linecap="round" opacity=".8"/>
+    <path d="M40 160H180L196 290H24Z" fill="#D63A2F" ${E}/><rect x="30" y="156" width="160" height="16" rx="6" fill="#A92A22" ${E}/>
+    <text x="110" y="206" text-anchor="middle" font-family="Luckiest Guy,Arial Black,sans-serif" font-size="17" fill="#FFF7E4" stroke="${ENCRE}" stroke-width="1">JIMEE'S CORP</text>
+    <rect x="84" y="242" width="52" height="34" rx="8" fill="#221B16" ${E}/><g class="manivelle"><circle cx="160" cy="232" r="16" fill="#D9A441" ${E}/><path d="M160 232H186" ${E} stroke-width="7"/><circle cx="188" cy="232" r="7" fill="#FFF7E4" ${E}/></g></svg>`;
+}
+const CAPSULE_SVG=c=>`<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="${c||'#D63A2F'}" stroke="${ENCRE}" stroke-width="3"/><path d="M3 22H41" stroke="${ENCRE}" stroke-width="3"/><path d="M3 22A19 19 0 0 0 41 22Z" fill="#FFF7E4" stroke="${ENCRE}" stroke-width="3"/></svg>`;
+
+/* Scène d'un biome (repris du rapport animé de Jimee 1) */
+const CIEL_BIOME={roche:'#EBD3AE',ocean:'#C7E4EC',jungle:'#D3E8BE',volcan:'#F2BF98',glace:'#E0F0F7',desert:'#F7E1AA',marecage:'#D9DDB0',cristal:'#E6D6F2',ville:'#DCD5CA',fongique:'#F2D6E4',metal:'#CFD8DB'};
+function decorBiome(id){
+  const E='stroke="#221B16" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"';const rep=(xs,f)=>xs.map(f).join('');
+  switch(id){
+    case 'jungle':return rep([40,120,250,330],x=>`<path d="M${x} 112V78" ${E} fill="none"/><circle cx="${x}" cy="70" r="20" fill="#3F7A35" ${E}/><circle cx="${x-14}" cy="80" r="12" fill="#5E9E4A" ${E}/>`);
+    case 'glace':return rep([60,150,290,350],x=>`<path d="M${x-14} 112L${x} 64L${x+14} 112Z" fill="#FFFCF2" ${E}/>`);
+    case 'desert':return rep([70,280],x=>`<path d="M${x} 112V70Q${x} 62 ${x+6} 62Q${x+12} 62 ${x+12} 70V112Z M${x} 86H${x-10}V76" fill="#5E9E4A" ${E}/>`)+`<path d="M150 112Q200 84 250 112Z" fill="#E8C87A" ${E}/>`;
+    case 'volcan':return `<path d="M230 112L290 46H316L376 112Z" fill="#6E5B49" ${E}/><path d="M290 46Q303 58 316 46" fill="#E07B2A" ${E}/><circle cx="296" cy="30" r="9" fill="#CDBF9F" ${E}/><circle cx="312" cy="20" r="7" fill="#CDBF9F" ${E}/>`;
+    case 'ocean':return `<rect x="0" y="96" width="400" height="16" fill="#3F7CB8" ${E}/>`+rep([30,110,190,270,350],x=>`<path d="M${x} 100q8 -6 16 0" fill="none" ${E}/>`);
+    case 'marecage':return rep([50,90,270,320],x=>`<path d="M${x} 112V80M${x+8} 112V86" ${E} fill="none"/><ellipse cx="${x}" cy="78" rx="3" ry="8" fill="#6E5B49" ${E}/>`);
+    case 'cristal':return rep([60,140,300],x=>`<path d="M${x-12} 112L${x-4} 70L${x+4} 112Z" fill="#B48CD0" ${E}/><path d="M${x} 112L${x+10} 80L${x+18} 112Z" fill="#8A5AA8" ${E}/>`);
+    case 'ville':return rep([30,90,280,340],(x,i)=>`<path d="M${x} 112V${60+i*8}H${x+34}V${72+i*6}L${x+40} 112Z" fill="#B9AE9A" ${E}/><rect x="${x+8}" y="${76+i*8}" width="8" height="8" fill="#6E5B49"/>`);
+    case 'fongique':return rep([50,130,290,350],(x,i)=>`<path d="M${x-4} 112V${88-i*2}H${x+4}V112Z" fill="#FFFCF2" ${E}/><path d="M${x-18} ${90-i*2}Q${x} ${62-i*4} ${x+18} ${90-i*2}Z" fill="${i%2?'#E8A6A0':'#B48CD0'}" ${E}/>`);
+    case 'metal':return rep([40,300],x=>`<rect x="${x}" y="80" width="56" height="32" rx="3" fill="#9DB3AC" ${E}/><path d="M${x+28} 80V54" ${E} fill="none"/><circle cx="${x+28}" cy="52" r="5" fill="#D63A2F" ${E}/>`);
+    default:return rep([50,140,300,350],(x,i)=>`<path d="M${x-16} 112L${x-8} ${92-i*3}L${x+6} ${88-i*2}L${x+16} 112Z" fill="#B9AE9A" ${E}/>`);
+  }
+}
+const PICTOS={
+  capsule:'<path d="M0 -8C5 -4 5 3 4 7H-4C-5 3 -5 -4 0 -8Z" fill="#FFFCF2"/><circle cx="0" cy="-1" r="2.2" fill="#3C5C8C"/>',
+  minerai:'<path d="M-6 -1L-3 -6H3L6 -1L0 7Z" fill="#8FD3E0"/><path d="M-6 -1H6M-3 -6L-1 -1L0 7M3 -6L1 -1" fill="none"/>',
+  plante:'<path d="M0 7V-1M0 1C-6 0 -7 -5 -6 -7C-2 -7 0 -4 0 1M0 -1C5 -2 6 -6 6 -8C2 -8 0 -5 0 -1" fill="#5E9E4A"/>',
+  coffre:'<rect x="-7" y="-3" width="14" height="10" rx="1.5" fill="#B9824F"/><path d="M-7 -3C-7 -8 7 -8 7 -3" fill="#D9A441"/><rect x="-1.5" y="-1" width="3" height="4" fill="#D9A441"/>',
+  monstre:'<path d="M-7 6C-8 -2 -5 -7 0 -7C5 -7 8 -2 7 6L4 3L1 6L-2 3L-5 6Z" fill="#8A5AA8"/><circle cx="-2.5" cy="-1" r="1.6" fill="#221B16"/><circle cx="2.5" cy="-1" r="1.6" fill="#221B16"/>',
+  dragon:'<path d="M-7 6L-3 -7L0 0L3 -6L7 6Z" fill="#E07B2A"/><path d="M-3 6L0 1L3 6" fill="#E9A93A"/>',
+  danger:'<path d="M0 -7L7 6H-7Z" fill="#E9A93A"/><path d="M0 -2V2" fill="none"/><circle cx="0" cy="4" r=".9" fill="#221B16"/>',
+  eau:'<path d="M0 -7C4 -1 6 2 6 3.5A6 6 0 0 1 -6 3.5C-6 2 -4 -1 0 -7Z" fill="#3F7CB8"/>',
+  porte:'<path d="M-6 7V0A6 6 0 0 1 6 0V7Z" fill="#6E5B49"/><circle cx="2.5" cy="3" r="1" fill="#221B16"/>',
+  marchand:'<path d="M-6 -2H6L5 7H-5Z" fill="#D9A441"/><path d="M-3 -2C-3 -7 3 -7 3 -2" fill="none"/>',
+  crane:'<path d="M-6 1A6 6 0 1 1 6 1V4H3V7H-3V4H-6Z" fill="#FFFCF2"/><circle cx="-2.4" cy="0" r="1.6" fill="#221B16"/><circle cx="2.4" cy="0" r="1.6" fill="#221B16"/>',
+  etoile:'<path d="M0 -8Q1.3 -1.3 8 0Q1.3 1.3 0 8Q-1.3 1.3 -8 0Q-1.3 -1.3 0 -8Z" fill="#E9A93A"/>'};
+const picto=(id,r=14,fond='#FFF7E4')=>`<svg viewBox="-16 -16 32 32" class="ic"><circle r="${r}" fill="${fond}" stroke="${ENCRE}" stroke-width="2.5"/><g stroke="${ENCRE}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" transform="scale(1.3)">${PICTOS[id]||PICTOS.etoile}</g></svg>`;
+// Illustration d'une carte : paysage du biome, le Jimee, et le pictogramme de la situation
+function illustration(biome,j,pic,etatJ){
+  const B=BIOMES.find(b=>b.id===biome)||BIOMES[0],ciel=CIEL_BIOME[B.id]||'#EBD3AE',E='stroke="#221B16" stroke-linejoin="round" stroke-linecap="round"';
+  return `<svg viewBox="0 0 400 170" aria-hidden="true"><rect width="400" height="170" fill="${ciel}"/><rect y="70" width="400" height="60" fill="#FFF7E4" opacity=".35"/>
+    <circle cx="352" cy="30" r="15" fill="#FFF7E4" ${E} stroke-width="2.5"/>
+    <path d="M40 34q4 -12 16 -8q6 -10 18 -2q12 -2 10 10z" fill="#FFF7E4" ${E} stroke-width="2.2"/>
+    <path d="M0 108Q60 88 130 102T260 96T400 104V170H0Z" fill="${B.couleur}" ${E} stroke-width="2.5" opacity=".45"/>
+    <g transform="translate(0 6)">${decorBiome(B.id)}</g>
+    <path d="M-5 118Q80 110 200 118T405 116V175H-5Z" fill="${B.couleur}" ${E} stroke-width="3"/>
+    ${j?`<g transform="translate(120 70)">${dessinJimee(j,etatJ).replace('<svg ','<svg width="58" height="97" ')}</g>`:''}
+    ${pic?`<g transform="translate(250 92) scale(2.2)"><circle r="14" fill="#FFF7E4" ${E} stroke-width="2"/><g ${E} stroke-width="1.3" transform="scale(1.3)">${PICTOS[pic]||''}</g></g>`:''}
+  </svg>`;
+}
+
+/* ---------- 4. Bruitages rétro (synthétisés, aucun fichier) ---------- */
+let ctxAudio=null;
+function bruit(type){
+  if(typeof etat==='undefined'||!etat||!etat.reglages.son)return;
+  try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctxAudio=ctxAudio||new AC();const c=ctxAudio;if(c.state==='suspended')c.resume();const t0=c.currentTime+.01;
+    const note=(f,deb,dur,forme,vol,vers)=>{const o=c.createOscillator(),g=c.createGain();o.type=forme||'square';o.frequency.setValueAtTime(f,t0+deb);if(vers)o.frequency.exponentialRampToValueAtTime(vers,t0+deb+dur);
+      g.gain.setValueAtTime(vol||.05,t0+deb);g.gain.exponentialRampToValueAtTime(.0001,t0+deb+dur);o.connect(g);g.connect(c.destination);o.start(t0+deb);o.stop(t0+deb+dur+.03)};
+    ({pop:()=>note(520,0,.09,'triangle',.09,900),bon:()=>{note(660,0,.08,'square',.035);note(990,.07,.12,'square',.035)},mauvais:()=>note(240,0,.2,'sawtooth',.035,150),
+      piece:()=>{note(988,0,.07,'square',.035);note(1319,.07,.2,'square',.035)},fanfare:()=>[523,659,784,1047].forEach((f,i)=>note(f,i*.1,i===3?.35:.14,'square',.035)),
+      mort:()=>{[392,370,349].forEach((f,i)=>note(f,i*.3,.28,'sawtooth',.04));note(330,.9,.9,'sawtooth',.04,260)},depart:()=>note(150,0,.55,'sawtooth',.03,900),
+      non:()=>{note(210,0,.09,'square',.035);note(160,.11,.13,'square',.035)},radio:()=>{[1200,900,1200].forEach((f,i)=>note(f,i*.09,.07,'square',.03))},
+      manivelle:()=>[0,.12,.24,.36].forEach(d=>note(300+d*400,d,.06,'square',.03))}[type]||(()=>{}))();
+  }catch(e){}
+}
+
+/* ---------- 5. État du joueur, sauvegarde ---------- */
+function nouveauJimee(seed,rarete='commun',force={}){
+  const r=creerRng(seed),R=RARETES[rarete];
+  const stats={};for(const k of CLES_STATS)stats[k]=borne(force[k]??r.int(R.stats[0],R.stats[1]),1,10);
+  return {id:'J'+seedDe(seed).toString(36),nom:r.pick(SYL1)+r.pick(SYL2),rarete,couleur:r.pick(COULEURS_JIMEE),chapeau:r.pick(CHAPEAUX),stats,
+    perso:r.pick(Object.keys(PERSONNALITES)),trait:r.pick(Object.keys(TRAITS)),niveau:1,xp:0,gadget:null,blesse:0,mission:null,piece:null,missions:0,cousinDe:null,ne:Date.now()};
+}
+function etatInitial(){
+  const t=Date.now(),D=CONFIG.depart;
+  const j1=nouveauJimee('KIT/1/'+t,'commun',{muscles:4}),j2=nouveauJimee('KIT/2/'+t,'commun',{jambes:4});
+  j1.trait='costaud';j1.perso='temeraire';j2.trait='pied_leger';j2.perso='prudent';j1.chapeau='casquette';j2.chapeau='aucun';j2.couleur='#5E9E4A';
+  const e={version:CONFIG.version,cree:t,maj:t,res:{credits:D.credits,rations:D.rations,carburant:D.carburant,ferraille:D.ferraille},
+    etages:[['p0'],['p1','p2'],['p3','p4'],[null,null]],
+    pieces:{p0:{type:'cockpit',niveau:1},p1:{type:'guichet',niveau:1},p2:{type:'dortoir',niveau:1},p3:{type:'cantine',niveau:1,stock:0},p4:{type:'reacteur',niveau:1,stock:12}},
+    compteurPiece:5,jimees:[j1,j2],gadgets:[],missions:[],etoiles:{},memorial:[],coupons:[],deuils:0,album:{},compteur:0,
+    stats:{missions:0,morts:0,recrues:0,cartes:0},guide:true,guideFait:{},accueilVu:false,
+    reglages:{son:true,test:false,ntfy:''},ia:'La Corp vous confie une fusée et deux Jimees. Prenez-en soin, ils ne sont pas remboursés.'};
+  j1.piece='p4';
+  for(const j of e.jimees)e.album[j.couleur+'|'+j.chapeau]=true;
+  return e;
+}
+function migrer(e){
+  const b=etatInitial();
+  for(const k of Object.keys(b))if(e[k]===undefined)e[k]=b[k];
+  e.reglages={...b.reglages,...(e.reglages||{})};e.stats={...b.stats,...(e.stats||{})};e.res={...b.res,...(e.res||{})};
+  e.version=CONFIG.version;
+  return e;
+}
+let etat;
+try{const s=localStorage.getItem(CONFIG.cle);etat=s?migrer(JSON.parse(s)):etatInitial()}catch(e){etat=etatInitial()}
+const sauver=()=>{try{localStorage.setItem(CONFIG.cle,JSON.stringify(etat))}catch(e){}};
+const dire=t=>{etat.ia=t};
+
+/* ---------- 6. Équipage ---------- */
+const jimee=id=>etat.jimees.find(j=>j.id===id);
+const capacite=()=>2+Object.values(etat.pieces).filter(p=>p.type==='dortoir').reduce((s,p)=>s+PIECES.dortoir.places[p.niveau-1],0);
+const disponible=j=>!j.mission&&j.blesse<=0;
+const occupants=pid=>etat.jimees.filter(j=>j.piece===pid&&!j.mission);
+const placesPiece=p=>{const T=PIECES[p.type];return T.prod?2:T.places&&p.type==='infirmerie'?T.places[p.niveau-1]:0};
+const statMission=(j,k)=>j.stats[k]+(j.gadget&&j.gadget.stat===k?j.gadget.bonus:0)+((TRAITS[j.trait].mission||{})[k]||0);
+const statBase=(j,k)=>j.stats[k]+(j.gadget&&j.gadget.stat===k?j.gadget.bonus:0);
+function gagnerXp(j,n){
+  j.xp+=n;const nv=[];
+  while(j.niveau<10&&j.xp>=CONFIG.xpNiveaux[j.niveau]){j.niveau++;const r=creerRng(j.id+'/NIV/'+j.niveau);
+    const choix=CLES_STATS.filter(k=>j.stats[k]<10);if(choix.length){const k=r.pick(choix);j.stats[k]++;nv.push({niveau:j.niveau,stat:k})}}
+  return nv;
+}
+const NOMS_GADGETS={muscles:['Gants de boxe','Haltère de poche','Bretelles renforcées'],jambes:['Bottes à ressorts','Patins à roulettes','Chaussettes porte-bonheur'],cervelle:['Casque à antennes','Lunettes de savant','Calculette de poche']};
+function creerGadget(seed,bonusMin=1){
+  const r=creerRng('G/'+seed),stat=r.pick(CLES_STATS),x=r.f(),bonus=Math.max(bonusMin,x<.6?1:x<.9?2:3);
+  return {id:'G'+seedDe(String(seed)).toString(36),stat,bonus,nom:r.pick(NOMS_GADGETS[stat])};
+}
+
+/* ---------- 7. Temps réel : production, repas, soins (aussi app fermée) ---------- */
+const enInfirmerie=j=>j.piece&&etat.pieces[j.piece]&&etat.pieces[j.piece].type==='infirmerie';
+function tauxPiece(pid,faim){
+  const p=etat.pieces[pid],T=PIECES[p.type];if(!T.prod)return 0;
+  return occupants(pid).filter(j=>j.blesse<=0)
+    .reduce((s,j)=>s+T.base[p.niveau-1]*(.5+.1*statBase(j,T.stat))*(TRAITS[j.trait].travail||1),0)*(faim?CONFIG.facteurFaim:1);
+}
+function avancer(fin){
+  fin=fin||Date.now();
+  let t=etat.maj;if(!(fin>t)){etat.maj=Math.max(etat.maj,fin);return}
+  while(t<fin){
+    const pas=Math.min(60000,fin-t),dt=pas/60000,faim=etat.res.rations<=0;
+    for(const [pid,p] of Object.entries(etat.pieces)){
+      const T=PIECES[p.type];if(!T.prod)continue;
+      const taux=tauxPiece(pid,faim);
+      if(T.prod==='gadget'){
+        if((p.stock||0)>=T.cap[p.niveau-1])continue;
+        p.progres=(p.progres||0)+taux*dt;
+        while(p.progres>=T.progres&&(p.stock||0)<T.cap[p.niveau-1]&&etat.res.ferraille>=T.ferraille){p.progres-=T.progres;etat.res.ferraille-=T.ferraille;p.stock=(p.stock||0)+1}
+        if(p.progres>T.progres)p.progres=T.progres;
+      } else p.stock=Math.min(T.cap[p.niveau-1],(p.stock||0)+taux*dt);
+    }
+    const mangeurs=etat.jimees.filter(j=>!j.mission).reduce((s,j)=>s+(TRAITS[j.trait].faim||1),0);
+    etat.res.rations=Math.max(0,etat.res.rations-mangeurs*dt/CONFIG.rationToutesLesMin);
+    for(const j of etat.jimees)if(j.blesse>0&&!j.mission){
+      const p=enInfirmerie(j)?etat.pieces[j.piece]:null;
+      j.blesse=Math.max(0,j.blesse-dt*(p?CONFIG.soinMin.dehors/CONFIG.soinMin.infirmerie[p.niveau-1]:1));
+      if(j.blesse<=0&&p)j.piece=null;   // guéri : il quitte l'infirmerie
+    }
+    t+=pas;
+  }
+  etat.maj=fin;
+}
+
+/* ---------- 8. Actions dans la fusée ---------- */
+const peutPayer=c=>Object.entries(c).every(([k,v])=>etat.res[k]>=v);
+const payer=c=>{for(const [k,v] of Object.entries(c))etat.res[k]-=v};
+const texteCout=c=>Object.entries(c).map(([k,v])=>`${v} ${RESSOURCES[k].ic}`).join(' + ');
+function recolter(pid){
+  const p=etat.pieces[pid],T=PIECES[p.type];if(!T.prod)return 0;
+  const n=Math.floor(p.stock||0);if(n<1)return 0;
+  p.stock-=n;
+  if(T.prod==='gadget'){for(let k=0;k<n;k++)etat.gadgets.push(creerGadget(etat.cree+'/'+(++etat.compteur)))}
+  else etat.res[T.prod]+=n;
+  etat.guideFait.recolte=true;
+  return n;
+}
+function affecter(jid,pid){
+  const j=jimee(jid),p=pid&&etat.pieces[pid];if(!j||j.mission)return 'Ce Jimee est en mission.';
+  if(!pid){j.piece=null;return null}
+  const T=PIECES[p.type];
+  if(p.type==='infirmerie'){if(j.blesse<=0)return `${j.nom} n'est pas blessé. L'infirmerie n'accepte que les éclopés.`}
+  else if(!T.prod)return 'On ne travaille pas ici.';
+  else if(j.blesse>0)return `${j.nom} est blessé : infirmerie ou repos.`;
+  if(occupants(pid).length>=placesPiece(p)&&j.piece!==pid)return 'Plus de place dans cette pièce.';
+  j.piece=pid;etat.guideFait.affecte=true;return null;
+}
+function construire(etage,slot,type){
+  const T=PIECES[type];if(!T||!CONSTRUCTIBLES.includes(type))return 'Construction impossible.';
+  if(etat.etages[etage][slot]!==null)return 'Emplacement occupé.';
+  if(!peutPayer(T.cout))return `Il faut ${texteCout(T.cout)}.`;
+  payer(T.cout);const pid='p'+(etat.compteurPiece++);etat.pieces[pid]={type,niveau:1,stock:0};etat.etages[etage][slot]=pid;return null;
+}
+function ajouterEtage(){
+  if(etat.etages.length>=CONFIG.maxEtages)return 'La fusée ne peut pas être plus haute : elle ne décollerait plus.';
+  if(!peutPayer(CONFIG.coutEtage))return `Il faut ${texteCout(CONFIG.coutEtage)}.`;
+  payer(CONFIG.coutEtage);etat.etages.push([null,null]);return null;
+}
+function ameliorer(pid){
+  const p=etat.pieces[pid];if(!p||p.type==='guichet')return 'Rien à améliorer.';
+  if(p.niveau>=3)return 'Niveau maximum.';
+  const c=COUT_NIVEAU[p.niveau];if(!peutPayer(c))return `Il faut ${texteCout(c)}.`;
+  payer(c);p.niveau++;return null;
+}
+function equiper(jid,gid){
+  const j=jimee(jid),i=etat.gadgets.findIndex(g=>g.id===gid);if(!j||i<0||j.mission)return;
+  const g=etat.gadgets.splice(i,1)[0];if(j.gadget)etat.gadgets.push(j.gadget);j.gadget=g;
+}
+function desequiper(jid){const j=jimee(jid);if(!j||!j.gadget||j.mission)return;etat.gadgets.push(j.gadget);j.gadget=null}
+function vendreGadget(gid){const i=etat.gadgets.findIndex(g=>g.id===gid);if(i<0)return 0;const g=etat.gadgets.splice(i,1)[0],v=CONFIG.vente.gadget[g.bonus-1];etat.res.credits+=v;return v}
+
+/* ---------- 9. Capsules de la Corp ---------- */
+const couponActif=()=>etat.coupons[0]||null;
+const prixCapsule=()=>Math.round(CONFIG.capsule.prix*(couponActif()?1-couponActif().reduc:1));
+function chancesRarete(){
+  const bonus=Math.min(CONFIG.capsule.deuilBonusMax,etat.deuils*CONFIG.capsule.deuilBonusLeg)*100;
+  return CONFIG.capsule.rarete.map(x=>({...x,poids:x.id==='legendaire'?x.poids+bonus:x.id==='commun'?x.poids-bonus:x.poids}));
+}
+function tirerCapsule(){
+  if(etat.jimees.length>=capacite())return {erreur:'Plus de place à bord. Construisez ou améliorez un dortoir.'};
+  const prix=prixCapsule();if(etat.res.credits<prix)return {erreur:`Il vous manque ${prix-etat.res.credits} crédits.`};
+  etat.res.credits-=prix;const c=etat.coupons.shift()||null;
+  const seed='CAP/'+etat.cree+'/'+(++etat.compteur),r=creerRng(seed);
+  const rarete=r.pondere(chancesRarete()).id;
+  const j=nouveauJimee(seed,rarete);
+  if(c){j.cousinDe=c.de;if(j.stats[c.stat]<10)j.stats[c.stat]++}
+  const nouveau=!etat.album[j.couleur+'|'+j.chapeau];etat.album[j.couleur+'|'+j.chapeau]=true;
+  etat.jimees.push(j);etat.stats.recrues++;
+  return {jimee:j,coupon:c,nouveau,prix};
+}
+
+/* ---------- 10. Missions et transmissions ---------- */
+const planete=id=>PLANETES.find(p=>p.id===id);
+const etoilesDe=id=>etat.etoiles[id]||0;
+const planeteOuverte=p=>p.palier===0||etoilesDe(PLANETES[p.palier-1].id)>0;
+const missionsMax=()=>PIECES.cockpit.missions[(etat.pieces.p0||{niveau:1}).niveau-1];
+const missionsActives=()=>etat.missions.filter(m=>!m.termine);
+const missionExpress=()=>etat.guide&&etat.stats.missions+etat.stats.morts===0&&!etat.reglages.test;
+function dureeMission(p){if(missionExpress())return CONFIG.mission.expressMs;return p.dureeMin*60000*(etat.reglages.test?CONFIG.mission.testFacteur:1)}
+const carte=id=>CARTES.find(c=>c.id===id)||CARTES_GARDIEN.find(c=>c.id===id);
+function lancerMission(pid,equipeIds){
+  const p=planete(pid);if(!p||!planeteOuverte(p))return 'Planète inaccessible.';
+  if(missionsActives().length>=missionsMax())return `Le cockpit ne gère que ${pluriel(missionsMax(),'mission')} à la fois. Améliorez-le.`;
+  const eq=equipeIds.map(jimee).filter(Boolean);
+  if(!eq.length||eq.length>2)return 'Choisissez un ou deux Jimees.';
+  if(eq.some(j=>!disponible(j)))return 'Un Jimee de l\'équipe n\'est pas disponible.';
+  if(etat.res.carburant<p.carburant)return `Il faut ${p.carburant} ⛽ de carburant.`;
+  etat.res.carburant-=p.carburant;
+  const id='M'+(++etat.compteur),t=Date.now(),D=dureeMission(p),seed=etat.cree+'/'+id,r=creerRng(seed+'/CARTES');
+  const pool=r.melanger(CARTES.filter(c=>!c.biomes||c.biomes.includes(p.biome)));
+  const choisies=pool.slice(0,3).map(c=>c.id);if(p.gardien)choisies[2]='gardien';
+  const m={id,planete:p.id,equipe:eq.map(j=>j.id),depart:t,fin:t+D,seed,express:missionExpress(),termine:false,statut:'en_cours',morts:[],blesses:[],
+    butin:{credits:0,ferraille:0,gadgets:[]},xp:{},cartes:choisies.map((c,k)=>({id:c,t:t+D*(k+1)/4,choix:null,auto:false,res:null}))};
+  for(const j of eq){j.mission=id;j.pieceAvant=j.piece;j.piece=null}   // il retrouvera son poste au retour
+  etat.missions.push(m);
+  programmerNotifications(m);
+  return null;
+}
+const echeanceCarte=(m,k)=>k<m.cartes.length-1?m.cartes[k+1].t:m.fin;
+const vivants=m=>m.equipe.filter(id=>!m.morts.includes(id)).map(jimee).filter(Boolean);
+// Chance de réussite d'une option pour l'équipe (le meilleur dans la caractéristique agit)
+function evaluerOption(m,o){
+  const p=planete(m.planete),eq=vivants(m),R=CONFIG.risques[o.risque],M=CONFIG.mission;
+  if(!eq.length)return {chance:0,acteur:null};
+  const acteur=eq.reduce((a,b)=>statMission(b,o.stat)>statMission(a,o.stat)?b:a);
+  const val=statMission(acteur,o.stat)+(eq.length>1?M.equipeBonus:0);
+  return {chance:Math.round(borne(M.chanceBase+M.chanceParPoint*(val-(p.difficulte+R.diff)),M.chanceMin,M.chanceMax)),acteur,val};
+}
+const visageChance=c=>c>=80?'😀':c>=60?'🙂':c>=40?'😬':'😱';
+function choixAuto(m,k){
+  const c=carte(m.cartes[k].id),chef=vivants(m)[0],rang={sur:0,normal:1,risque:2};
+  const r=creerRng(m.seed+'/AUTO/'+k);
+  switch(chef&&chef.perso){
+    case 'temeraire':return rang[c.o[0].risque]>=rang[c.o[1].risque]?0:1;
+    case 'prudent':return rang[c.o[0].risque]<=rang[c.o[1].risque]?0:1;
+    case 'curieux':return CONFIG.risques[c.o[0].risque].gain>=CONFIG.risques[c.o[1].risque].gain?0:1;
+    default:return r.int(0,1);
+  }
+}
+function resoudreCarte(m,k,choix,auto){
+  const cc=m.cartes[k];if(!cc||cc.choix!==null||m.statut!=='en_cours')return null;
+  const c=carte(cc.id),o=c.o[choix],R=CONFIG.risques[o.risque],p=planete(m.planete),B=CONFIG.butin;
+  const {chance,acteur}=evaluerOption(m,o);if(!acteur)return null;
+  const r=creerRng(m.seed+'/'+k+'/'+choix),ok=r.f()*100<chance,nom=acteur.nom;
+  const res={ok,chance,acteur:acteur.id,stat:o.stat,credits:0,ferraille:0,gadget:null,consequence:'aucune'};
+  if(ok){
+    const mult=R.gain*(TRAITS[acteur.trait].butin||1)*(c.gardien?2.5:1);
+    res.credits=Math.round((B.credits+p.palier*B.creditsPalier)*mult);res.ferraille=Math.round((B.ferraille+p.palier*B.ferraillePalier)*mult);
+    if((o.risque==='risque'&&r.chance(B.gadgetRisque))||c.gardien)res.gadget=creerGadget(m.seed+'/'+k,c.gardien?2:1);
+    m.butin.credits+=res.credits;m.butin.ferraille+=res.ferraille;if(res.gadget)m.butin.gadgets.push(res.gadget);
+    m.xp[acteur.id]=(m.xp[acteur.id]||0)+(o.risque==='risque'?2:1);
+    res.texte=r.pick(TEXTES_RESULTAT.ok[o.stat]).replace(/\{nom\}/g,nom);
+  } else {
+    const pMort=R.mort+p.palier*R.mortPalier;
+    if(r.chance(pMort)){
+      if(TRAITS[acteur.trait].increvable&&!m.blesses.includes(acteur.id+'!')){m.blesses.push(acteur.id+'!',acteur.id);res.consequence='blessure';res.texte=`${nom} aurait dû y rester. Increvable, il se relève, couvert de bleus.`}
+      else{m.morts.push(acteur.id);res.consequence='mort';res.texte=r.pick(TEXTES_RESULTAT.mort).replace(/\{nom\}/g,nom)}
+    } else if(r.chance(R.blessure)){if(!m.blesses.includes(acteur.id))m.blesses.push(acteur.id);res.consequence='blessure';res.texte=r.pick(TEXTES_RESULTAT.ko[o.stat]).replace(/\{nom\}/g,nom)+` ${nom} est blessé.`}
+    else if(o.risque!=='sur'&&(m.butin.credits||m.butin.ferraille)){m.butin.credits=Math.floor(m.butin.credits/2);m.butin.ferraille=Math.floor(m.butin.ferraille/2);res.consequence='perte';res.texte=r.pick(TEXTES_RESULTAT.ko[o.stat]).replace(/\{nom\}/g,nom)+' La moitié du butin roule au fond d\'un trou.'}
+    else res.texte=r.pick(TEXTES_RESULTAT.ko[o.stat]).replace(/\{nom\}/g,nom)+' Rien de grave, rien de gagné.';
+  }
+  cc.choix=choix;cc.auto=!!auto;cc.res=res;etat.stats.cartes++;
+  if(!vivants(m).length){m.statut='perdue';m.fin=Math.min(m.fin,Math.max(cc.t,Date.now()));for(let q=k+1;q<m.cartes.length;q++)m.cartes[q].annulee=true}
+  return res;
+}
+// Cartes dont l'échéance est passée sans réponse : le Jimee décide seul
+function majMissions(t){
+  t=t||Date.now();let change=false;
+  for(const m of etat.missions){if(m.termine)continue;
+    for(let k=0;k<m.cartes.length;k++){const cc=m.cartes[k];if(cc.choix!==null||cc.annulee||m.statut!=='en_cours')continue;
+      if(t>=echeanceCarte(m,k)){resoudreCarte(m,k,choixAuto(m,k),true);change=true}else break}}
+  return change;
+}
+const carteEnAttente=m=>{if(m.termine||m.statut!=='en_cours')return -1;const t=Date.now();for(let k=0;k<m.cartes.length;k++){const cc=m.cartes[k];if(cc.choix===null&&!cc.annulee)return t>=cc.t?k:-1}return -1};
+const rapportPret=m=>!m.termine&&(m.statut==='perdue'||Date.now()>=m.fin)&&m.cartes.every(c=>c.choix!==null||c.annulee);
+// Retour au vaisseau : butin, expérience, blessures, étoiles. Les morts deviennent des affiches.
+function cloturerMission(m){
+  if(!rapportPret(m))return null;
+  const p=planete(m.planete),reussites=m.cartes.filter(c=>c.res&&c.res.ok).length,vivs=vivants(m),r={mission:m,planete:p,reussites,niveaux:[],affiches:[],etoilesAvant:etoilesDe(p.id)};
+  etat.res.credits+=m.butin.credits;etat.res.ferraille+=m.butin.ferraille;etat.gadgets.push(...m.butin.gadgets);
+  for(const j of vivs){const nv=gagnerXp(j,(m.xp[j.id]||0)+1);for(const x of nv)r.niveaux.push({nom:j.nom,...x});j.missions++;j.mission=null;j.piece=null;if(m.blesses.includes(j.id))j.blesse=CONFIG.soinMin.dehors;
+    const av=j.pieceAvant&&etat.pieces[j.pieceAvant];if(av&&j.blesse<=0&&PIECES[av.type].prod&&occupants(j.pieceAvant).length<placesPiece(av))j.piece=j.pieceAvant;j.pieceAvant=null}
+  for(const id of m.morts){const j=jimee(id);if(!j)continue;const aff=creerAffiche(j,m);r.affiches.push(aff);etat.memorial.unshift(aff);
+    etat.coupons.push({reduc:CONFIG.capsule.hommageReduc,stat:aff.stat,de:j.nom});etat.deuils++;etat.stats.morts++;etat.jimees=etat.jimees.filter(x=>x.id!==id)}
+  const et=vivs.length?1+(reussites>=2?1:0)+(reussites>=3?1:0):0;
+  r.etoiles=et;if(et>etoilesDe(p.id))etat.etoiles[p.id]=et;
+  if(vivs.length)etat.stats.missions++;
+  m.termine=true;etat.missions=etat.missions.filter(x=>!x.termine);
+  if(etat.guide&&etat.stats.missions+etat.stats.morts>0)etat.guide=false;
+  return r;
+}
+
+/* ---------- 11. La Corp transforme chaque mort en argument de vente ---------- */
+const SLOGANS_HOMMAGE=[
+  'En hommage à {nom}, tombé {cause}, profitez de −{r} % sur son cousin. Il a les mêmes yeux.',
+  '{nom} nous a quittés {cause}. Son sacrifice ne sera pas vain : −{r} % sur la prochaine capsule.',
+  '{nom} est parti trop tôt, {cause}. Mais son cousin est en stock, et en promotion (−{r} %).',
+  'Ne laissez pas {nom} mourir pour rien. Rachetez un Jimee à −{r} %. Il l\'aurait voulu (probablement).',
+  '{nom}, {cause}. La Corp transforme votre chagrin en économies : −{r} % sur le suivant.'];
+const TITRES_HOMMAGE=['OFFRE HOMMAGE','ÉDITION SOUVENIR','PROMO DU DEUIL','SOLDES COMMÉMORATIVES'];
+function creerAffiche(j,m){
+  const k=m.cartes.findIndex(c=>c.res&&c.res.consequence==='mort'&&c.res.acteur===j.id),cc=m.cartes[k],c=cc&&carte(cc.id),p=planete(m.planete);
+  const r=creerRng(j.id+'/AFFICHE'),cause=c?`en pleine épreuve « ${c.titre} » sur ${p.nom}`:`sur ${p.nom}`;
+  return {nom:j.nom,couleur:j.couleur,chapeau:j.chapeau,rarete:j.rarete,missions:j.missions,niveau:j.niveau,cause,stat:(cc&&cc.res&&cc.res.stat)||'muscles',date:Date.now(),planete:p.nom,
+    titre:r.pick(TITRES_HOMMAGE),slogan:r.pick(SLOGANS_HOMMAGE).replace(/\{nom\}/g,j.nom).replace(/\{cause\}/g,cause).replace(/\{r\}/g,Math.round(CONFIG.capsule.hommageReduc*100)),rot:r.int(-3,3)};
+}
+function afficheHtml(a){
+  return `<div class="affiche" style="--rot:${a.rot||0}deg"><p class="bandeau">★ JIMEE'S CORP ★</p><p class="titre-aff">${a.titre}</p>
+    <div class="defunt">${persoJimee({couleur:a.couleur,chapeau:a.chapeau,etat:'mort'})}</div>
+    <p class="slogan-aff">${a.slogan}</p><span class="reduc">−${Math.round(CONFIG.capsule.hommageReduc*100)} %</span>
+    <p class="mentions">${a.nom} · niveau ${a.niveau} · ${pluriel(a.missions,'mission')}. Offre valable sur une capsule. Le cousin hérite +1 en ${STATS[a.stat].nom.toLowerCase()}.</p></div>`;
+}
+
+/* ---------- 12. Notifications (app ouverte : API du navigateur ; app fermée : ntfy, comme Jimee 1) ---------- */
+function notifier(titre,corps){
+  if(!('Notification' in window)||Notification.permission!=='granted'||!document.hidden)return;
+  try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(r=>r.showNotification(titre,{body:corps,icon:'../icon-192.png'}));else new Notification(titre,{body:corps})}catch(e){}
+}
+function programmerNotifications(m){
+  const sujet=(etat.reglages.ntfy||'').trim();if(!sujet)return;
+  const p=planete(m.planete),envoi=(titre,corps,ms)=>fetch('https://ntfy.sh/'+encodeURIComponent(sujet),{method:'POST',headers:{Title:titre.normalize('NFD').replace(/[^\x20-\x7E]/g,''),Delay:Math.max(1,Math.round(ms/1000))+'s',Tags:'rocket'},body:corps}).catch(()=>{});
+  m.cartes.forEach((c,k)=>envoi('Transmission !',`Transmission ${k+1}/3 depuis ${p.nom} : votre Jimee attend vos ordres.`,c.t-Date.now()));
+  envoi('Mission terminee',`La mission sur ${p.nom} est terminée. Le rapport vous attend.`,m.fin-Date.now());
+}
+
+/* ---------- 13. Affichage : barre, fusée, missions ---------- */
+let signatureFusee='',feuilleCourante=null,carteSel={planete:null,equipe:[]},minuteursRapport=[];
+const reduit=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function majBarre(){
+  for(const k of ['credits','rations','carburant','ferraille']){const el=$('#r-'+k),v=Math.floor(etat.res[k]);const b=el.querySelector('b');
+    if(b.textContent!==String(v)){if(b.textContent!=='0'||v)el.classList.remove('bump'),void el.offsetWidth,el.classList.add('bump');b.textContent=v}
+    el.classList.toggle('vide',k==='rations'&&v<=0)}
+}
+function habitantsHtml(pid,p){
+  let l;
+  if(p.type==='dortoir'){const dortoirs=Object.keys(etat.pieces).filter(k=>etat.pieces[k].type==='dortoir');const i=dortoirs.indexOf(pid);
+    l=etat.jimees.filter(j=>!j.mission&&!j.piece).filter((j,n)=>n%dortoirs.length===i)}
+  else l=occupants(pid);
+  return l.map((j,n)=>{const r=creerRng(j.id+'/MARCHE'),dort=p.type==='dortoir',de=dort?8+n*22:r.int(4,30),a=r.int(55,74);
+    return `<span class="habitant${dort?' dort':''}${j.blesse>0?' blesse':''}" data-jimee="${j.id}" style="--de:${de}%;--a:${a}%;--duree:${r.int(6,11)}s;--delai:-${r.int(0,9)}s;${dort?`left:${de}%`:''}" title="${j.nom}"><span class="tourne" style="display:block">${dessinJimee(j)}</span></span>`}).join('');
+}
+function bulleRecolte(p){
+  const T=PIECES[p.type];if(!T.prod)return '';const n=Math.floor(p.stock||0);if(n<1)return '';
+  const plein=n>=T.cap[p.niveau-1];return `<span class="recolte${plein?' pleine':''}" data-recolte="1">${RESSOURCES[T.prod].ic} +${n}</span>`;
+}
+function pieceHtml(pid,etage,slot){
+  if(!pid)return `<button class="piece vide-piece" data-construire="${etage}/${slot}"><span>+ Construire</span></button>`;
+  const p=etat.pieces[pid],T=PIECES[p.type],places=placesPiece(p);
+  const faim=T.prod&&etat.res.rations<=0;
+  return `<div class="piece${T.large?' large':''}${faim?' affame':''}" data-piece="${pid}" role="button" tabindex="0" aria-label="${T.nom}">
+    ${fondPiece(p.type,p.niveau)}<span class="nom-piece">${T.nom}${p.type!=='guichet'&&p.type!=='cockpit'?` <small>niv. ${p.niveau}</small>`:''}</span>
+    ${places?`<span class="places">${occupants(pid).length}/${places}</span>`:''}
+    ${p.type==='cockpit'&&missionsActives().length?`<span class="places">🚀 ${missionsActives().length}/${missionsMax()}</span>`:''}
+    <span class="habitants">${habitantsHtml(pid,p)}</span><span class="zone-recolte">${bulleRecolte(p)}</span></div>`;
+}
+function dessinerFusee(force){
+  const sig=JSON.stringify([etat.etages,Object.entries(etat.pieces).map(([k,p])=>[k,p.type,p.niveau]),etat.jimees.map(j=>[j.id,j.piece,j.mission,j.blesse>0,j.couleur,j.chapeau]),missionsActives().length,etat.res.rations<=0]);
+  if(!force&&sig===signatureFusee){majBulles();return}
+  signatureFusee=sig;
+  const etages=etat.etages.map((e,i)=>`<div class="etage">${e[0]&&etat.pieces[e[0]]&&PIECES[etat.pieces[e[0]].type].large?pieceHtml(e[0],i,0):e.map((pid,s)=>pieceHtml(pid,i,s)).join('')}</div>`).join('');
+  $('#fusee').innerHTML=NEZ_SVG+`<div class="coque">${etages}</div>`+MOTEURS_SVG+
+    (etat.etages.length<CONFIG.maxEtages?`<button class="btn-etage" data-action="etage">+ Ajouter un étage · ${texteCout(CONFIG.coutEtage)}</button>`:'');
+}
+function majBulles(){
+  for(const [pid,p] of Object.entries(etat.pieces)){const z=document.querySelector(`[data-piece="${pid}"] .zone-recolte`);if(!z)continue;const h=bulleRecolte(p);if(z.innerHTML!==h)z.innerHTML=h}
+}
+// Bandeau des missions : la structure (boutons) n'est reconstruite que si elle change, sinon on met à jour les textes
+// (un bouton recréé sous le doigt du joueur ne reçoit pas son clic).
+function majMissionsUI(){
+  const el=$('#missions'),l=missionsActives();
+  const etatBouton=m=>rapportPret(m)?'rapport':carteEnAttente(m)>=0?'tr':'';
+  const sig=l.map(m=>m.id+':'+etatBouton(m)).join('|');
+  if(el.dataset.sig!==sig){el.dataset.sig=sig;
+    el.innerHTML=l.map(m=>{const p=planete(m.planete),noms=m.equipe.map(jimee).filter(Boolean).map(j=>j.nom).join(' et '),b=etatBouton(m);
+      return `<div class="mission" data-mid="${m.id}"><span class="pastille-mission"><img src="${imageBiome(p.biome)}" alt=""></span><div class="info">${p.nom} · ${noms}<small class="etat-m"></small><div class="jauge"><i></i></div></div>
+        ${b==='rapport'?`<button class="btn-transmission rapport" data-action="rapport" data-m="${m.id}">Rapport</button>`:b==='tr'?`<button class="btn-transmission" data-action="transmission" data-m="${m.id}">📡 Répondre</button>`:''}</div>`}).join('')}
+  for(const m of l){const box=el.querySelector(`[data-mid="${m.id}"]`);if(!box)continue;
+    const k=carteEnAttente(m),pret=rapportPret(m),prochaine=m.cartes.find(c=>c.choix===null&&!c.annulee);
+    const txt=pret?(m.statut==='perdue'?'Signal perdu':'De retour !'):k>=0?`Transmission ${k+1}/3 !`:`retour dans ${fmtTemps(m.fin-Date.now())}${prochaine?` · prochaine transmission dans ${fmtTemps(prochaine.t-Date.now())}`:''}`;
+    const e=box.querySelector('.etat-m');if(e.textContent!==txt)e.textContent=txt;
+    box.querySelector('.jauge i').style.width=borne((Date.now()-m.depart)/(m.fin-m.depart)*100,0,100).toFixed(1)+'%'}
+}
+function tout(force){
+  avancer();majMissions();
+  majBarre();dessinerFusee(force);majMissionsUI();
+  if(!$('#bulle').classList.contains('guide')||!etat.guide)$('#bulle').textContent=etat.ia;
+  if($('#ecran-carte').classList.contains('ouvert')&&force)dessinerCarte();
+  majGuide();sauver();
+}
+
+/* ---------- 14. Feuilles (fiches qui montent du bas) ---------- */
+function ouvrirFeuille(html,ctx){feuilleCourante=ctx||null;const f=$('#feuille');f.innerHTML=`<button class="fermer" data-action="fermer-feuille" aria-label="Fermer">×</button>`+html;f.scrollTop=0;f.classList.add('ouverte');$('#voile').classList.add('ouvert');majGuide()}
+function fermerFeuille(){feuilleCourante=null;$('#feuille').classList.remove('ouverte');$('#voile').classList.remove('ouvert');carteSel.planete=null;majGuide()}
+function rafraichirFeuille(){if(!feuilleCourante)return;const c=feuilleCourante,f=$('#feuille'),s=f.scrollTop;
+  ({jimee:feuilleJimee,piece:feuillePiece,planete:feuillePlanete,guichet:feuilleGuichet,construire:feuilleConstruire,reglages:feuilleReglages}[c.type]||(()=>{}))(c.id,true);f.scrollTop=s}
+const toast=(m)=>{const t=$('#toast');t.textContent=m;t.classList.remove('vu');void t.offsetWidth;t.classList.add('vu');clearTimeout(toast.m);toast.m=setTimeout(()=>t.classList.remove('vu'),2800)};
+function statsHtml(j){
+  return CLES_STATS.map(k=>{const b=j.stats[k],g=j.gadget&&j.gadget.stat===k?j.gadget.bonus:0;
+    return `<div class="stat"><span>${STATS[k].ic}</span><span>${STATS[k].nom}</span><span class="j"><i style="width:${b*10}%;float:left"></i>${g?`<i class="bonus" style="width:${g*10}%;float:left"></i>`:''}</span><span>${b+g}</span></div>`}).join('');
+}
+const etoilesRarete=r=>'★'.repeat(RARETES[r].etoiles);
+function etatJimee(j){
+  if(j.mission){const m=etat.missions.find(x=>x.id===j.mission);return `En mission sur ${m?planete(m.planete).nom:'?'}`}
+  if(j.blesse>0)return `Blessé : guéri dans ${fmtTemps(j.blesse/(enInfirmerie(j)?CONFIG.soinMin.dehors/CONFIG.soinMin.infirmerie[etat.pieces[j.piece].niveau-1]:1)*60000)}${enInfirmerie(j)?' (infirmerie)':' (au repos, l\'infirmerie irait 3 fois plus vite)'}`;
+  if(j.piece)return `Travaille : ${PIECES[etat.pieces[j.piece].type].nom}`;
+  return 'Au repos au dortoir';
+}
+function feuilleJimee(jid,refresh){
+  const j=jimee(jid);if(!j)return fermerFeuille();
+  const P=PERSONNALITES[j.perso],T=TRAITS[j.trait],xpMin=CONFIG.xpNiveaux[j.niveau-1],xpMax=CONFIG.xpNiveaux[j.niveau]||xpMin+1;
+  const pieces=Object.entries(etat.pieces).filter(([pid,p])=>PIECES[p.type].prod||p.type==='infirmerie');
+  const html=`<div class="tete-jimee"><div class="portrait">${dessinJimee(j,j.blesse>0?'blesse':'heureux')}</div><div><h2>${j.nom}</h2>
+      <p class="sous"><span class="puce ${j.rarete}">${etoilesRarete(j.rarete)} ${RARETES[j.rarete].nom}</span> niveau ${j.niveau}${j.cousinDe?` · cousin de ${j.cousinDe}`:''}</p>
+      <div class="xp"><i style="width:${j.niveau>=10?100:borne((j.xp-xpMin)/(xpMax-xpMin)*100,0,100)}%"></i></div></div></div>
+    <p class="note"><b>${etatJimee(j)}</b></p>
+    <div class="carte-blanche">${statsHtml(j)}</div>
+    <div class="carte-blanche"><div class="ligne"><span><b>${P.nom}</b></span><small class="note" style="margin:0">${P.desc}</small></div><div class="ligne"><span><b>${T.nom}</b></span><small class="note" style="margin:0">${T.desc}</small></div>
+      <p class="main" style="margin-top:6px">« ${creerRng(j.id+'/'+Math.floor(Date.now()/60000)).pick(P.repliques)} »</p></div>
+    <h3>Gadget</h3>
+    ${j.gadget?`<div class="ligne"><span>${STATS[j.gadget.stat].ic} ${j.gadget.nom} <b>+${j.gadget.bonus}</b></span>${j.mission?'':`<button class="puce" data-action="desequiper" data-j="${j.id}">Retirer</button>`}</div>`:'<p class="note">Aucun.</p>'}
+    ${!j.mission&&etat.gadgets.length?etat.gadgets.map(g=>`<div class="ligne"><span>${STATS[g.stat].ic} ${g.nom} <b>+${g.bonus}</b></span><button class="puce bon" data-action="equiper" data-j="${j.id}" data-g="${g.id}">Équiper</button></div>`).join(''):''}
+    ${j.mission?'':`<h3>Où l'envoyer ?</h3>
+      ${pieces.map(([pid,p])=>{const Tp=PIECES[p.type],ici=j.piece===pid;return `<button class="choix-jimee${ici?' on':''}" data-affecter="${pid}" data-j="${j.id}"><span class="txt">${Tp.nom} niv. ${p.niveau}<small>${Tp.prod?`${STATS[Tp.stat].ic} ${STATS[Tp.stat].nom} : ${statBase(j,Tp.stat)}`:'soins'} · ${occupants(pid).length}/${placesPiece(p)}</small></span>${ici?'<span class="val">✓</span>':''}</button>`}).join('')}
+      <div class="btns"><button class="btn sec" data-affecter="" data-j="${j.id}">Au repos</button>${disponible(j)?`<button class="btn" data-action="vers-mission" data-j="${j.id}">En mission</button>`:''}</div>`}`;
+  ouvrirFeuille(html,{type:'jimee',id:jid});
+}
+function feuillePiece(pid){
+  const p=etat.pieces[pid];if(!p)return fermerFeuille();
+  if(p.type==='cockpit'){fermerFeuille();return ouvrirCarte()}
+  if(p.type==='guichet')return feuilleGuichet('capsules');
+  const T=PIECES[p.type],occ=occupants(pid),places=placesPiece(p);
+  let h=`<h2>${T.nom} <small style="font-size:.9rem">niv. ${p.niveau}</small></h2><p class="sous">${T.desc}</p>`;
+  if(T.prod){const taux=tauxPiece(pid,etat.res.rations<=0)*60,cap=T.cap[p.niveau-1];
+    h+=`<div class="carte-blanche"><div class="ligne"><span>Production</span><b>${T.prod==='gadget'?`${(taux/T.progres).toFixed(1)} gadget/h`:`${Math.round(taux)} ${RESSOURCES[T.prod].ic} / heure`}</b></div>
+      <div class="ligne"><span>En stock</span><b>${Math.floor(p.stock||0)} / ${cap}</b></div>${etat.res.rations<=0?`<p class="note">🍞 Équipage affamé : production divisée par deux.</p>`:''}
+      ${Math.floor(p.stock||0)>=1?`<button class="btn" data-action="recolter" data-p="${pid}">Récolter +${Math.floor(p.stock)} ${RESSOURCES[T.prod].ic}</button>`:''}</div>`}
+  if(p.type==='dortoir'){const idle=etat.jimees.filter(j=>!j.mission&&!j.piece);
+    h+=`<div class="carte-blanche"><div class="ligne"><span>Places d'équipage</span><b>${etat.jimees.length} / ${capacite()}</b></div><p class="note">Chaque dortoir ajoute ${T.places[p.niveau-1]} places. Les Jimees au repos y font la sieste.</p></div>
+      ${idle.map(j=>`<button class="choix-jimee" data-jimee="${j.id}"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${etatJimee(j)}</small></span></button>`).join('')}`}
+  if(places){
+    h+=`<h3>Équipe · ${occ.length}/${places}</h3>`+occ.map(j=>`<div class="choix-jimee"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${T.stat?`${STATS[T.stat].ic} ${statBase(j,T.stat)}`:etatJimee(j)}</small></span><button class="puce" data-affecter="" data-j="${j.id}">Retirer</button></div>`).join('');
+    if(occ.length<places){const cand=etat.jimees.filter(j=>!j.mission&&j.piece!==pid&&(p.type==='infirmerie'?j.blesse>0:j.blesse<=0)).sort((a,b)=>T.stat?statBase(b,T.stat)-statBase(a,T.stat):0);
+      h+=cand.length?`<p class="note">Ajouter :</p>`+cand.map(j=>`<button class="choix-jimee" data-affecter="${pid}" data-j="${j.id}"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${etatJimee(j)}</small></span>${T.stat?`<span class="val">${STATS[T.stat].ic}${statBase(j,T.stat)}</span>`:''}</button>`).join('')
+        :`<p class="note">${p.type==='infirmerie'?'Aucun blessé. Pour l\'instant.':'Aucun Jimee disponible.'}</p>`}}
+  if(p.niveau<3){const c=COUT_NIVEAU[p.niveau];h+=`<button class="btn sec" data-action="ameliorer" data-p="${pid}" ${peutPayer(c)?'':'disabled'}>Améliorer au niveau ${p.niveau+1} · ${texteCout(c)}</button>`}
+  ouvrirFeuille(h,{type:'piece',id:pid});
+}
+function feuilleConstruire(id){
+  const [e,s]=id.split('/').map(Number);
+  ouvrirFeuille(`<h2>Construire</h2><p class="sous">Étage ${e}, emplacement ${s+1}.</p>`+CONSTRUCTIBLES.map(t=>{const T=PIECES[t];
+    return `<button class="choix-jimee" data-action="construire" data-type="${t}" data-ou="${id}" ${peutPayer(T.cout)?'':'disabled'}><span class="txt">${T.nom}<small>${T.desc}</small></span><span class="val" style="font-size:.85rem">${texteCout(T.cout)}</span></button>`}).join(''),{type:'construire',id});
+}
+let ongletGuichet='capsules';
+function feuilleGuichet(onglet){
+  ongletGuichet=onglet||ongletGuichet;const c=couponActif(),ch=chancesRarete(),tot=ch.reduce((s,x)=>s+x.poids,0);
+  let h=`<h2>Guichet de la Corp</h2><p class="sous main">« Vos Jimees meurent ? Nous aussi, on adore les nouveaux clients. »</p>
+    <div class="onglets">${[['capsules','Capsules'],['gadgets',`Gadgets (${etat.gadgets.length})`],['memorial',`Mémorial (${etat.memorial.length})`],['album','Album']].map(([k,n])=>`<button data-guichet="${k}" aria-pressed="${ongletGuichet===k}">${n}</button>`).join('')}</div>`;
+  if(ongletGuichet==='capsules')h+=`<div class="distributeur" id="distributeur">${distributeurSvg()}<span class="capsule-tombe">${CAPSULE_SVG()}</span></div>
+    <div id="revelation"></div>
+    ${c?`<p class="carte-blanche main" style="text-align:center">🎟️ Coupon hommage : −${Math.round(c.reduc*100)} % · le cousin de ${c.de} hérite +1 en ${STATS[c.stat].nom.toLowerCase()}</p>`:''}
+    <button class="btn rouge" data-action="capsule" ${etat.jimees.length>=capacite()||etat.res.credits<prixCapsule()?'disabled':''}>Tourner la manivelle · ${prixCapsule()} 💰</button>
+    <p class="note" style="text-align:center">Équipage ${etat.jimees.length} / ${capacite()}${etat.jimees.length>=capacite()?' : construisez un dortoir pour recruter.':''} · Commun ${Math.round(ch[0].poids/tot*100)} % · Rare ${Math.round(ch[1].poids/tot*100)} % · Légendaire ${Math.round(ch[2].poids/tot*100)} %${etat.deuils?` (bonus de deuil inclus)`:''}</p>`;
+  if(ongletGuichet==='gadgets')h+=etat.gadgets.length?etat.gadgets.map(g=>`<div class="ligne"><span>${STATS[g.stat].ic} ${g.nom} <b>+${g.bonus}</b></span><button class="puce" data-action="vendre" data-g="${g.id}">Vendre ${CONFIG.vente.gadget[g.bonus-1]} 💰</button></div>`).join('')
+    :`<p class="note">Aucun gadget en stock. L'atelier en fabrique, les missions risquées en rapportent.</p>`;
+  if(ongletGuichet==='memorial')h+=etat.memorial.length?`<p class="note">Chaque Jimee perdu a droit à son affiche. La Corp les réimprime en cas de forte demande.</p><div class="affiches">${etat.memorial.map(afficheHtml).join('')}</div>`
+    :`<p class="note">Aucune affiche. Vos Jimees sont tous vivants, ce qui n'arrange pas le service marketing.</p>`;
+  if(ongletGuichet==='album'){const vus=Object.keys(etat.album).length,total=COULEURS_JIMEE.length*CHAPEAUX.length;
+    h+=`<p class="note">${vus} / ${total} apparences rencontrées. Chaque capsule peut révéler un nouveau look.</p><div class="album">${COULEURS_JIMEE.flatMap(c=>CHAPEAUX.map(ch=>etat.album[c+'|'+ch]?`<span title="${NOMS_CHAPEAUX[ch]}">${persoJimee({couleur:c,chapeau:ch})}</span>`:'<span>?</span>')).join('')}</div>`}
+  ouvrirFeuille(h,{type:'guichet',id:ongletGuichet});
+}
+function revelationHtml(x){
+  const j=x.jimee;
+  return `<div class="revelation"><div class="grand">${dessinJimee(j,'heureux')}</div><span class="rarete ${j.rarete}">${etoilesRarete(j.rarete)} ${RARETES[j.rarete].nom}</span>
+    <h2 style="margin-top:6px">${j.nom}</h2><p class="sous">${PERSONNALITES[j.perso].nom} · ${TRAITS[j.trait].nom}${x.nouveau?' · <b>nouveau look !</b>':''}${j.cousinDe?` · cousin de ${j.cousinDe}`:''}</p>
+    <div class="carte-blanche" style="text-align:left">${statsHtml(j)}</div><button class="btn" data-jimee="${j.id}">Bienvenue à bord, ${j.nom}</button></div>`;
+}
+function feuilleReglages(){
+  const R=etat.reglages;
+  ouvrirFeuille(`<h2>Réglages</h2>
+    <label class="bascule"><span>Bruitages</span><input type="checkbox" data-reglage="son" ${R.son?'checked':''}></label>
+    <label class="bascule"><span>Mode test (missions 10 fois plus courtes)</span><input type="checkbox" data-reglage="test" ${R.test?'checked':''}></label>
+    <h3>Notifications</h3><button class="btn sec" data-action="permission">${'Notification' in window&&Notification.permission==='granted'?'Notifications autorisées':'Autoriser les notifications'}</button>
+    <p class="note">App fermée : installez l'app ntfy et abonnez-vous à un sujet secret, saisi ici.</p><input type="text" data-reglage="ntfy" value="${R.ntfy||''}" placeholder="ex. jimee-lucas-8x2k">
+    <h3>Partie</h3><p class="note">${pluriel(etat.stats.missions,'mission réussie','missions réussies')}, ${pluriel(etat.stats.morts,'Jimee perdu','Jimees perdus')}, ${pluriel(etat.stats.recrues,'recrue')}.</p>
+    <button class="btn sec" data-action="relancer-guide">Relancer le guide</button>
+    <button class="btn sec" data-action="reset">Recommencer à zéro</button>
+    <p class="note" style="text-align:center;margin-top:12px"><a href="../">Jimee 1 (ancienne version)</a></p>`,{type:'reglages'});
+}
+
+/* ---------- 15. Carte stellaire : chemin de planètes à étoiles ---------- */
+function ouvrirCarte(){$('#ecran-carte').classList.add('ouvert');dessinerCarte(true)}
+function fermerCarte(){$('#ecran-carte').classList.remove('ouvert');fermerFeuille()}
+function dessinerCarte(defiler){
+  const el=$('#chemin'),W=Math.min(el.clientWidth||400,520),pas=128,haut=56;let y=40,pts=[],h='';
+  PLANETES.forEach((p,i)=>{
+    if(p.rang===0){h+=`<span class="galaxie-titre" style="top:${y}px">${GALAXIES[p.galaxie].nom}</span>`;y+=haut+10}
+    const x=W*[.28,.62,.74,.44,.24,.56][p.rang],cy=y+40;pts.push([x,cy]);
+    const ouv=planeteOuverte(p),e=etoilesDe(p.id),ici=missionsActives().some(m=>m.planete===p.id);
+    h+=`<button class="noeud${ouv?'':' verrou'}${p.gardien?' gardien':''}${ouv&&!e?' ici':''}" style="left:${x}px;top:${cy}px" data-planete="${p.id}" aria-label="${p.nom}">
+      <span class="astre"><img src="${imageBiome(p.biome)}" alt="">${ici?'<span class="navette">🚀</span>':''}</span>
+      <span class="etoiles">${[1,2,3].map(n=>n<=e?'★':'<span class="eteinte">★</span>').join('')}</span><br><span class="nom">${p.nom}</span></button>`;
+    y+=pas;
+  });
+  let d=`M${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const [a,b]=pts[i-1],[c,e]=pts[i];d+=` C${a} ${(b+e)/2} ${c} ${(b+e)/2} ${c} ${e}`}
+  el.innerHTML=`<svg class="trace" width="${W}" height="${y+60}" viewBox="0 0 ${W} ${y+60}"><path d="${d}" fill="none" stroke="#FFF7E4" stroke-width="5" stroke-dasharray="10 12" stroke-linecap="round" opacity=".8"/></svg>`+h+`<div style="height:${y+60}px"></div>`;
+  if(defiler){const cible=PLANETES.filter(planeteOuverte).pop();const n=el.querySelector(`[data-planete="${cible.id}"]`);if(n)el.scrollTop=Math.max(0,parseFloat(n.style.top)-el.clientHeight/2)}
+}
+function chancesEquipe(p,ids){
+  if(!ids.length)return '';
+  const m={planete:p.id,equipe:ids,morts:[]};
+  return CLES_STATS.map(k=>{const c=evaluerOption(m,{stat:k,risque:'normal'}).chance;return `<span class="puce">${STATS[k].ic} ${visageChance(c)} ${c} %</span>`}).join('');
+}
+function feuillePlanete(pid){
+  const p=planete(pid);if(!p)return;
+  if(carteSel.planete!==pid){carteSel.planete=pid;carteSel.equipe=carteSel.equipe.filter(id=>{const j=jimee(id);return j&&disponible(j)})}
+  if(!planeteOuverte(p)){toast('🔒 Gagnez au moins une étoile sur la planète précédente.');bruit('non');return}
+  const B=BIOMES.find(b=>b.id===p.biome),e=etoilesDe(p.id),plein=missionsActives().length>=missionsMax();
+  const raison=plein?`Le cockpit gère ${pluriel(missionsMax(),'mission')} à la fois.`:etat.res.carburant<p.carburant?`Il manque ${Math.ceil(p.carburant-etat.res.carburant)} ⛽.`:!carteSel.equipe.length?'Choisissez un ou deux Jimees.':'';
+  const h=`<div class="tete-jimee"><div class="portrait" style="padding:6px;border-radius:50%"><img src="${imageBiome(p.biome)}" alt="" style="width:100%;height:100%"></div><div>
+      <h2>${p.nom}</h2><p class="sous">${GALAXIES[p.galaxie].nom} · ${B.nom}${p.gardien?' · ☠ gardien':''}</p><span class="etoiles" style="font-size:1.3rem">${[1,2,3].map(n=>n<=e?'★':'<span class="eteinte">★</span>').join('')}</span></div></div>
+    <div class="carte-blanche"><div class="ligne"><span>Durée</span><b>${missionExpress()?'45 s (mission express)':fmtTemps(dureeMission(p))}</b></div><div class="ligne"><span>Carburant</span><b>${p.carburant} ⛽</b></div>
+      <div class="ligne"><span>Épreuves</span><b>niveau ${String(p.difficulte).replace('.',',')}</b></div><div class="ligne"><span>Étoiles</span><small class="note" style="margin:0">1 : revenir vivant · 2 : 2 transmissions réussies · 3 : les 3</small></div></div>
+    <h3>Équipe (1 ou 2 Jimees)</h3>
+    ${etat.jimees.map(j=>{const ok=disponible(j),on=carteSel.equipe.includes(j.id);return `<button class="choix-jimee${on?' on':''}" data-equipe="${j.id}" ${ok?'':'disabled'}><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom} · niv. ${j.niveau}<small>${ok?CLES_STATS.map(k=>`${STATS[k].ic}${statMission(j,k)}`).join(' '):etatJimee(j)}</small></span>${on?'<span class="val">✓</span>':''}</button>`}).join('')}
+    ${carteSel.equipe.length?`<p class="note">Chances sur une épreuve normale :</p><p>${chancesEquipe(p,carteSel.equipe)}</p>`:''}
+    <button class="btn rouge" data-action="lancer" ${raison?'disabled':''}>Décoller · ${p.carburant} ⛽</button>${raison?`<p class="note">${raison}</p>`:''}`;
+  ouvrirFeuille(h,{type:'planete',id:pid});
+}
+
+/* ---------- 16. Transmissions (cartes à glisser) ---------- */
+let trCourante=null;
+function ouvrirTransmission(mid){
+  const m=etat.missions.find(x=>x.id===mid);if(!m)return;const k=carteEnAttente(m);if(k<0)return fermerTransmission();
+  trCourante={m:mid,k};const c=carte(m.cartes[k].id),p=planete(m.planete),chef=vivants(m)[0],nom=chef.nom;
+  const opt=c.o.map((o,i)=>{const ev=evaluerOption(m,o),R=CONFIG.risques[o.risque],mort=R.mort>0;
+    return `<button class="option" data-choix="${i}"><span class="fleche">${i?'glisser à droite ›':'‹ glisser à gauche'}</span><b>${o.txt}</b>
+      <span class="details"><span>${STATS[o.stat].ic} ${ev.acteur.nom}</span><span class="visage">${visageChance(ev.chance)}</span><span>${ev.chance} %</span></span>
+      <span class="details"><span class="puce ${o.risque==='sur'?'bon':o.risque==='risque'?'mauvais':''}">${R.nom}${mort&&o.risque==='risque'?' 💀':''}</span><span class="puce">💰×${String(R.gain).replace('.',',')}</span></span></button>`}).join('');
+  $('#transmission').innerHTML=`<p class="entete-tr">📡 Transmission ${k+1}/3<small>${p.nom} · ${nom} attend vos ordres. Sans réponse dans ${fmtTemps(echeanceCarte(m,k)-Date.now())}, il décidera seul (${PERSONNALITES[chef.perso].nom.toLowerCase()}).</small></p>
+    <div class="zone-carte"><div class="carte-tr" id="carte-tr"><span class="indice g" id="indice-g">${c.o[0].txt}</span><span class="indice d" id="indice-d">${c.o[1].txt}</span>
+      <div class="illu">${illustration(p.biome,chef,c.picto)}</div><div class="texte"><h3>${c.titre}</h3><p>${c.texte.replace(/\{nom\}/g,nom)}</p></div></div></div>
+    <div class="options">${opt}</div>`;
+  $('#transmission').classList.add('ouvert');bruit('radio');brancherGlisse();majGuide();
+}
+function fermerTransmission(){trCourante=null;$('#transmission').classList.remove('ouvert');tout()}
+function brancherGlisse(){
+  const el=$('#carte-tr');if(!el)return;let x0=null,dx=0;
+  const fin=()=>{if(x0===null)return;el.classList.remove('glisse');const s=dx;x0=null;dx=0;$('#indice-g').style.opacity=0;$('#indice-d').style.opacity=0;
+    if(Math.abs(s)>90){el.style.transform=`translateX(${s>0?600:-600}px) rotate(${s>0?30:-30}deg)`;setTimeout(()=>choisir(s>0?1:0),200)}else el.style.transform=''};
+  el.addEventListener('pointerdown',e=>{x0=e.clientX;dx=0;el.classList.add('glisse');el.setPointerCapture&&el.setPointerCapture(e.pointerId)});
+  el.addEventListener('pointermove',e=>{if(x0===null)return;dx=e.clientX-x0;el.style.transform=`translateX(${dx}px) rotate(${dx/14}deg)`;
+    $('#indice-g').style.opacity=dx<-20?Math.min(1,-dx/90):0;$('#indice-d').style.opacity=dx>20?Math.min(1,dx/90):0});
+  el.addEventListener('pointerup',fin);el.addEventListener('pointercancel',fin);
+}
+function choisir(i){
+  if(!trCourante)return;const m=etat.missions.find(x=>x.id===trCourante.m),k=trCourante.k;if(!m)return;
+  const res=resoudreCarte(m,k,i,false);if(!res)return fermerTransmission();
+  const c=carte(m.cartes[k].id),p=planete(m.planete),acteur=jimee(res.acteur);
+  const tampon=res.consequence==='mort'?['mort','PERDU']:res.ok?['ok','RÉUSSI']:['ko','RATÉ'];
+  const gains=[res.credits?`<span class="puce">💰 +${res.credits}</span>`:'',res.ferraille?`<span class="puce">⚙️ +${res.ferraille}</span>`:'',res.gadget?`<span class="puce legendaire">🔧 ${res.gadget.nom} +${res.gadget.bonus}</span>`:'',
+    res.consequence==='blessure'?'<span class="puce mauvais">🩹 blessé</span>':'',res.consequence==='perte'?'<span class="puce mauvais">½ butin perdu</span>':''].join('');
+  const suite=carteEnAttente(m);
+  $('#transmission').innerHTML=`<p class="entete-tr">📡 Transmission ${k+1}/3<small>${p.nom} · ${c.o[i].txt} (${res.chance} %)</small></p>
+    <div class="zone-carte"><div class="carte-tr"><div class="illu">${illustration(p.biome,acteur,res.consequence==='mort'?'crane':c.picto,res.consequence==='mort'?'mort':res.ok?'heureux':res.consequence==='blessure'?'blesse':'normal')}</div>
+      <div class="texte resultat-tr"><span class="tampon ${tampon[0]}">${tampon[1]}</span><p>${res.texte}</p><div class="gains">${gains}</div>
+      ${res.consequence==='mort'?'<p class="note main">La Corp a été prévenue. Elle sourit.</p>':''}</div></div></div>
+    <button class="btn" data-action="${suite>=0?'transmission':'fermer-transmission'}" data-m="${m.id}">${suite>=0?'Transmission suivante':m.statut==='perdue'?'Voir le rapport':'Continuer'}</button>`;
+  bruit(res.consequence==='mort'?'mort':res.ok?'bon':'mauvais');sauver();majGuide();
+}
+
+/* ---------- 17. Rapport de mission ---------- */
+function ouvrirRapport(mid){
+  const m=etat.missions.find(x=>x.id===mid);if(!m)return;majMissions(Date.now());
+  const r=cloturerMission(m);if(!r)return;
+  dire(r.affiches.length?`${r.affiches.map(a=>a.nom).join(' et ')} ne reviendra pas. La Corp a déjà imprimé l'affiche.`:`Retour de ${r.planete.nom} : +${m.butin.credits} crédits, +${m.butin.ferraille} ferraille. ${'★'.repeat(r.etoiles)}`);
+  const p=r.planete,vivs=m.equipe.filter(id=>!m.morts.includes(id)).map(jimee).filter(Boolean),chef=vivs[0]||null;
+  const lignes=[{ic:'capsule',ton:'',txt:`Atterrissage sur ${p.nom}.`}];
+  m.cartes.forEach((cc,k)=>{if(cc.annulee||!cc.res)return;const c=carte(cc.id);lignes.push({ic:cc.res.consequence==='mort'?'crane':c.picto,ton:cc.res.consequence==='mort'?'mort':cc.res.ok?'':'ko',
+    txt:`<b>${c.titre}</b> · ${c.o[cc.choix].txt}${cc.auto?' <small>(décidé seul)</small>':''} : ${cc.res.texte}`})});
+  lignes.push(vivs.length?{ic:'capsule',ton:'',txt:`Retour à la fusée${vivs.some(j=>j.blesse>0)?', avec des bleus':''}.`}:{ic:'crane',ton:'mort',txt:'Personne ne remonte dans la navette.'});
+  const fete=r.etoiles===3&&r.etoiles>r.etoilesAvant||m.butin.gadgets.length||r.niveaux.length;
+  $('#rapport').innerHTML=`<p class="entete-tr">Rapport de mission<small>${p.nom} · ${GALAXIES[p.galaxie].nom}</small></p>
+    <div id="rap-scene">${illustration(p.biome,chef,vivs.length?'etoile':'crane',vivs.length?'heureux':null)}</div>
+    <div id="rap-corps">${lignes.map(l=>`<div class="ligne-rap ${l.ton}">${picto(l.ic,14,l.ton==='mort'?'#F4C9C2':l.ton==='ko'?'#FBE3C8':'#FFF7E4')}<p>${l.txt}</p></div>`).join('')}
+      <div id="rap-bilan" style="display:none">
+        ${vivs.length?`<div class="grandes-etoiles">${[1,2,3].map(n=>`<span class="${n<=r.etoiles?'on':''}" style="animation-delay:${n*.15}s">★</span>`).join('')}</div>
+        <div class="butin-chiffres"><span><b>${m.butin.credits}</b><small>crédits</small></span><span style="animation-delay:.1s"><b>${m.butin.ferraille}</b><small>ferraille</small></span><span style="animation-delay:.2s"><b>${m.butin.gadgets.length}</b><small>gadgets</small></span></div>
+        ${m.butin.gadgets.map(g=>`<p class="ligne"><span>🔧 ${g.nom}</span><b>${STATS[g.stat].ic} +${g.bonus}</b></p>`).join('')}
+        ${r.niveaux.map(n=>`<p class="ligne"><span>⬆️ ${n.nom} passe niveau ${n.niveau}</span><b>${STATS[n.stat].ic} +1</b></p>`).join('')}
+        ${vivs.filter(j=>j.blesse>0).map(j=>`<p class="ligne"><span>🩹 ${j.nom} est blessé</span><small>infirmerie conseillée</small></p>`).join('')}`:''}
+        ${r.affiches.map(afficheHtml).join('')}
+        ${r.affiches.length?`<p class="note main" style="text-align:center">Le coupon est déjà au guichet. La Corp vous remercie de votre fidélité.</p>`:''}
+      </div></div>
+    <div class="btns">${r.affiches.length?`<button class="btn sec" data-action="vers-guichet">Au guichet</button>`:''}<button class="btn" data-action="fermer-rapport">Fermer</button></div>`;
+  $('#rapport').classList.add('ouvert');
+  minuteursRapport.forEach(clearTimeout);minuteursRapport=[];
+  const ls=$$('#rap-corps .ligne-rap'),d=reduit()?0:550;
+  ls.forEach((l,i)=>minuteursRapport.push(setTimeout(()=>{l.classList.add('vu');if(d)bruit(l.classList.contains('mort')?'mauvais':'pop')},d*i+150)));
+  minuteursRapport.push(setTimeout(()=>{$('#rap-bilan').style.display='block';$('#rap-corps').scrollTop=9999;
+    if(r.affiches.length)bruit('mort');else{bruit('piece');if(fete){setTimeout(()=>bruit('fanfare'),300);confettis()}}},d*ls.length+300));
+  sauver();majGuide();
+}
+function confettis(){
+  if(reduit())return;const coul=['#D63A2F','#E9A93A','#3F7CB8','#5E9E4A','#8A5AA8','#FFF7E4'];
+  for(let k=0;k<46;k++){const c=document.createElement('i');c.className='confetti';
+    c.style.cssText=`left:${Math.random()*100}%;background:${coul[k%coul.length]};animation-delay:${(Math.random()*.4).toFixed(2)}s;animation-duration:${(1.6+Math.random()*1.2).toFixed(2)}s;--d:${(Math.random()*120-60).toFixed(0)}px;--r:${(Math.random()*720-360).toFixed(0)}deg`;
+    document.body.appendChild(c);setTimeout(()=>c.remove(),3400)}
+}
+
+/* ---------- 18. Accueil et guide de la première partie ---------- */
+function annonce(html){$('#annonce-boite').innerHTML=html;$('#annonce').classList.add('ouvert');bruit('fanfare')}
+function accueil(){
+  const [a,b]=etat.jimees;
+  annonce(`<div class="persos">${a?dessinJimee(a,'heureux'):''}${persoCorp()}${b?dessinJimee(b,'heureux'):''}</div><h2>Bienvenue à bord, capitaine</h2>
+    <p class="main">Voici votre fusée et vos deux premiers Jimees, ${a?a.nom:''} et ${b?b.nom:''}. Ils travaillent à bord, partent en mission… et parfois ne reviennent pas. Rassurez-vous : la Corp, elle, gagne à tous les coups.</p>
+    <button class="btn" data-action="fermer-annonce">C'est parti</button>`);
+}
+function etapeGuide(){
+  if(!etat.guide)return null;
+  if(etat.stats.missions+etat.stats.morts>0){etat.guide=false;return null}
+  const m=missionsActives()[0];
+  if(m){if(rapportPret(m))return 'rapport';if(carteEnAttente(m)>=0)return 'transmission';return 'attendre'}
+  if(!etat.guideFait.recolte)return 'recolte';
+  if(!etat.guideFait.affecte)return 'affecte';
+  return 'mission';
+}
+function infoGuide(){
+  const e=etapeGuide();if(!e)return null;const idle=etat.jimees.find(j=>!j.piece&&!j.mission);
+  const pid=Object.keys(etat.pieces).find(k=>etat.pieces[k].type==='cantine');
+  const cartOuverte=$('#ecran-carte').classList.contains('ouvert'),f=feuilleCourante;
+  // une fiche ouverte cache la fusée : on demande d'abord de la fermer (sauf si la consigne se trouve dedans)
+  const fermer={txt:'Fermez cette fiche (×) pour revenir à la fusée.',cible:'#feuille .fermer'};
+  if(f&&(e==='recolte'||(e==='affecte'&&!(f.type==='piece'&&f.id===pid))||(e==='mission'&&!cartOuverte)))return fermer;
+  if(e==='recolte'){const r=Object.keys(etat.pieces).find(k=>etat.pieces[k].type==='reacteur');return {txt:'Le réacteur a produit du carburant. Touchez la bulle pour le récolter.',cible:`[data-piece="${r}"] .recolte`}}
+  if(e==='affecte'){if(f&&f.type==='piece'&&f.id===pid)return {txt:`Choisissez ${idle?idle.nom:'un Jimee'} : à la cantine, ses jambes font des merveilles.`,cible:`#feuille [data-affecter="${pid}"]`};
+    return {txt:`${idle?idle.nom:'Un Jimee'} fait la sieste au dortoir. Touchez la cantine pour lui donner du travail.`,cible:`#fusee [data-piece="${pid}"]`}}
+  if(e==='mission'){
+    if(!cartOuverte)return {txt:'Tout tourne. Touchez le cockpit : une planète vous attend.',cible:'[data-piece="p0"]'};
+    if(!(f&&f.type==='planete'))return {txt:'Touchez la première planète du chemin.',cible:`[data-planete="${PLANETES[0].id}"]`};
+    if(!carteSel.equipe.length)return {txt:'Choisissez qui part : touchez un Jimee.',cible:'#feuille [data-equipe]:not([disabled])'};
+    return {txt:'Décollez ! Première mission express : 45 secondes.',cible:'#feuille [data-action="lancer"]'}}
+  if(e==='attendre')return {txt:'En route ! Des transmissions vont arriver : vous déciderez à la place de votre Jimee.',cible:null};
+  if(e==='transmission')return $('#transmission').classList.contains('ouvert')?{txt:'Glissez la carte à gauche ou à droite, ou touchez un choix.',cible:null}:{txt:'📡 Une transmission ! Touchez « Répondre ».',cible:'.btn-transmission'};
+  return {txt:'La mission est finie. Touchez « Rapport ».',cible:'.btn-transmission.rapport'};
+}
+const estVisible=el=>{if(!el)return false;if(el.getClientRects().length)return true;if(document.body.getClientRects().length)return false;
+  for(let x=el;x&&x.nodeType===1;x=x.parentElement)if(x.style.display==='none')return false;return true};
+function majGuide(){
+  $$('.guide-cible').forEach(x=>x.classList.remove('guide-cible'));
+  const g=infoGuide(),b=$('#bulle'),d=$('#guide-doigt');
+  b.classList.toggle('guide',!!g);
+  if(!g){d.style.display='none';if(b.textContent!==etat.ia&&!b.classList.contains('guide'))b.textContent=etat.ia;return}
+  b.innerHTML=`${g.txt} <button class="passer" data-action="passer-guide">Passer</button>`;
+  const calque=['#transmission','#rapport','#annonce'].map(x=>$(x)).find(x=>x.classList.contains('ouvert'));
+  const c=g.cible?$$(g.cible).find(x=>estVisible(x)&&(!calque||calque.contains(x))):null;if(!c){d.style.display='none';return}   // pas de main sur un élément caché par un calque
+  c.classList.add('guide-cible');placerDoigt(c);
+}
+function placerDoigt(c){
+  const d=$('#guide-doigt');c=c||$('.guide-cible');if(!c||!estVisible(c)){d.style.display='none';return}
+  const r=c.getBoundingClientRect(),bas=r.bottom+70>innerHeight;d.style.display='block';d.classList.toggle('vers-bas',bas);
+  d.style.left=(r.left+r.width/2-22)+'px';d.style.top=(bas?r.top-66:r.bottom+2)+'px';
+}
+
+/* ---------- 19. Événements ---------- */
+function voler(depuis,ic,vers){
+  if(reduit()||!depuis)return;const a=depuis.getBoundingClientRect(),b=$(vers).getBoundingClientRect(),s=document.createElement('span');
+  s.className='vole';s.textContent=ic;s.style.left=a.left+'px';s.style.top=a.top+'px';document.body.appendChild(s);
+  requestAnimationFrame(()=>{s.style.transform=`translate(${b.left-a.left}px,${b.top-a.top}px) scale(.6)`;s.style.opacity='.2'});setTimeout(()=>s.remove(),800);
+}
+function erreurOu(msg,ok){if(msg){toast(msg);bruit('non');return false}if(ok)ok();return true}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-action],[data-piece],[data-jimee],[data-recolte],[data-construire],[data-affecter],[data-planete],[data-equipe],[data-choix],[data-guichet]');if(!t)return;
+  const d=t.dataset;
+  if(d.recolte!==undefined){const pid=t.closest('[data-piece]').dataset.piece,p=etat.pieces[pid],T=PIECES[p.type],n=recolter(pid);
+    if(n){voler(t,RESSOURCES[T.prod].ic,T.prod==='gadget'?'#r-ferraille':'#r-'+T.prod);bruit('piece');toast(T.prod==='gadget'?`🔧 ${pluriel(n,'gadget')} fabriqué${n>1?'s':''} ! Ils sont au guichet.`:`+${n} ${RESSOURCES[T.prod].nom}`)}
+    tout();return}
+  if(d.choix!==undefined)return choisir(+d.choix);
+  if(d.guichet)return feuilleGuichet(d.guichet);
+  if(d.equipe){const i=carteSel.equipe.indexOf(d.equipe);if(i>=0)carteSel.equipe.splice(i,1);else{if(carteSel.equipe.length>=2)carteSel.equipe.shift();carteSel.equipe.push(d.equipe)}bruit('pop');return feuillePlanete(carteSel.planete)}
+  if(d.planete)return feuillePlanete(d.planete);
+  if(d.affecter!==undefined){const msg=affecter(d.j,d.affecter||null);if(erreurOu(msg)){bruit('pop');tout();rafraichirFeuille()}return}
+  if(d.construire)return feuilleConstruire(d.construire);
+  if(d.jimee&&!d.action){if(!jimee(d.jimee))return;return feuilleJimee(d.jimee)}
+  if(d.piece&&!d.action)return feuillePiece(d.piece);
+  const a=d.action;
+  if(a==='fermer-feuille')return fermerFeuille();
+  if(a==='reglages')return feuilleReglages();
+  if(a==='fermer-carte')return fermerCarte();
+  if(a==='fermer-annonce'){$('#annonce').classList.remove('ouvert');etat.accueilVu=true;return tout()}
+  if(a==='passer-guide'){etat.guide=false;dire('Guide rangé. Bonne chance, capitaine.');return tout()}
+  if(a==='relancer-guide'){etat.guide=true;etat.guideFait={};fermerFeuille();return tout()}
+  if(a==='recolter'){const n=recolter(d.p);if(n)bruit('piece');tout();return rafraichirFeuille()}
+  if(a==='ameliorer'){if(erreurOu(ameliorer(d.p))){bruit('fanfare');toast('Pièce améliorée !');tout(true);rafraichirFeuille()}return}
+  if(a==='construire'){const [e2,s]=d.ou.split('/').map(Number);if(erreurOu(construire(e2,s,d.type))){bruit('fanfare');fermerFeuille();tout(true)}return}
+  if(a==='etage'){if(erreurOu(ajouterEtage())){bruit('fanfare');tout(true)}return}
+  if(a==='equiper'){equiper(d.j,d.g);bruit('pop');tout(true);return rafraichirFeuille()}
+  if(a==='desequiper'){desequiper(d.j);tout(true);return rafraichirFeuille()}
+  if(a==='vendre'){const v=vendreGadget(d.g);if(v){bruit('piece');toast(`+${v} crédits. La Corp le revendra le double.`)}tout();return rafraichirFeuille()}
+  if(a==='vers-mission'){carteSel.equipe=[d.j];fermerFeuille();ouvrirCarte();return}
+  if(a==='lancer'){const p=planete(carteSel.planete);if(erreurOu(lancerMission(carteSel.planete,carteSel.equipe))){bruit('depart');
+      dire(`Décollage vers ${p.nom} ! ${missionsActives().slice(-1)[0].express?'Mission express : retour dans 45 secondes.':`Retour dans ${fmtTemps(missionsActives().slice(-1)[0].fin-Date.now())}.`}`);
+      carteSel={planete:null,equipe:[]};fermerFeuille();fermerCarte();tout(true)}return}
+  if(a==='transmission')return ouvrirTransmission(d.m);
+  if(a==='fermer-transmission'){const m=etat.missions.find(x=>x.id===d.m);fermerTransmission();if(m&&rapportPret(m))ouvrirRapport(m.id);return}
+  if(a==='rapport')return ouvrirRapport(d.m);
+  if(a==='fermer-rapport'){minuteursRapport.forEach(clearTimeout);$('#rapport').classList.remove('ouvert');return tout(true)}
+  if(a==='vers-guichet'){minuteursRapport.forEach(clearTimeout);$('#rapport').classList.remove('ouvert');tout(true);return feuilleGuichet('capsules')}
+  if(a==='capsule'){const x=tirerCapsule();if(x.erreur){toast(x.erreur);bruit('non');return}
+    sauver();majBarre();const dist=$('#distributeur');t.disabled=true;bruit('manivelle');
+    const fini=()=>{$('#revelation').innerHTML=revelationHtml(x);dist.style.display='none';t.style.display='none';bruit(x.jimee.rarete==='legendaire'?'fanfare':'piece');if(x.jimee.rarete!=='commun')confettis();signatureFusee='';dessinerFusee()};
+    if(reduit())fini();else{dist.classList.add('tourne');setTimeout(fini,1700)}
+    dire(`${x.jimee.nom} sort de sa capsule${x.coupon?`, en souvenir de ${x.coupon.de}`:''}. ${RARETES[x.jimee.rarete].nom}, garanti sans retour possible.`);return}
+  if(a==='permission'&&'Notification' in window)return Notification.requestPermission().then(()=>feuilleReglages());
+  if(a==='reset'){if(!confirm('Effacer la partie et recommencer ?'))return;etat=etatInitial();sauver();fermerFeuille();fermerCarte();tout(true);return accueil()}
+});
+document.addEventListener('change',e=>{const k=e.target.dataset.reglage;if(!k)return;etat.reglages[k]=e.target.type==='checkbox'?e.target.checked:e.target.value.trim();sauver();if(k==='son')bruit('pop')});
+$('#vue-fusee').addEventListener('scroll',()=>placerDoigt(),{passive:true});$('#chemin').addEventListener('scroll',()=>placerDoigt(),{passive:true});$('#feuille').addEventListener('scroll',()=>placerDoigt(),{passive:true});
+window.addEventListener('resize',()=>{if($('#ecran-carte').classList.contains('ouvert'))dessinerCarte();placerDoigt()});
+
+/* ---------- 20. Boucle ---------- */
+let derniereSauvegarde=0;
+function tic(){
+  const avant=JSON.stringify(etat.missions.map(m=>[m.id,carteEnAttente(m),rapportPret(m)]));
+  avancer();const change=majMissions();
+  majBarre();dessinerFusee();majMissionsUI();
+  const apres=JSON.stringify(etat.missions.map(m=>[m.id,carteEnAttente(m),rapportPret(m)]));
+  if(apres!==avant){majGuide();for(const m of missionsActives()){const k=carteEnAttente(m);if(k>=0){bruit('radio');notifier('📡 Transmission !',`Depuis ${planete(m.planete).nom} : votre Jimee attend vos ordres.`)}else if(rapportPret(m))notifier('Mission terminée',`Le rapport de ${planete(m.planete).nom} vous attend.`)}}
+  if(change&&feuilleCourante&&feuilleCourante.type==='jimee')rafraichirFeuille();
+  if(Date.now()-derniereSauvegarde>5000){sauver();derniereSauvegarde=Date.now()}
+}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tout()});
+tout(true);
+if(!etat.accueilVu)accueil();
+setInterval(tic,1000);
+
+
+</script>
+</body>
+</html>

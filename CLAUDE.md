@@ -11,6 +11,12 @@ Lire **JIMEE-RECAP.md** en entier avant toute modification : c'est le document d
 - `decors/` : décors en SVG, générés par `outils/decors.py` (modifier le script, puis le relancer).
 - `DIRECTION-ARTISTIQUE.md` : style graphique, palette, consignes pour les images encore à refaire (planètes).
 
+## Jimee 2 (nouvelle version, en cours)
+- Jeu à part dans `jimee2/` (servi à `/jimee2/`), sauvegarde séparée (`jimee2-sauvegarde`). Conception : `jimee2/CONCEPTION.md`.
+- Un seul fichier `jimee2/index.html` (style, page, script). Toutes les valeurs d'équilibrage sont dans `CONFIG` en tête du script.
+- Réutilise les polices (`../polices/`), les images de planètes (`../planetes/`) et le fond `../decors/carte.svg`.
+- Tests : `tests/tests-j2.js` (inclus dans la boucle ci-dessous).
+
 ## Indépendance
 - Version de Lucas, séparée de celle de Dylan depuis le 6 octobre 2026 (dépôt, Netlify et serveur multijoueur). Ne jamais remettre l'ancien serveur Supabase commun (`zbtoknbzwvbryxmoudcl`).
 

@@ -5,6 +5,7 @@
 > ⚠️ Le travail « V14 » d'une session précédente (météo du jour, objectifs de mission, événements galactiques, anomalies) n'a jamais été livré : il n'est PAS dans le code. Seule l'idée des tailles a été reprise ici.
 > **Version de Lucas, indépendante de celle de Dylan depuis le 6 octobre 2026** : dépôt, site Netlify et serveur multijoueur séparés (aucun serveur Supabase configuré par défaut ; l'ancien serveur commun est retiré du code). Les règles de travail ci-dessous restent valables.
 > **Le code fait foi** : depuis le 5 octobre 2026, la référence est la branche `main` du dépôt GitHub `lucasboul-dev/jimme` ; chaque push redéploie Netlify (https://startling-kheer-17da0d.netlify.app). Plus de ZIP : faire `git pull` avant de travailler. En cas de contradiction entre ce document et le code, suivre le code et signaler l'écart.
+> **Jimee 2** (6 octobre 2026) : nouvelle version en cours de construction dans `jimee2/` (« Fallout Shelter dans une fusée, des cartes à la Reigns pendant les missions, une Corp qui transforme chaque mort en argument de vente »). Ce récap décrit Jimee 1 ; Jimee 2 est décrit dans `jimee2/CONCEPTION.md`.
 > **Style graphique** : voir `DIRECTION-ARTISTIQUE.md` (palette, consignes ChatGPT pour les décors, procédure d'intégration).
 
 ---
