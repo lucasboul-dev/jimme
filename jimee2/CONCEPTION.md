@@ -63,7 +63,8 @@ Personnages (Jimee et représentant de la Corp), palette et polices cartoon, dé
 - **Incidents** (à la Fallout Shelter) : de temps en temps une pièce occupée tombe en panne (fuite, rats, court-circuit, cafards, inspection de la Corp). Elle s'arrête et clignote ; « Intervenir » = épreuve de la bonne caractéristique (le meilleur agit, les autres aident) : récompense ou blessure. Ignoré, l'incident s'éteint en 15 min avec le stock.
 - **⚡ Accélérer** : 20 minutes de production tout de suite, avec un risque d'incident (15 %, +12 % à chaque nouvelle accélération dans la demi-heure, 80 % au plus).
 - **Salles d'entraînement** : salle de sport (muscles), piste (jambes), bibliothèque (cervelle). +1 après 20 + 10 × niveau actuel minutes de travail, jusqu'à 10.
-- Valeurs dans `CONFIG` (`sacMax`, `incidents`, `accelerer`, `entrainement`, `vente`, `butin`). Sauvegarde v2 : les anciens gadgets deviennent des accessoires.
+- **Rendre un Jimee à la Corp** (fiche du Jimee, avec confirmation) : 30 / 70 / 200 💰 selon la rareté, +12 par niveau au-dessus de 1. Libère une place au dortoir pour une nouvelle capsule ; l'équipement reste à bord. Impossible en mission ou pour le dernier Jimee.
+- Valeurs dans `CONFIG` (`revente`, `sacMax`, `incidents`, `accelerer`, `entrainement`, `vente`, `butin`). Sauvegarde v2 : les anciens gadgets deviennent des accessoires.
 
 ## 8. Ce qui n'est pas (encore) dans ce prototype
 

@@ -353,7 +353,8 @@ const CONFIG={
   accelerer:{minutes:20,minimum:3,risqueBase:.15,risqueParFois:.12,risqueMax:.8,oubliMin:30},
   entrainement:{base:[1,1.4,1.9],seuilBase:20,seuilParPoint:10},   // minutes de travail pour +1 : 20 + 10 × niveau actuel
   capsule:{prix:100,rarete:[{id:'commun',poids:75},{id:'rare',poids:22},{id:'legendaire',poids:3}],hommageReduc:.3,deuilBonusLeg:.01,deuilBonusMax:.1},
-  vente:{commun:15,rare:40,legendaire:150}
+  vente:{commun:15,rare:40,legendaire:150},
+  revente:{commun:30,rare:70,legendaire:200,parNiveau:12}   // rendre un Jimee à la Corp (pour libérer une place)
 };
 const STATS={muscles:{nom:'Muscles',ic:'💪'},jambes:{nom:'Jambes',ic:'🦵'},cervelle:{nom:'Cervelle',ic:'🧠'}};
 const CLES_STATS=Object.keys(STATS);
@@ -905,6 +906,16 @@ function equiper(jid,oid){
   const o=etat.objets.splice(i,1)[0];if(j.equip[o.slot])etat.objets.push(j.equip[o.slot]);j.equip[o.slot]=o;
 }
 function desequiper(jid,slot){const j=jimee(jid);if(!j||j.mission||!j.equip[slot])return;etat.objets.push(j.equip[slot]);j.equip[slot]=null}
+// Rendre un Jimee à la Corp : son équipement reste à bord, il libère une place au dortoir
+const prixRevente=j=>CONFIG.revente[j.rarete]+CONFIG.revente.parNiveau*(j.niveau-1);
+function revendreJimee(jid){
+  const j=jimee(jid);if(!j)return {erreur:'Inconnu.'};
+  if(j.mission)return {erreur:`${j.nom} est en mission.`};
+  if(etat.jimees.length<=1)return {erreur:'Impossible de rendre votre dernier Jimee. La fusée ne se pilote pas toute seule.'};
+  for(const sl of Object.keys(EMPLACEMENTS))if(j.equip[sl]){etat.objets.push(j.equip[sl]);j.equip[sl]=null}
+  const v=prixRevente(j);etat.res.credits+=v;etat.jimees=etat.jimees.filter(x=>x!==j);etat.stats.revendus=(etat.stats.revendus||0)+1;
+  return {prix:v,nom:j.nom};
+}
 function vendreObjet(oid){const i=etat.objets.findIndex(o=>o.id===oid);if(i<0)return 0;const o=etat.objets.splice(i,1)[0],v=CONFIG.vente[o.rarete]*o.bonus;etat.res.credits+=v;return v}
 function acheterProvision(id){const P=PROVISIONS[id];if(!P)return 'Inconnu.';if(etat.res.credits<P.prix)return `Il faut ${P.prix} 💰.`;etat.res.credits-=P.prix;etat.provisions[id]=(etat.provisions[id]||0)+1;return null}
 
@@ -1204,6 +1215,7 @@ function etatJimee(j){
   return 'Au repos au dortoir';
 }
 function feuilleJimee(jid,refresh){
+  if(!refresh&&reventeDemandee!==jid)reventeDemandee=null;
   const j=jimee(jid);if(!j)return fermerFeuille();
   const P=PERSONNALITES[j.perso],T=TRAITS[j.trait],xpMin=CONFIG.xpNiveaux[j.niveau-1],xpMax=CONFIG.xpNiveaux[j.niveau]||xpMin+1;
   const pieces=Object.entries(etat.pieces).filter(([pid,p])=>PIECES[p.type].prod||PIECES[p.type].entraine||p.type==='infirmerie');
@@ -1223,7 +1235,10 @@ function feuilleJimee(jid,refresh){
       :!j.mission?'<p class="note">Réserve vide. L\'atelier fabrique de l\'équipement, les missions risquées en rapportent.</p>':''}
     ${j.mission?'':`<h3>Où l'envoyer ?</h3>
       ${pieces.map(([pid,p])=>{const Tp=PIECES[p.type],ici=j.piece===pid;return `<button class="choix-jimee${ici?' on':''}" data-affecter="${pid}" data-j="${j.id}"><span class="txt">${Tp.nom} niv. ${p.niveau}<small>${Tp.prod?`${STATS[Tp.stat].ic} ${STATS[Tp.stat].nom} : ${statBase(j,Tp.stat)}`:Tp.entraine?`entraîne ${STATS[Tp.entraine].ic} ${STATS[Tp.entraine].nom.toLowerCase()} (${j.stats[Tp.entraine]}/10)`:'soins'} · ${occupants(pid).length}/${placesPiece(p)}</small></span>${ici?'<span class="val">✓</span>':''}</button>`}).join('')}
-      <div class="btns"><button class="btn sec" data-affecter="" data-j="${j.id}">Au repos</button>${disponible(j)?`<button class="btn" data-action="vers-mission" data-j="${j.id}">En mission</button>`:''}</div>`}`;
+      <div class="btns"><button class="btn sec" data-affecter="" data-j="${j.id}">Au repos</button>${disponible(j)?`<button class="btn" data-action="vers-mission" data-j="${j.id}">En mission</button>`:''}</div>
+      ${etat.jimees.length>1?`<h3>Rendre à la Corp</h3><p class="note">La Corp reprend ${j.nom} pour ${prixRevente(j)} 💰 et libère sa place au dortoir. Son équipement reste à bord. Elle ne dit pas ce qu'elle en fera.</p>
+        ${reventeDemandee===j.id?`<div class="btns"><button class="btn sec" data-action="revendre-non">Non, il reste</button><button class="btn rouge" data-action="revendre" data-j="${j.id}">Oui, adieu ${j.nom}</button></div>`
+          :`<button class="btn sec" data-action="revendre-demande" data-j="${j.id}">Rendre ${j.nom} · +${prixRevente(j)} 💰</button>`}`:''}`}`;
   ouvrirFeuille(html,{type:'jimee',id:jid});
 }
 function feuillePiece(pid){
@@ -1263,7 +1278,7 @@ function feuilleConstruire(id){
   ouvrirFeuille(`<h2>Construire</h2><p class="sous">Étage ${e}, emplacement ${s+1}.</p>`+CONSTRUCTIBLES.map(t=>{const T=PIECES[t];
     return `<button class="choix-jimee" data-action="construire" data-type="${t}" data-ou="${id}" ${peutPayer(T.cout)?'':'disabled'}><span class="txt">${T.nom}<small>${T.desc}</small></span><span class="val" style="font-size:.85rem">${texteCout(T.cout)}</span></button>`}).join(''),{type:'construire',id});
 }
-let ongletGuichet='capsules';
+let ongletGuichet='capsules',reventeDemandee=null;
 function feuilleGuichet(onglet){
   ongletGuichet=onglet||ongletGuichet;const c=couponActif(),ch=chancesRarete(),tot=ch.reduce((s,x)=>s+x.poids,0);
   let h=`<h2>Guichet de la Corp</h2><p class="sous main">« Vos Jimees meurent ? Nous aussi, on adore les nouveaux clients. »</p>
@@ -1535,6 +1550,11 @@ document.addEventListener('click',e=>{
     if(x.ok){bruit('bon');toast(`✅ ${x.nom} : réglé ! +${x.credits} 💰 +${x.ferraille} ⚙️`);dire(`Incident réglé. La Corp note que c'était « une simple formalité ».`)}
     else{bruit('mauvais');toast(`🩹 Raté : ${x.blesse} est blessé, le stock est perdu.`);dire(`${x.nom} : ${x.blesse} y a laissé des plumes. La pièce redémarre quand même.`)}
     tout(true);return rafraichirFeuille()}
+  if(a==='revendre-demande'){reventeDemandee=d.j;bruit('pop');return rafraichirFeuille()}
+  if(a==='revendre-non'){reventeDemandee=null;return rafraichirFeuille()}
+  if(a==='revendre'){reventeDemandee=null;const x=revendreJimee(d.j);if(x.erreur){toast(x.erreur);bruit('non');return}
+    carteSel.equipe=carteSel.equipe.filter(id=>id!==d.j);bruit('piece');toast(`+${x.prix} crédits. ${x.nom} est reparti dans sa capsule.`);
+    dire(`${x.nom} a été rendu à la Corp. Elle le « reconditionne ». Il y a de la place pour un nouveau Jimee au guichet.`);fermerFeuille();tout(true);return}
   if(a==='vendre'){const v=vendreObjet(d.o);if(v){bruit('piece');toast(`+${v} crédits. La Corp le revendra le double.`)}tout();return rafraichirFeuille()}
   if(a==='vers-mission'){carteSel.equipe=[d.j];fermerFeuille();ouvrirCarte();return}
   if(a==='lancer'){const p=planete(carteSel.planete);if(erreurOu(lancerMission(carteSel.planete,carteSel.equipe,carteSel.sac))){bruit('depart');

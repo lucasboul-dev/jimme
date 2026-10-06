@@ -171,6 +171,16 @@ E(`feuilleJimee('${j0}')`);t('fiche Jimee : 3 emplacements',qa('#feuille .emplac
 E("ouvrirCarte();feuillePlanete('P0')");t('fiche planète : sac',!!q('#feuille [data-sac]')&&/Sac/.test(q('#feuille').textContent));
 clic('#feuille [data-sac]');t('mettre une provision dans le sac',E('carteSel.sac.length')===1);
 
+// --- Rendre un Jimee à la Corp
+E("etat.jimees.forEach(j=>{j.mission=null});etat.jimees.push(nouveauJimee('R1'))");
+const nbAv=E('etat.jimees.length'),jr=E('etat.jimees[etat.jimees.length-1].id');E(`jimee('${jr}').equip.tete=creerObjet('rv')`);
+E(`feuilleJimee('${jr}')`);clic('#feuille [data-action="revendre-demande"]');
+t('revente : confirmation demandée',!!q('#feuille [data-action="revendre"]')&&E('etat.jimees.length')===nbAv);
+const cr=E('etat.res.credits'),prixR=E(`prixRevente(jimee('${jr}'))`),nObj=E('etat.objets.length');clic('#feuille [data-action="revendre"]');
+t('revente : crédits, place libérée, équipement gardé',E('etat.jimees.length')===nbAv-1&&E('etat.res.credits')===cr+prixR&&E('etat.objets.length')===nObj+1&&!E(`jimee('${jr}')`));
+t('revente refusée en mission',/mission/.test(E("(()=>{const j=etat.jimees[0];j.mission='X';const r=revendreJimee(j.id).erreur;j.mission=null;return r})()")));
+t('impossible de rendre le dernier Jimee',/dernier/.test(E("(()=>{const l=etat.jimees;etat.jimees=[l[0]];const r=revendreJimee(l[0].id).erreur;etat.jimees=l;return r})()")));
+
 // --- Migration d'une sauvegarde v1 (gadgets)
 const v1=E("(()=>{const e=JSON.parse(JSON.stringify(etat));e.version=1;delete e.objets;delete e.provisions;e.gadgets=[{id:'G1',nom:'Gants',stat:'muscles',bonus:2}];e.jimees.forEach(j=>{delete j.equip;delete j.entrainement});e.jimees[0].gadget={id:'G2',nom:'Bottes',stat:'jambes',bonus:1};return JSON.stringify(e)})()");
 const W2=ouvrir(v1);
