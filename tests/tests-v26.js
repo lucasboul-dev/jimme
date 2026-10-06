@@ -96,6 +96,11 @@ const dort=ms=>new Promise(r=>setTimeout(r,ms||30));
   t('déterminisme conservé',W.ev("(()=>{const p=galaxie.planetes[2],j=genererJimee('DET','B');return JSON.stringify(simuler(p,j,'S1'))===JSON.stringify(simuler(p,j,'S1'))})()"));
   t('chaque ligne du journal de mission a un identifiant',W.ev("(()=>{const r=simuler(galaxie.planetes[1],genererJimee('ID','B'),'S2');return r.etapes.every(e=>typeof e.id==='string')})()"));
   t('vignette par étape : catégories connues',W.ev("Object.values(CATEGORIE_ETAPE).every(c=>PICTOS[c])&&['crane','etoile','danger','bulle'].every(c=>PICTOS[c])"));
+  // --- Version indépendante : plus aucun lien avec le serveur de Dylan
+  t('aucun serveur multijoueur par défaut',W.ev("MULTI.url===''&&MULTI.cle===''&&!multiActif()"));
+  const vd=JSON.parse(W.ev('JSON.stringify(etat)'));vd.multi.url='https://zbtoknbzwvbryxmoudcl.supabase.co';vd.multi.cle='sb_publishable_x';vd.multi.partie='JIMEE-DYL42';
+  const WD=ouvrir(JSON.stringify(vd));
+  t('une sauvegarde reliée à l\'ancien serveur est déconnectée',WD.ev("etat.multi.url===''&&etat.multi.partie===''&&!multiActif()"));
   t('rendu de tous les écrans sans erreur',W.ev("(()=>{for(const e of ['vaisseau','carte','jimee','corp','hangar','atelier','marche','labo'])try{ecran=e;tout()}catch(x){return false}return true})()"));
 
   console.log(`\n${ok} réussis, ${ko} échoués`);process.exit(ko?1:0);

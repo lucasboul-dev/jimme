@@ -11,6 +11,9 @@ Lire **JIMEE-RECAP.md** en entier avant toute modification : c'est le document d
 - `decors/` : décors en SVG, générés par `outils/decors.py` (modifier le script, puis le relancer).
 - `DIRECTION-ARTISTIQUE.md` : style graphique, palette, consignes pour les images encore à refaire (planètes).
 
+## Indépendance
+- Version de Lucas, séparée de celle de Dylan depuis le 6 octobre 2026 (dépôt, Netlify et serveur multijoueur). Ne jamais remettre l'ancien serveur Supabase commun (`zbtoknbzwvbryxmoudcl`).
+
 ## Déploiement
 - Site Netlify : https://startling-kheer-17da0d.netlify.app
 - Chaque push sur `main` redéploie automatiquement le site. Pas d'étape de build.

@@ -2509,6 +2509,7 @@ function migrer(e){
   if(!e.deblocages||typeof e.deblocages!=='object')e.deblocages=toutDebloque();if(typeof e.guide!=='boolean')e.guide=false;if(typeof e.son!=='boolean')e.son=true;
   if(!Array.isArray(e.journal))e.journal=[];if(typeof e.compteurJournal!=='number')e.compteurJournal=0;e.version=Math.max(e.version,CONFIG.versionSauvegarde);   // V17 : mode à deux (bloc multi ci-dessous)
   if(!e.multi||typeof e.multi!=='object')e.multi={partie:'',pseudo:'',id:'J'+Math.random().toString(36).slice(2,10)+Date.now().toString(36),url:'',cle:'',dernierEvt:null,publiees:{},fil:[]};
+  if(e.multi.url&&e.multi.url.includes('zbtoknbzwvbryxmoudcl')){e.multi.url='';e.multi.cle='';e.multi.partie=''}   // V26 : détachée du serveur de Dylan
   if(!e.multi.publiees)e.multi.publiees={};if(!Array.isArray(e.multi.fil))e.multi.fil=[];   // V16 : clés de cartographie par galaxie (conversion après le chargement de l'univers)
   if(!Array.isArray(e.expeditions))e.expeditions=[];if(typeof e.compteurExpe!=='number')e.compteurExpe=0;
   if(e.jimee){if(!e.jimee.experience)e.jimee.experience={blessures:0,auDessus:0};if(!Array.isArray(e.jimee.eveils))e.jimee.eveils=[];delete e.jimee.points}
@@ -4080,8 +4081,10 @@ function panneauExpeditions(){
    (serveur/jimee-multijoueur.sql). Sans réseau ou sans réglages : le jeu fonctionne exactement comme avant.
    ========================================================= */
 const MULTI={
-  url:'https://zbtoknbzwvbryxmoudcl.supabase.co',          // projet Supabase « jimee » (modifiable dans le Labo)
-  cle:'sb_publishable_ggLexwL4o6VX5W8Nrxg4ow_261M-KGQ',     // clé PUBLIQUE (publishable) : sans danger dans le navigateur
+  // V26 : version de Lucas, détachée du serveur de Dylan. Aucun serveur par défaut : le mode à deux reste éteint
+  // tant qu'un projet Supabase n'est pas saisi dans le Labo (ou ici). Script du serveur : serveur/jimee-multijoueur.sql
+  url:'',
+  cle:'',
   intervalleMs:10000, horsLigneMs:90000,
   pillageRetireLesPerdus:true  // un pillage retire de l'épave ce qu'il rapporte et ce qu'il détruit ; le reste y reste
 };
