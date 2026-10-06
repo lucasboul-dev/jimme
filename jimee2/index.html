@@ -239,6 +239,26 @@ b{font-weight:800}
 .affiche .slogan-aff{font-family:var(--main);font-size:1.12rem;line-height:1.2;text-shadow:1px 1px 0 rgba(34,27,22,.6)}
 .affiche .reduc{position:absolute;right:10px;top:46px;width:70px;height:70px;border-radius:50%;border:3px solid var(--encre);background:var(--ia);color:var(--encre);font-family:var(--titre);font-size:1.25rem;line-height:64px;transform:rotate(12deg);box-shadow:var(--ombre-p)}
 .affiche .mentions{margin-top:6px;font-size:.62rem;opacity:.85}
+.mag{margin-top:8px;border:3px solid var(--encre);border-radius:4px;background:#FBF1D9;box-shadow:var(--ombre);padding:12px 12px 10px;background-image:radial-gradient(rgba(34,27,22,.07) 1px,transparent 1.2px);background-size:5px 5px}
+.mag-tete{text-align:center;border-bottom:3px double var(--encre);padding-bottom:6px;margin-bottom:8px}
+.mag-tete .titre-mag{font-family:var(--titre);font-size:1.75rem;color:var(--corp);letter-spacing:.03em;line-height:1;text-shadow:2px 2px 0 var(--encre)}
+.mag-tete small{display:flex;justify-content:space-between;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-top:1.5px solid var(--encre);margin-top:6px;padding-top:3px}
+.mag h4{font-family:var(--titre);font-weight:400;font-size:1.05rem;letter-spacing:.03em;margin:12px 0 4px;text-align:center;border-top:1.5px solid var(--encre);border-bottom:1.5px solid var(--encre);padding:3px 0 1px}
+.mag-modele{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:center;padding:8px 0;border-bottom:1.5px dashed var(--sep)}
+.mag-modele:last-of-type{border-bottom:0}
+.mag-modele .vitrine{width:86px;height:104px;border:2.5px solid var(--encre);border-radius:6px;background:var(--carte);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.mag-modele .vitrine svg{height:96px;width:auto;max-width:82px}
+.mag-modele.rare .vitrine{background:#D9E8F5}.mag-modele.legendaire .vitrine{background:#FBE6A6;box-shadow:0 0 0 3px #E9A93A}
+.mag-modele b.nom{font-family:var(--titre);font-weight:400;font-size:1.05rem;letter-spacing:.02em}
+.mag-modele .pct{float:right;font-family:var(--titre);font-size:1.35rem;color:var(--corp)}
+.mag-modele p{font-size:.82rem;line-height:1.25}
+.mag-modele .slogan{font-family:var(--main);font-size:.95rem;color:var(--doux)}
+.mag-jauge{display:flex;gap:4px;align-items:center;font-size:.75rem;font-weight:800;margin:2px 0}
+.mag-jauge span.barre{flex:1;height:8px;border:1.5px solid var(--encre);border-radius:4px;background:var(--carte2);position:relative;overflow:hidden}
+.mag-jauge span.barre i{position:absolute;top:0;bottom:0;background:var(--bon)}
+.mag-liste{columns:2;column-gap:12px;font-size:.78rem;line-height:1.25}
+.mag-liste p{break-inside:avoid;margin-bottom:6px}
+.mag-pied{margin-top:10px;font-size:.66rem;color:var(--doux);text-align:center;font-style:italic}
 .affiches{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .affiches .affiche{margin:0;padding:8px;transform:rotate(var(--rot,0deg))}
 .affiches .affiche .titre-aff{font-size:1rem}.affiches .affiche .defunt{height:70px}.affiches .affiche .slogan-aff{font-size:.85rem}.affiches .affiche .reduc{display:none}
@@ -1282,12 +1302,13 @@ let ongletGuichet='capsules',reventeDemandee=null;
 function feuilleGuichet(onglet){
   ongletGuichet=onglet||ongletGuichet;const c=couponActif(),ch=chancesRarete(),tot=ch.reduce((s,x)=>s+x.poids,0);
   let h=`<h2>Guichet de la Corp</h2><p class="sous main">« Vos Jimees meurent ? Nous aussi, on adore les nouveaux clients. »</p>
-    <div class="onglets">${[['capsules','Capsules'],['boutique','Boutique'],['objets',`Équipement (${etat.objets.length})`],['memorial',`Mémorial (${etat.memorial.length})`],['album','Album']].map(([k,n])=>`<button data-guichet="${k}" aria-pressed="${ongletGuichet===k}">${n}</button>`).join('')}</div>`;
+    <div class="onglets">${[['capsules','Capsules'],['catalogue','Catalogue'],['boutique','Boutique'],['objets',`Équipement (${etat.objets.length})`],['memorial',`Mémorial (${etat.memorial.length})`],['album','Album']].map(([k,n])=>`<button data-guichet="${k}" aria-pressed="${ongletGuichet===k}">${n}</button>`).join('')}</div>`;
   if(ongletGuichet==='capsules')h+=`<div class="distributeur" id="distributeur">${distributeurSvg()}<span class="capsule-tombe">${CAPSULE_SVG()}</span></div>
     <div id="revelation"></div>
     ${c?`<p class="carte-blanche main" style="text-align:center">🎟️ Coupon hommage : −${Math.round(c.reduc*100)} % · le cousin de ${c.de} hérite +1 en ${STATS[c.stat].nom.toLowerCase()}</p>`:''}
     <button class="btn rouge" data-action="capsule" ${etat.jimees.length>=capacite()||etat.res.credits<prixCapsule()?'disabled':''}>Tourner la manivelle · ${prixCapsule()} 💰</button>
     <p class="note" style="text-align:center">Équipage ${etat.jimees.length} / ${capacite()}${etat.jimees.length>=capacite()?' : construisez un dortoir pour recruter.':''} · Commun ${Math.round(ch[0].poids/tot*100)} % · Rare ${Math.round(ch[1].poids/tot*100)} % · Légendaire ${Math.round(ch[2].poids/tot*100)} %${etat.deuils?` (bonus de deuil inclus)`:''}</p>`;
+  if(ongletGuichet==='catalogue')h+=catalogueHtml();
   if(ongletGuichet==='boutique')h+=`<p class="note">Provisions à glisser dans le sac avant une mission (${CONFIG.sacMax} places). Les bonnes provisions ouvrent une option dorée, réussie à coup sûr, sur certaines transmissions.</p>`+
     Object.entries(PROVISIONS).map(([id,P])=>`<div class="ligne"><span>${P.ic} <b>${P.nom}</b> <small>×${etat.provisions[id]||0}</small><br><small class="note" style="margin:0">${P.desc.replace('{nom} ','votre Jimee ')}</small></span><button class="puce bon" data-action="acheter" data-prov="${id}" ${etat.res.credits<P.prix?'disabled':''}>${P.prix} 💰</button></div>`).join('');
   if(ongletGuichet==='objets')h+=etat.objets.length?`<p class="note">Pour équiper un Jimee, touchez-le dans la fusée. Ici, la Corp rachète (à prix d'ami, pour elle).</p>`+[...etat.objets].sort((a,b)=>b.bonus-a.bonus).map(o=>`<div class="ligne"><span>${texteObjet(o)}</span><button class="puce" data-action="vendre" data-o="${o.id}">Vendre ${CONFIG.vente[o.rarete]*o.bonus} 💰</button></div>`).join('')
@@ -1297,6 +1318,33 @@ function feuilleGuichet(onglet){
   if(ongletGuichet==='album'){const vus=Object.keys(etat.album).length,total=COULEURS_JIMEE.length*CHAPEAUX.length;
     h+=`<p class="note">${vus} / ${total} apparences rencontrées. Chaque capsule peut révéler un nouveau look.</p><div class="album">${COULEURS_JIMEE.flatMap(c=>CHAPEAUX.map(ch=>etat.album[c+'|'+ch]?`<span title="${NOMS_CHAPEAUX[ch]}">${persoJimee({couleur:c,chapeau:ch})}</span>`:'<span>?</span>')).join('')}</div>`}
   ouvrirFeuille(h,{type:'guichet',id:ongletGuichet});
+}
+// Le magazine de la Corp : raretés, chances du moment, tempéraments et options de série
+const MAG_MODELES={
+  commun:{titre:'Le Standard',couleur:'#C9BBA0',chapeau:'casquette',slogan:'« Fiable, économique, remplaçable. »',texte:'Le Jimee de tous les jours. Il pellette, il cuisine, il part en mission sans poser de questions (il n\'en connaît pas).'},
+  rare:{titre:'Le Grand Luxe',couleur:'#3F7CB8',chapeau:'melon',slogan:'« Pour le capitaine qui en veut plus. »',texte:'Mieux bâti, mieux fini. Ses caractéristiques partent de plus haut : il revient plus souvent, ce qui est bon pour vous et mauvais pour nos ventes.'},
+  legendaire:{titre:'L\'Édition Prestige',couleur:'#E9A93A',chapeau:'haut',slogan:'« Il brille. Littéralement. »',texte:'Assemblé à la main dans nos ateliers secrets. Des étoiles autour de la tête, et des caractéristiques à faire pâlir un réacteur.'}};
+function catalogueHtml(){
+  const ch=chancesRarete(),tot=ch.reduce((s,x)=>s+x.poids,0),pct=id=>{const v=ch.find(x=>x.id===id).poids/tot*100;return v<10?v.toFixed(1).replace('.',','):Math.round(v)};
+  const no=1+etat.deuils+(etat.stats.revendus||0),ok=CLES_STATS.length;
+  return `<div class="mag"><div class="mag-tete"><div class="titre-mag">LE JIMEE ILLUSTRÉ</div><div class="main">Le catalogue officiel de la Jimee Corp</div>
+      <small><span>Édition n° ${no}</span><span>Prix : gratuit (pour l'instant)</span></small></div>
+    <h4>Les modèles de la saison</h4>
+    ${Object.entries(MAG_MODELES).map(([id,M])=>{const R=RARETES[id],[a,b]=R.stats;
+      return `<div class="mag-modele ${id}"><div class="vitrine">${persoJimee({couleur:M.couleur,chapeau:M.chapeau,etat:'heureux',etoiles:id==='legendaire'})}</div><div>
+        <span class="pct">${pct(id)} %</span><b class="nom">${M.titre}</b><br><span class="puce ${id}">${etoilesRarete(id)} ${R.nom}</span>
+        <div class="mag-jauge"><span>Caract. ${a} à ${b}</span><span class="barre"><i style="left:${a*10}%;width:${(b-a)*10}%"></i></span></div>
+        <p>${M.texte}</p><p class="slogan">${M.slogan}</p></div></div>`}).join('')}
+    <p class="note" style="text-align:center">Chances à la manivelle, aujourd'hui.${etat.deuils?` Offre spéciale deuil : +${Math.round(Math.min(CONFIG.capsule.deuilBonusMax,etat.deuils*CONFIG.capsule.deuilBonusLeg)*100)} points de Prestige, en souvenir de vos ${pluriel(etat.deuils,'disparu')}.`:' Chaque Jimee perdu améliore vos chances de Prestige (jusqu\'à +10 points). La Corp pense à vous.'}</p>
+    <h4>Les tempéraments</h4>
+    <div class="mag-liste">${Object.values(PERSONNALITES).map(P=>`<p><b>${P.nom}.</b> ${P.desc}</p>`).join('')}</div>
+    <h4>Options de série</h4>
+    <div class="mag-liste">${Object.values(TRAITS).map(T=>`<p><b>${T.nom}.</b> ${T.desc}</p>`).join('')}</div>
+    <h4>Objets de légende</h4>
+    <div class="mag-liste">${LEGENDAIRES.map(L=>`<p><b>${EMPLACEMENTS[L.slot].ic} ${L.nom}.</b> ${L.desc} <i>Introuvable en magasin : demandez aux gardiens.</i></p>`).join('')}</div>
+    <h4>${COULEURS_JIMEE.length*CHAPEAUX.length} apparences à collectionner</h4>
+    <p class="note" style="text-align:center">${COULEURS_JIMEE.length} couleurs, ${CHAPEAUX.length} couvre-chefs. Vous en avez vu ${Object.keys(etat.album).length}. Les autres vous attendent dans la capsule suivante.</p>
+    <p class="mag-pied">Jimees vendus sans garantie. Les caractéristiques sont données à titre indicatif et n'engagent que le Jimee. Toute ressemblance avec un Jimee disparu est une offre promotionnelle.</p></div>`;
 }
 function revelationHtml(x){
   const j=x.jimee;

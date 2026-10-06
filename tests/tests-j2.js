@@ -171,6 +171,8 @@ E(`feuilleJimee('${j0}')`);t('fiche Jimee : 3 emplacements',qa('#feuille .emplac
 E("ouvrirCarte();feuillePlanete('P0')");t('fiche planète : sac',!!q('#feuille [data-sac]')&&/Sac/.test(q('#feuille').textContent));
 clic('#feuille [data-sac]');t('mettre une provision dans le sac',E('carteSel.sac.length')===1);
 
+E("feuilleGuichet('catalogue')");t('catalogue de la Corp : 3 modèles avec leurs chances',qa('#feuille .mag-modele').length===3&&/LE JIMEE ILLUSTRÉ/.test(q('#feuille').textContent)&&/%/.test(q('#feuille .mag-modele .pct').textContent));
+
 // --- Rendre un Jimee à la Corp
 E("etat.jimees.forEach(j=>{j.mission=null});etat.jimees.push(nouveauJimee('R1'))");
 const nbAv=E('etat.jimees.length'),jr=E('etat.jimees[etat.jimees.length-1].id');E(`jimee('${jr}').equip.tete=creerObjet('rv')`);
