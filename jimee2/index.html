@@ -91,6 +91,18 @@ b{font-weight:800}
 /* bulle de récolte */
 .recolte{position:absolute;right:8px;top:30px;z-index:4;display:flex;align-items:center;gap:3px;padding:3px 9px 2px 5px;border:2.5px solid var(--encre);border-radius:999px;background:#FFF1CF;font-family:var(--titre);font-size:.9rem;box-shadow:var(--ombre-p);animation:flotte 1.4s ease-in-out infinite;pointer-events:auto}
 .recolte.pleine{background:var(--ia)}
+.piece.incident::before{content:'';position:absolute;inset:0;z-index:3;background:rgba(214,58,47,.22);animation:alerte 1s ease-in-out infinite;pointer-events:none}
+@keyframes alerte{50%{background:rgba(214,58,47,.05)}}
+.alerte-incident{position:absolute;left:50%;top:32px;z-index:5;translate:-50% 0;padding:3px 10px 2px;border:2.5px solid var(--encre);border-radius:999px;background:#D63A2F;color:#FFF7E4;font-family:var(--titre);font-size:.9rem;box-shadow:var(--ombre-p);animation:clignote .8s ease-in-out infinite;white-space:nowrap}
+.carte-alerte{border:3px solid var(--encre);border-radius:12px;background:#F4C9C2;padding:10px 12px;margin:8px 0}
+.emplacements{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+.emplacement{border:2.5px solid var(--encre);border-radius:10px;background:var(--carte);padding:6px 4px;text-align:center;font-size:.78rem;line-height:1.15;min-height:74px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.emplacement .ic{font-size:1.3rem}.emplacement.vide{opacity:.55;border-style:dashed}
+.emplacement.legendaire{background:#FBE6A6}.emplacement.rare{background:#D9E8F5}
+.sac{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.provision{display:flex;align-items:center;gap:4px;padding:5px 10px 4px;border:2.5px solid var(--encre);border-radius:999px;background:var(--carte);font-weight:800;font-size:.85rem;box-shadow:var(--ombre-p)}
+.provision.on{background:var(--ia)}.provision[disabled]{opacity:.4}
+.provision .utile{font-size:.7rem;color:#2F6B2A}
 @keyframes flotte{50%{transform:translateY(-5px)}}
 .vole{position:fixed;z-index:80;font-size:1.4rem;pointer-events:none;transition:transform .7s cubic-bezier(.5,-.3,.7,1),opacity .7s}
 /* un Jimee dans sa pièce */
@@ -185,7 +197,8 @@ b{font-weight:800}
 .carte-tr .texte{padding:14px 16px 18px}
 .indice{position:absolute;top:14px;z-index:3;padding:6px 10px 4px;border:3px solid var(--encre);border-radius:10px;background:var(--carte);font-family:var(--titre);font-size:.9rem;letter-spacing:.02em;max-width:62%;opacity:0;transition:opacity .15s;box-shadow:var(--ombre-p)}
 .indice.g{left:10px;transform:rotate(-6deg)}.indice.d{right:10px;transform:rotate(6deg)}
-.options{display:flex;gap:10px}
+.options{display:flex;gap:10px;flex-wrap:wrap}
+.option.doree{flex-basis:100%;background:#FBE6A6;animation:clignote 1.6s ease-in-out infinite}
 .option{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 8px 8px;border:3px solid var(--encre);border-radius:14px 12px 15px 11px;background:var(--carte);box-shadow:0 4px 0 var(--encre);text-align:center}
 .option:active{transform:translateY(4px);box-shadow:none}
 .option b{font-family:var(--titre);font-weight:400;font-size:.95rem;letter-spacing:.02em;line-height:1.1}
@@ -321,7 +334,7 @@ const maintenant=()=>Date.now();
 
 /* ---------- 2. Configuration (toutes les valeurs d'équilibrage sont ici) ---------- */
 const CONFIG={
-  version:1, cle:'jimee2-sauvegarde',
+  version:2, cle:'jimee2-sauvegarde',
   depart:{credits:250,rations:30,carburant:24,ferraille:12},
   rationToutesLesMin:6,              // un Jimee mange 1 ration toutes les 6 minutes (pas en mission)
   facteurFaim:.5,                    // production divisée par deux sans rations
@@ -334,9 +347,13 @@ const CONFIG={
     sur:   {diff:-2,gain:.4,blessure:0,  mort:0,     mortPalier:0,     nom:'prudent'},
     normal:{diff:0, gain:1, blessure:.5, mort:.04,   mortPalier:.005,  nom:'normal'},
     risque:{diff:1.5,gain:2,blessure:1,  mort:.25,   mortPalier:.015,  nom:'risqué'}},
-  butin:{credits:20,creditsPalier:8,ferraille:3,ferraillePalier:1,gadgetRisque:.3},
+  butin:{credits:20,creditsPalier:8,ferraille:3,ferraillePalier:1,objetRisque:.3,provision:.2},
+  sacMax:2,                          // provisions emportées en mission
+  incidents:{parMinute:1/22,dureeMaxMin:15,difficulteBase:3,difficultePalier:.3,difficulteMax:9,chanceBase:50,chanceParPoint:12,aideParJimee:1,blessureMin:15},
+  accelerer:{minutes:20,minimum:3,risqueBase:.15,risqueParFois:.12,risqueMax:.8,oubliMin:30},
+  entrainement:{base:[1,1.4,1.9],seuilBase:20,seuilParPoint:10},   // minutes de travail pour +1 : 20 + 10 × niveau actuel
   capsule:{prix:100,rarete:[{id:'commun',poids:75},{id:'rare',poids:22},{id:'legendaire',poids:3}],hommageReduc:.3,deuilBonusLeg:.01,deuilBonusMax:.1},
-  vente:{gadget:[15,40,90]}
+  vente:{commun:15,rare:40,legendaire:150}
 };
 const STATS={muscles:{nom:'Muscles',ic:'💪'},jambes:{nom:'Jambes',ic:'🦵'},cervelle:{nom:'Cervelle',ic:'🧠'}};
 const CLES_STATS=Object.keys(STATS);
@@ -364,15 +381,45 @@ const NOMS_CHAPEAUX={aucun:'tête nue',casquette:'casquette',melon:'chapeau melo
 /* Pièces de la fusée. prod : ressource produite par minute et par Jimee = base[niveau] × (0,5 + 0,1 × caractéristique) */
 const PIECES={
   cockpit:  {nom:'Cockpit',fixe:true,large:true,desc:'Le poste de pilotage. Touchez-le pour ouvrir la carte stellaire et lancer des missions.',missions:[1,2,3]},
-  guichet:  {nom:'Guichet de la Corp',fixe:true,desc:'Capsules de recrutement, vente de gadgets et mémorial des Jimees. La Corp vous remercie de votre fidélité.'},
+  guichet:  {nom:'Guichet de la Corp',fixe:true,desc:'Capsules de recrutement, boutique de provisions, vente d\'équipement et mémorial des Jimees. La Corp vous remercie de votre fidélité.'},
   dortoir:  {nom:'Dortoir',places:[2,3,4],desc:'Des couchettes. Chaque dortoir accueille des Jimees ; ceux qui ne travaillent pas y font la sieste.',cout:{credits:150,ferraille:10}},
   cantine:  {nom:'Cantine',prod:'rations',stat:'jambes',base:[1,1.6,2.4],cap:[30,60,100],desc:'Produit les rations. Les Jimees aux grandes jambes servent plus vite.',cout:{credits:150,ferraille:10}},
   reacteur: {nom:'Réacteur',prod:'carburant',stat:'muscles',base:[1,1.6,2.4],cap:[30,60,100],desc:'Produit le carburant des missions. Il faut des muscles pour pelleter.',cout:{credits:180,ferraille:15}},
-  atelier:  {nom:'Atelier',prod:'gadget',stat:'cervelle',base:[1,1.5,2.2],cap:[2,3,4],progres:10,ferraille:5,desc:'Fabrique des gadgets (+1 à +3 à une caractéristique) avec 5 ferrailles chacun. La cervelle accélère le travail.',cout:{credits:250,ferraille:25}},
-  infirmerie:{nom:'Infirmerie',places:[2,2,3],desc:'Les Jimees blessés y guérissent trois fois plus vite qu\'ailleurs.',cout:{credits:200,ferraille:20}}};
-const CONSTRUCTIBLES=['dortoir','cantine','reacteur','atelier','infirmerie'];
+  atelier:  {nom:'Atelier',prod:'gadget',stat:'cervelle',base:[1,1.5,2.2],cap:[2,3,4],progres:10,ferraille:5,desc:'Fabrique de l\'équipement (casques, tenues, accessoires) avec 5 ferrailles chacun. La cervelle accélère le travail.',cout:{credits:250,ferraille:25}},
+  infirmerie:{nom:'Infirmerie',places:[2,2,3],desc:'Les Jimees blessés y guérissent trois fois plus vite qu\'ailleurs.',cout:{credits:200,ferraille:20}},
+  salle_sport:{nom:'Salle de sport',entraine:'muscles',desc:'Haltères et sac de frappe : les Jimees y gagnent des muscles, lentement mais sûrement.',cout:{credits:220,ferraille:20}},
+  piste:      {nom:'Piste d\'athlétisme',entraine:'jambes',desc:'Un tapis roulant et un chronomètre : les jambes s\'allongent (au sens figuré).',cout:{credits:220,ferraille:20}},
+  bibliotheque:{nom:'Bibliothèque',entraine:'cervelle',desc:'Des manuels de la Corp. Les Jimees y gagnent de la cervelle, et de l\'ennui.',cout:{credits:220,ferraille:20}}};
+const CONSTRUCTIBLES=['dortoir','cantine','reacteur','atelier','infirmerie','salle_sport','piste','bibliotheque'];
 const COUT_NIVEAU=[null,{credits:300,ferraille:30},{credits:700,ferraille:70}];   // pour passer au niveau 2, puis 3
-const RESSOURCES={credits:{nom:'crédits',ic:'💰'},rations:{nom:'rations',ic:'🍞'},carburant:{nom:'carburant',ic:'⛽'},ferraille:{nom:'ferraille',ic:'⚙️'},gadget:{nom:'gadgets',ic:'🔧'}};
+/* Équipement : 3 emplacements par Jimee */
+const EMPLACEMENTS={tete:{nom:'Tête',ic:'🎩'},tenue:{nom:'Tenue',ic:'🧥'},accessoire:{nom:'Accessoire',ic:'🧤'}};
+const NOMS_OBJETS={
+  tete:{muscles:'Casque de mineur',jambes:'Bonnet aérodynamique',cervelle:'Casque à antennes'},
+  tenue:{muscles:'Bretelles renforcées',jambes:'Combinaison légère',cervelle:'Blouse de savant'},
+  accessoire:{muscles:'Gants de boxe',jambes:'Bottes à ressorts',cervelle:'Calculette de poche'}};
+const QUALIFS=['','','d\'occasion','neuf','de luxe'];
+const LEGENDAIRES=[
+  {nom:'Casque du Premier Jimee',slot:'tete',stat:'cervelle',effet:'increvable',desc:'Une fois par mission, évite la mort.'},
+  {nom:'Combinaison de l\'Explorateur',slot:'tenue',stat:'jambes',effet:'polyvalent',desc:'+1 à toutes les caractéristiques.'},
+  {nom:'Gant doré de la Corp',slot:'accessoire',stat:'muscles',effet:'pillard',desc:'Butin des missions ×1,5.'}];
+/* Provisions : emportées dans le sac (2 places). Les actives ouvrent une option dorée sur certaines transmissions. */
+const PROVISIONS={
+  corde:  {nom:'Corde',ic:'🪢',prix:25,desc:'Falaises, ponts, crevasses : tout ce qui monte ou descend.',reussite:'{nom} s\'encorde et passe tranquillement. La corde, elle, reste là-bas.'},
+  pied_de_biche:{nom:'Pied-de-biche',ic:'🔩',prix:30,desc:'Coffres, portes, machines têtues.',reussite:'Un coup de pied-de-biche bien placé. Ça s\'ouvre en grinçant.'},
+  fumigene:{nom:'Fumigène',ic:'💨',prix:35,desc:'Pour disparaître au bon moment, de préférence avec le butin.',reussite:'Pfff… Un nuage de fumée, et {nom} a disparu. Avec le butin.'},
+  appat:  {nom:'Appât',ic:'🍖',prix:20,desc:'Occupe les bêtes affamées pendant que {nom} s\'occupe du reste.',reussite:'La bête se jette sur l\'appât. {nom} a tout le temps qu\'il faut.'},
+  lampe:  {nom:'Lampe',ic:'🔦',prix:30,desc:'Grottes, mines, brouillard : on y voit enfin quelque chose.',reussite:'Avec la lampe, plus de mauvaise surprise. Juste des bonnes.'},
+  trousse:{nom:'Trousse de soin',ic:'🩹',prix:40,passive:true,desc:'Soigne sur place la première blessure de la mission.'},
+  ration: {nom:'Ration de survie',ic:'🥫',prix:25,passive:true,desc:'+1 à toutes les épreuves de la mission (mangée pendant le voyage).'}};
+/* Incidents dans la fusée (à la Fallout Shelter) : la pièce s'arrête tant que personne n'intervient */
+const INCIDENTS={
+  fuite:      {nom:'Fuite de vapeur',ic:'💨',stat:'muscles',pieces:['reacteur'],texte:'Le réacteur siffle et crache de la vapeur. Il faut resserrer les vannes, à la main.'},
+  rats:       {nom:'Rats spatiaux',ic:'🐀',stat:'jambes',pieces:['cantine'],texte:'Des rats spatiaux ont trouvé la cantine. Ils sont rapides, mais les Jimees aussi. En théorie.'},
+  courtcircuit:{nom:'Court-circuit',ic:'⚡',stat:'cervelle',pieces:['atelier'],texte:'Des étincelles partout. Quelqu\'un a branché la calculette sur le réacteur.'},
+  cafards:    {nom:'Cafards géants',ic:'🪳',stat:'muscles',pieces:['salle_sport','piste','bibliotheque','cantine'],texte:'Des cafards de la taille d\'un chat. Ils ont l\'air de vouloir s\'entraîner aussi.'},
+  inspection: {nom:'Inspection de la Corp',ic:'📋',stat:'cervelle',pieces:null,texte:'Un inspecteur de la Corp veut « auditer » la pièce. Il faut le convaincre que tout est en ordre. Rien n\'est en ordre.'}};
+const RESSOURCES={credits:{nom:'crédits',ic:'💰'},rations:{nom:'rations',ic:'🍞'},carburant:{nom:'carburant',ic:'⛽'},ferraille:{nom:'ferraille',ic:'⚙️'},gadget:{nom:'équipements',ic:'🎒'}};
 
 /* Biomes (repris de Jimee 1) */
 const BIOMES=[
@@ -446,6 +493,57 @@ const CARTES=[
 const CARTES_GARDIEN=[
   {id:'gardien',titre:'Le gardien de la planète',biomes:null,picto:'dragon',gardien:true,texte:'Le gardien de la planète se dresse devant {nom}. Il est grand. Il est très grand. Et il garde un trésor.',
     o:[{txt:'L\'affronter',stat:'muscles',risque:'risque'},{txt:'Le contourner par ruse',stat:'cervelle',risque:'risque'}]}];
+
+/* V2 : 20 transmissions de plus (40 en tout) */
+CARTES.push(
+  {id:'nid',titre:'Le nid géant',biomes:['jungle','marecage','fongique'],picto:'monstre',texte:'Un nid géant, des œufs énormes. La mère n\'est sûrement pas loin. Elle n\'est jamais loin.',
+    o:[{txt:'Voler un œuf',stat:'jambes',risque:'risque'},{txt:'Observer de loin',stat:'cervelle',risque:'sur'}],objet:{id:'appat',txt:'Lancer l\'appât pour éloigner la mère',gain:1.5}},
+  {id:'pirates',titre:'Les pirates de l\'espace',biomes:null,picto:'monstre',texte:'Des pirates réclament un péage. Ils acceptent les crédits, la ferraille, et les Jimees.',
+    o:[{txt:'Négocier',stat:'cervelle',risque:'normal'},{txt:'Leur foncer dessus',stat:'muscles',risque:'risque'}],objet:{id:'fumigene',txt:'Fumigène, et filer',gain:1}},
+  {id:'crevasse',titre:'La crevasse',biomes:['glace','roche'],picto:'danger',texte:'Une crevasse. Au fond, quelque chose brille. Au fond, c\'est loin.',
+    o:[{txt:'Descendre à mains nues',stat:'muscles',risque:'risque'},{txt:'Pêcher l\'objet avec un bâton',stat:'cervelle',risque:'normal'}],objet:{id:'corde',txt:'Descendre en rappel',gain:1.5}},
+  {id:'oasis',titre:'L\'oasis',biomes:['desert'],picto:'eau',texte:'Une oasis ! Ou un mirage. Les deux ont la même tête, de loin.',
+    o:[{txt:'Courir vers elle',stat:'jambes',risque:'normal'},{txt:'Vérifier d\'abord',stat:'cervelle',risque:'sur'}]},
+  {id:'statue',titre:'La statue',biomes:['ville','cristal','desert'],picto:'porte',texte:'Une statue géante de Jimee. Sur la plaque : « Employé du mois ». Il y a sûrement quelque chose dedans.',
+    o:[{txt:'Chercher un passage secret',stat:'cervelle',risque:'normal'},{txt:'La renverser',stat:'muscles',risque:'risque'}],objet:{id:'pied_de_biche',txt:'Ouvrir le socle au pied-de-biche',gain:1.5}},
+  {id:'tunnel',titre:'Le tunnel d\'aération',biomes:['metal','ville','roche'],picto:'porte',texte:'Un tunnel étroit. Très étroit. {nom} rentre le ventre par réflexe.',
+    o:[{txt:'Ramper dedans',stat:'jambes',risque:'risque'},{txt:'Élargir l\'entrée',stat:'muscles',risque:'normal'}],objet:{id:'lampe',txt:'Éclairer et avancer prudemment',gain:1.5}},
+  {id:'meteores',titre:'La pluie de météorites',biomes:null,picto:'danger',texte:'Une pluie de météorites. Les petites font mal, les grosses rapportent.',
+    o:[{txt:'Ramasser en courant',stat:'jambes',risque:'risque'},{txt:'S\'abriter sous un rocher',stat:'muscles',risque:'sur'}]},
+  {id:'carnivore',titre:'La plante carnivore',biomes:['jungle','fongique','marecage'],picto:'plante',texte:'Une plante carnivore fait les yeux doux à {nom}. Elle a beaucoup de dents pour une plante.',
+    o:[{txt:'La tailler',stat:'muscles',risque:'normal'},{txt:'L\'endormir avec une berceuse',stat:'cervelle',risque:'risque'}],objet:{id:'appat',txt:'Lui donner l\'appât à la place',gain:1}},
+  {id:'bazar',titre:'Le bazar extraterrestre',biomes:['desert','ville','ocean'],picto:'marchand',texte:'Un bazar où tout est à vendre. Un marchand propose même de racheter {nom}.',
+    o:[{txt:'Échanger de la ferraille',stat:'cervelle',risque:'sur'},{txt:'Faire les poches des clients',stat:'jambes',risque:'risque'}],objet:{id:'fumigene',txt:'Fumigène dans la boutique',gain:1.5}},
+  {id:'radeau',titre:'Le radeau',biomes:['ocean','marecage'],picto:'eau',texte:'Il faut traverser un lac. Il y a un radeau. Et des choses qui nagent dessous.',
+    o:[{txt:'Ramer très vite',stat:'muscles',risque:'normal'},{txt:'Nager',stat:'jambes',risque:'risque'}],objet:{id:'corde',txt:'Tendre une corde d\'une rive à l\'autre',gain:1}},
+  {id:'antenne',titre:'La vieille antenne',biomes:['metal','ville','glace'],picto:'minerai',texte:'Une antenne de la Corp capte encore. Elle diffuse des publicités pour des Jimees.',
+    o:[{txt:'La réparer',stat:'cervelle',risque:'normal'},{txt:'La démonter pour la ferraille',stat:'muscles',risque:'sur'}],objet:{id:'pied_de_biche',txt:'La dépiauter au pied-de-biche',gain:1.5}},
+  {id:'brouillard',titre:'Le brouillard',biomes:['marecage','glace','fongique'],picto:'danger',texte:'Un brouillard si épais que {nom} ne voit plus ses mains. C\'est pratique pour ne pas les compter.',
+    o:[{txt:'Avancer à l\'instinct',stat:'jambes',risque:'risque'},{txt:'Attendre que ça se lève',stat:'cervelle',risque:'sur'}],objet:{id:'lampe',txt:'Allumer la lampe',gain:1}},
+  {id:'mine',titre:'La mine abandonnée',biomes:['roche','metal','volcan'],picto:'minerai',texte:'Une mine abandonnée. Les wagonnets roulent encore, tout seuls.',
+    o:[{txt:'Sauter dans un wagonnet',stat:'jambes',risque:'risque'},{txt:'Fouiller les galeries',stat:'muscles',risque:'normal'}],objet:{id:'lampe',txt:'Explorer les galeries à la lampe',gain:1.5}},
+  {id:'essaim',titre:'L\'essaim',biomes:['jungle','desert','fongique'],picto:'monstre',texte:'Un essaim d\'insectes entoure {nom}. Ils ont l\'air de vouloir discuter. Avec les dents.',
+    o:[{txt:'Courir',stat:'jambes',risque:'normal'},{txt:'Faire le mort',stat:'cervelle',risque:'risque'}],objet:{id:'fumigene',txt:'Les enfumer',gain:1}},
+  {id:'golem',titre:'Le golem',biomes:['cristal','roche','volcan'],picto:'monstre',texte:'Un golem de pierre dort sur un tas de minerai. Il ronfle comme un éboulement.',
+    o:[{txt:'Prendre le minerai sur la pointe des pieds',stat:'jambes',risque:'risque'},{txt:'Le réveiller poliment',stat:'cervelle',risque:'normal'}],objet:{id:'appat',txt:'Lancer l\'appât au loin',gain:1.5}},
+  {id:'concurrent',titre:'Le concurrent',biomes:null,picto:'marchand',texte:'Un Jimee de la concurrence (« Jimmy\'s Inc. ») convoite le même butin. Il a une casquette plus chère.',
+    o:[{txt:'Le défier au bras de fer',stat:'muscles',risque:'normal'},{txt:'Le convaincre de changer d\'employeur',stat:'cervelle',risque:'risque'}]},
+  {id:'lac_acide',titre:'Le lac d\'acide',biomes:['volcan','marecage'],picto:'eau',texte:'Un lac qui fume. L\'acide ronge les bottes, puis le reste.',
+    o:[{txt:'Contourner par les rochers',stat:'jambes',risque:'normal'},{txt:'Bricoler un radeau',stat:'cervelle',risque:'risque'}],objet:{id:'corde',txt:'Passer suspendu à la corde',gain:1}},
+  {id:'salle_piegee',titre:'La salle piégée',biomes:['desert','ville','cristal'],picto:'coffre',texte:'Un trésor au milieu d\'une salle aux dalles suspectes. Très suspectes.',
+    o:[{txt:'Sauter de dalle en dalle',stat:'jambes',risque:'risque'},{txt:'Repérer les pièges avec des cailloux',stat:'cervelle',risque:'normal'}],objet:{id:'corde',txt:'S\'encorder au pilier',gain:1.5}},
+  {id:'vent',titre:'Le vent',biomes:['desert','glace','metal'],picto:'danger',texte:'Un vent si fort que {nom} vole presque. Presque.',
+    o:[{txt:'S\'agripper au sol',stat:'muscles',risque:'normal'},{txt:'Se laisser porter',stat:'jambes',risque:'risque'}],objet:{id:'corde',txt:'S\'attacher à un rocher',gain:1}},
+  {id:'ecureuils',titre:'Les écureuils voleurs',biomes:['jungle','glace','fongique'],picto:'monstre',texte:'Des écureuils de l\'espace volent les affaires de {nom}. Ils sont organisés.',
+    o:[{txt:'Les poursuivre',stat:'jambes',risque:'normal'},{txt:'Leur tendre un piège',stat:'cervelle',risque:'normal'}],objet:{id:'appat',txt:'Les attirer avec l\'appât',gain:1.5}});
+// Provisions utiles sur les transmissions d'origine
+const OBJETS_CARTES={pont:{id:'corde',txt:'Tendre la corde et traverser',gain:1},coffre:{id:'pied_de_biche',txt:'Ouvrir au pied-de-biche',gain:1.5},bete:{id:'appat',txt:'Lui lancer l\'appât',gain:1},
+  ruines:{id:'lampe',txt:'Explorer à la lampe',gain:1.5},lave:{id:'corde',txt:'Se balancer au bout de la corde',gain:1},marchand:{id:'fumigene',txt:'Fumigène et fuite avec le sac',gain:1.5},
+  grotte:{id:'lampe',txt:'Allumer la lampe',gain:1.5},falaise:{id:'corde',txt:'Grimper encordé',gain:1},epave:{id:'pied_de_biche',txt:'Démonter au pied-de-biche',gain:1.5},
+  sables:{id:'corde',txt:'Se hisser avec la corde',gain:1},drones:{id:'fumigene',txt:'Brouiller les capteurs au fumigène',gain:1},iceberg:{id:'appat',txt:'Pêcher avec l\'appât',gain:1.5},
+  gisement:{id:'pied_de_biche',txt:'Creuser au pied-de-biche',gain:1.5},cristaux:{id:'pied_de_biche',txt:'Faire levier au pied-de-biche',gain:1.5},geyser:{id:'corde',txt:'S\'arrimer avec la corde',gain:1},
+  robot:{id:'pied_de_biche',txt:'Ouvrir le capot au pied-de-biche',gain:1.5},villageois:{id:'appat',txt:'Offrir l\'appât en offrande',gain:1.5},gardien:{id:'appat',txt:'Distraire le gardien avec l\'appât',gain:1}};
+for(const c of [...CARTES,...CARTES_GARDIEN])if(OBJETS_CARTES[c.id])c.objet=OBJETS_CARTES[c.id];
 const TEXTES_RESULTAT={
   ok:{muscles:['{nom} pousse, tire, cogne. Ça cède.','Un grand coup bien placé. Problème réglé.'],jambes:['{nom} file comme une flèche. Personne n\'a rien vu.','Trois bonds, une pirouette, et c\'est passé.'],cervelle:['{nom} réfléchit très fort. Et ça marche.','Une idée lumineuse. Rare, mais efficace.']},
   ko:{muscles:['{nom} pousse de toutes ses forces. La chose ne bouge pas, {nom} si.','Trop lourd. Beaucoup trop lourd.'],jambes:['{nom} trébuche au pire moment.','Un faux pas, puis un deuxième.'],cervelle:['{nom} réfléchit très fort. Rien ne se passe.','L\'idée semblait bonne. Elle ne l\'était pas.']},
@@ -518,7 +616,7 @@ function persoCorp(){
 // Intérieur des pièces (viewBox 200×128 ; le cockpit 400×128)
 function fondPiece(type,niveau){
   const E=`stroke="${ENCRE}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
-  const mur={cockpit:'#3C5C8C',guichet:'#F2D6C8',dortoir:'#DCE8F5',cantine:'#F7E1AA',reacteur:'#E8D3A8',atelier:'#E8D3A8',infirmerie:'#E3F0E6'}[type]||'#E8D3A8';
+  const mur={cockpit:'#3C5C8C',guichet:'#F2D6C8',dortoir:'#DCE8F5',cantine:'#F7E1AA',reacteur:'#E8D3A8',atelier:'#E8D3A8',infirmerie:'#E3F0E6',salle_sport:'#F2D6C8',piste:'#DDEFD3',bibliotheque:'#EADCF3'}[type]||'#E8D3A8';
   const w=type==='cockpit'?400:200;
   let s=`<rect width="${w}" height="128" fill="${mur}"/><rect y="100" width="${w}" height="28" fill="#B9824F" ${E}/>`;
   for(let x=24;x<w;x+=48)s+=`<line x1="${x}" y1="100" x2="${x-10}" y2="128" stroke="${ENCRE}" stroke-width="2" opacity=".3"/>`;
@@ -551,6 +649,15 @@ function fondPiece(type,niveau){
     case 'infirmerie':
       s+=`<rect x="20" y="64" width="90" height="16" rx="4" fill="#FFF7E4" ${E}/><path d="M24 80V100M106 80V100" ${E}/><rect x="20" y="56" width="26" height="10" rx="4" fill="#FFF7E4" ${E}/>
         <rect x="134" y="20" width="44" height="44" rx="6" fill="#FFF7E4" ${E}/><path d="M156 30V54M144 42H168" stroke="#D63A2F" stroke-width="9" stroke-linecap="round"/><path d="M130 100V74H180V100" fill="#9DB3AC" ${E}/>`;break;
+    case 'salle_sport':
+      s+=`<path d="M30 46H90" ${E} stroke-width="6"/><rect x="22" y="34" width="12" height="24" rx="3" fill="#221B16"/><rect x="86" y="34" width="12" height="24" rx="3" fill="#221B16"/><path d="M30 46H90" stroke="#9DB3AC" stroke-width="3"/>
+        <path d="M150 10V30" ${E}/><rect x="136" y="30" width="28" height="56" rx="12" fill="#D63A2F" ${E}/><path d="M140 50H160M140 66H160" ${E} stroke-width="2" opacity=".5"/><rect x="20" y="80" width="90" height="14" rx="4" fill="#3F7CB8" ${E}/>`;break;
+    case 'piste':
+      s+=`<path d="M20 92L44 52H170L180 92Z" fill="#9DB3AC" ${E}/><path d="M40 84H172" ${E} stroke-width="2" opacity=".5"/><path d="M44 52V24H58" ${E}/><rect x="56" y="18" width="34" height="14" rx="3" fill="#221B16" ${E}/>
+        <circle cx="150" cy="30" r="14" fill="#FFF7E4" ${E}/><path d="M150 30V21M150 30L157 34" ${E} stroke-width="2"/><path d="M20 70H40M14 60H34" ${E} stroke-width="2" opacity=".4"/>`;break;
+    case 'bibliotheque':
+      for(const y of [22,50,78]){s+=`<rect x="14" y="${y+16}" width="120" height="6" fill="#8E5B33" ${E}/>`;for(let k=0;k<9;k++)s+=`<rect x="${18+k*12}" y="${y-2+(k%3)*2}" width="10" height="${20-(k%3)*2}" fill="${['#D63A2F','#3F7CB8','#5E9E4A','#E9A93A','#8A5AA8'][k%5]}" ${E} stroke-width="2"/>`}
+      s+=`<rect x="146" y="58" width="44" height="42" fill="#B9824F" ${E}/><path d="M152 58V40H184V58" fill="#FFF7E4" ${E}/><circle cx="160" cy="30" r="9" fill="#FBE6A6" ${E}/>`;break;
   }
   // niveau : petites étoiles au mur
   if(niveau>1)for(let k=0;k<niveau-1;k++)s+=`<path d="M${w-20-k*16} 18l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" fill="#E9A93A" stroke="${ENCRE}" stroke-width="1.5"/>`;
@@ -644,7 +751,7 @@ function nouveauJimee(seed,rarete='commun',force={}){
   const r=creerRng(seed),R=RARETES[rarete];
   const stats={};for(const k of CLES_STATS)stats[k]=borne(force[k]??r.int(R.stats[0],R.stats[1]),1,10);
   return {id:'J'+seedDe(seed).toString(36),nom:r.pick(SYL1)+r.pick(SYL2),rarete,couleur:r.pick(COULEURS_JIMEE),chapeau:r.pick(CHAPEAUX),stats,
-    perso:r.pick(Object.keys(PERSONNALITES)),trait:r.pick(Object.keys(TRAITS)),niveau:1,xp:0,gadget:null,blesse:0,mission:null,piece:null,missions:0,cousinDe:null,ne:Date.now()};
+    perso:r.pick(Object.keys(PERSONNALITES)),trait:r.pick(Object.keys(TRAITS)),niveau:1,xp:0,equip:{tete:null,tenue:null,accessoire:null},entrainement:{},blesse:0,mission:null,piece:null,missions:0,cousinDe:null,ne:Date.now()};
 }
 function etatInitial(){
   const t=Date.now(),D=CONFIG.depart;
@@ -653,7 +760,7 @@ function etatInitial(){
   const e={version:CONFIG.version,cree:t,maj:t,res:{credits:D.credits,rations:D.rations,carburant:D.carburant,ferraille:D.ferraille},
     etages:[['p0'],['p1','p2'],['p3','p4'],[null,null]],
     pieces:{p0:{type:'cockpit',niveau:1},p1:{type:'guichet',niveau:1},p2:{type:'dortoir',niveau:1},p3:{type:'cantine',niveau:1,stock:0},p4:{type:'reacteur',niveau:1,stock:12}},
-    compteurPiece:5,jimees:[j1,j2],gadgets:[],missions:[],etoiles:{},memorial:[],coupons:[],deuils:0,album:{},compteur:0,
+    compteurPiece:5,jimees:[j1,j2],objets:[],provisions:{corde:1,trousse:1},missions:[],etoiles:{},memorial:[],coupons:[],deuils:0,album:{},compteur:0,
     stats:{missions:0,morts:0,recrues:0,cartes:0},guide:true,guideFait:{},accueilVu:false,
     reglages:{son:true,test:false,ntfy:''},ia:'La Corp vous confie une fusée et deux Jimees. Prenez-en soin, ils ne sont pas remboursés.'};
   j1.piece='p4';
@@ -664,6 +771,15 @@ function migrer(e){
   const b=etatInitial();
   for(const k of Object.keys(b))if(e[k]===undefined)e[k]=b[k];
   e.reglages={...b.reglages,...(e.reglages||{})};e.stats={...b.stats,...(e.stats||{})};e.res={...b.res,...(e.res||{})};
+  if((e.version||1)<2){
+    // v1 → v2 : un gadget devient un accessoire ; 3 emplacements d'équipement ; provisions ; entraînement
+    const conv=g=>({id:g.id,nom:g.nom,slot:'accessoire',stat:g.stat,bonus:g.bonus,rarete:g.bonus>=3?'legendaire':g.bonus>=2?'rare':'commun'});
+    e.objets=(e.gadgets||[]).map(conv);delete e.gadgets;
+    for(const j of e.jimees){j.equip={tete:null,tenue:null,accessoire:j.gadget?conv(j.gadget):null};delete j.gadget;j.entrainement={}}
+    for(const m of e.missions||[]){m.sac=m.sac||[];m.butin.objets=(m.butin.gadgets||[]).map(conv);m.butin.provisions=[];delete m.butin.gadgets}
+    e.provisions=e.provisions||{corde:1,trousse:1};
+  }
+  for(const j of e.jimees){j.equip=j.equip||{tete:null,tenue:null,accessoire:null};j.entrainement=j.entrainement||{}}
   e.version=CONFIG.version;
   return e;
 }
@@ -677,20 +793,27 @@ const jimee=id=>etat.jimees.find(j=>j.id===id);
 const capacite=()=>2+Object.values(etat.pieces).filter(p=>p.type==='dortoir').reduce((s,p)=>s+PIECES.dortoir.places[p.niveau-1],0);
 const disponible=j=>!j.mission&&j.blesse<=0;
 const occupants=pid=>etat.jimees.filter(j=>j.piece===pid&&!j.mission);
-const placesPiece=p=>{const T=PIECES[p.type];return T.prod?2:T.places&&p.type==='infirmerie'?T.places[p.niveau-1]:0};
-const statMission=(j,k)=>j.stats[k]+(j.gadget&&j.gadget.stat===k?j.gadget.bonus:0)+((TRAITS[j.trait].mission||{})[k]||0);
-const statBase=(j,k)=>j.stats[k]+(j.gadget&&j.gadget.stat===k?j.gadget.bonus:0);
+const placesPiece=p=>{const T=PIECES[p.type];return T.prod||T.entraine?2:T.places&&p.type==='infirmerie'?T.places[p.niveau-1]:0};
+const objetsPortes=j=>Object.values(j.equip||{}).filter(Boolean);
+const effetPorte=(j,e)=>objetsPortes(j).some(o=>o.effet===e);
+// Caractéristique avec l'équipement (au travail) ; en mission s'ajoutent le trait et, si le sac en contient, la ration de survie
+const statBase=(j,k)=>j.stats[k]+objetsPortes(j).reduce((s,o)=>s+(o.stat===k?o.bonus:0)+(o.effet==='polyvalent'?1:0),0);
+const statMission=(j,k,m)=>statBase(j,k)+((TRAITS[j.trait].mission||{})[k]||0)+(m&&(m.sac||[]).includes('ration')?1:0);
 function gagnerXp(j,n){
   j.xp+=n;const nv=[];
   while(j.niveau<10&&j.xp>=CONFIG.xpNiveaux[j.niveau]){j.niveau++;const r=creerRng(j.id+'/NIV/'+j.niveau);
     const choix=CLES_STATS.filter(k=>j.stats[k]<10);if(choix.length){const k=r.pick(choix);j.stats[k]++;nv.push({niveau:j.niveau,stat:k})}}
   return nv;
 }
-const NOMS_GADGETS={muscles:['Gants de boxe','Haltère de poche','Bretelles renforcées'],jambes:['Bottes à ressorts','Patins à roulettes','Chaussettes porte-bonheur'],cervelle:['Casque à antennes','Lunettes de savant','Calculette de poche']};
-function creerGadget(seed,bonusMin=1){
-  const r=creerRng('G/'+seed),stat=r.pick(CLES_STATS),x=r.f(),bonus=Math.max(bonusMin,x<.6?1:x<.9?2:3);
-  return {id:'G'+seedDe(String(seed)).toString(36),stat,bonus,nom:r.pick(NOMS_GADGETS[stat])};
+// Équipement : fabriqué à l'atelier, trouvé en mission, légendaire sur les gardiens
+function creerObjet(seed,{bonusMin=1,legendaire=null}={}){
+  const r=creerRng('O/'+seed);
+  if(legendaire){const L=legendaire;return {id:'O'+seedDe(String(seed)).toString(36),nom:L.nom,slot:L.slot,stat:L.stat,bonus:3,rarete:'legendaire',effet:L.effet,desc:L.desc}}
+  const slot=r.pick(Object.keys(EMPLACEMENTS)),stat=r.pick(CLES_STATS),x=r.f(),bonus=Math.min(3,Math.max(bonusMin,x<.62?1:x<.92?2:3));
+  return {id:'O'+seedDe(String(seed)).toString(36),nom:NOMS_OBJETS[slot][stat]+(bonus>=3?' de luxe':''),slot,stat,bonus,rarete:bonus>=3?'legendaire':bonus>=2?'rare':'commun'};
 }
+const texteObjet=o=>`${EMPLACEMENTS[o.slot].ic} ${o.nom} <b>${STATS[o.stat].ic}+${o.bonus}</b>${o.effet?` <small>· ${o.desc}</small>`:''}`;
+const nbProvisions=()=>Object.values(etat.provisions).reduce((s,n)=>s+n,0);
 
 /* ---------- 7. Temps réel : production, repas, soins (aussi app fermée) ---------- */
 const enInfirmerie=j=>j.piece&&etat.pieces[j.piece]&&etat.pieces[j.piece].type==='infirmerie';
@@ -705,7 +828,15 @@ function avancer(fin){
   while(t<fin){
     const pas=Math.min(60000,fin-t),dt=pas/60000,faim=etat.res.rations<=0;
     for(const [pid,p] of Object.entries(etat.pieces)){
-      const T=PIECES[p.type];if(!T.prod)continue;
+      const T=PIECES[p.type];
+      if(p.incident){   // pièce à l'arrêt ; au bout d'un moment l'incident s'éteint seul, mais le stock est perdu
+        if(t+pas-p.incident.t>=CONFIG.incidents.dureeMaxMin*60000){p.incident=null;p.stock=0;p.progres=0}
+        continue}
+      if(T.entraine){for(const j of occupants(pid))if(j.blesse<=0&&j.stats[T.entraine]<10){const k=T.entraine;
+        j.entrainement[k]=(j.entrainement[k]||0)+CONFIG.entrainement.base[p.niveau-1]*(TRAITS[j.trait].travail||1)*(faim?CONFIG.facteurFaim:1)*dt;
+        if(j.entrainement[k]>=seuilEntrainement(j,k)){j.entrainement[k]=0;j.stats[k]++;(etat.progres=etat.progres||[]).push(`${j.nom} gagne +1 en ${STATS[k].nom.toLowerCase()} (${j.stats[k]}) !`)}}
+        continue}
+      if(!T.prod)continue;
       const taux=tauxPiece(pid,faim);
       if(T.prod==='gadget'){
         if((p.stock||0)>=T.cap[p.niveau-1])continue;
@@ -726,6 +857,8 @@ function avancer(fin){
   etat.maj=fin;
 }
 
+const seuilEntrainement=(j,k)=>CONFIG.entrainement.seuilBase+CONFIG.entrainement.seuilParPoint*j.stats[k];
+
 /* ---------- 8. Actions dans la fusée ---------- */
 const peutPayer=c=>Object.entries(c).every(([k,v])=>etat.res[k]>=v);
 const payer=c=>{for(const [k,v] of Object.entries(c))etat.res[k]-=v};
@@ -734,7 +867,7 @@ function recolter(pid){
   const p=etat.pieces[pid],T=PIECES[p.type];if(!T.prod)return 0;
   const n=Math.floor(p.stock||0);if(n<1)return 0;
   p.stock-=n;
-  if(T.prod==='gadget'){for(let k=0;k<n;k++)etat.gadgets.push(creerGadget(etat.cree+'/'+(++etat.compteur)))}
+  if(T.prod==='gadget'){for(let k=0;k<n;k++)etat.objets.push(creerObjet(etat.cree+'/'+(++etat.compteur)))}
   else etat.res[T.prod]+=n;
   etat.guideFait.recolte=true;
   return n;
@@ -744,7 +877,8 @@ function affecter(jid,pid){
   if(!pid){j.piece=null;return null}
   const T=PIECES[p.type];
   if(p.type==='infirmerie'){if(j.blesse<=0)return `${j.nom} n'est pas blessé. L'infirmerie n'accepte que les éclopés.`}
-  else if(!T.prod)return 'On ne travaille pas ici.';
+  else if(!T.prod&&!T.entraine)return 'On ne travaille pas ici.';
+  else if(T.entraine&&j.stats[T.entraine]>=10)return `${j.nom} est déjà au maximum en ${STATS[T.entraine].nom.toLowerCase()}.`;
   else if(j.blesse>0)return `${j.nom} est blessé : infirmerie ou repos.`;
   if(occupants(pid).length>=placesPiece(p)&&j.piece!==pid)return 'Plus de place dans cette pièce.';
   j.piece=pid;etat.guideFait.affecte=true;return null;
@@ -766,12 +900,51 @@ function ameliorer(pid){
   const c=COUT_NIVEAU[p.niveau];if(!peutPayer(c))return `Il faut ${texteCout(c)}.`;
   payer(c);p.niveau++;return null;
 }
-function equiper(jid,gid){
-  const j=jimee(jid),i=etat.gadgets.findIndex(g=>g.id===gid);if(!j||i<0||j.mission)return;
-  const g=etat.gadgets.splice(i,1)[0];if(j.gadget)etat.gadgets.push(j.gadget);j.gadget=g;
+function equiper(jid,oid){
+  const j=jimee(jid),i=etat.objets.findIndex(o=>o.id===oid);if(!j||i<0||j.mission)return;
+  const o=etat.objets.splice(i,1)[0];if(j.equip[o.slot])etat.objets.push(j.equip[o.slot]);j.equip[o.slot]=o;
 }
-function desequiper(jid){const j=jimee(jid);if(!j||!j.gadget||j.mission)return;etat.gadgets.push(j.gadget);j.gadget=null}
-function vendreGadget(gid){const i=etat.gadgets.findIndex(g=>g.id===gid);if(i<0)return 0;const g=etat.gadgets.splice(i,1)[0],v=CONFIG.vente.gadget[g.bonus-1];etat.res.credits+=v;return v}
+function desequiper(jid,slot){const j=jimee(jid);if(!j||j.mission||!j.equip[slot])return;etat.objets.push(j.equip[slot]);j.equip[slot]=null}
+function vendreObjet(oid){const i=etat.objets.findIndex(o=>o.id===oid);if(i<0)return 0;const o=etat.objets.splice(i,1)[0],v=CONFIG.vente[o.rarete]*o.bonus;etat.res.credits+=v;return v}
+function acheterProvision(id){const P=PROVISIONS[id];if(!P)return 'Inconnu.';if(etat.res.credits<P.prix)return `Il faut ${P.prix} 💰.`;etat.res.credits-=P.prix;etat.provisions[id]=(etat.provisions[id]||0)+1;return null}
+
+// Accélérer une pièce : sa production de 20 minutes tout de suite, avec un risque d'incident qui grimpe si on insiste
+function risqueAcceleration(p){const A=CONFIG.accelerer,n=p.rush&&Date.now()-p.rush.t<A.oubliMin*60000?p.rush.n:0;return Math.min(A.risqueMax,A.risqueBase+A.risqueParFois*n)}
+function accelerer(pid,tirage){
+  const p=etat.pieces[pid],T=PIECES[p.type];if(!T||!T.prod||T.prod==='gadget')return {erreur:'Cette pièce ne s\'accélère pas.'};
+  if(p.incident)return {erreur:'Réglez d\'abord l\'incident.'};
+  const taux=tauxPiece(pid,etat.res.rations<=0);if(!taux)return {erreur:'Personne ne travaille ici.'};
+  const risque=risqueAcceleration(p),A=CONFIG.accelerer;
+  p.rush={n:(p.rush&&Date.now()-p.rush.t<A.oubliMin*60000?p.rush.n:0)+1,t:Date.now()};
+  if((tirage??Math.random())<risque){declencherIncident(pid);return {incident:true,risque}}
+  const n=Math.max(A.minimum,Math.round(taux*A.minutes));etat.res[T.prod]+=n;return {gain:n,ressource:T.prod,risque};
+}
+// Incidents : choisis parmi les pièces occupées ; résolus par les Jimees présents
+const difficulteIncident=()=>{const I=CONFIG.incidents,max=Math.max(0,...Object.keys(etat.etoiles).map(id=>planete(id).palier));return Math.min(I.difficulteMax,+(I.difficulteBase+I.difficultePalier*max).toFixed(1))};
+function declencherIncident(pid,type){
+  const p=etat.pieces[pid];if(!p||p.incident)return false;
+  const possibles=Object.entries(INCIDENTS).filter(([k,I])=>!I.pieces||I.pieces.includes(p.type)).map(([k])=>k);
+  p.incident={type:type||possibles[Math.floor(Math.random()*possibles.length)],t:Date.now(),diff:difficulteIncident()};return true;
+}
+function incidentAuHasard(){
+  if(etat.guide||Object.values(etat.pieces).some(p=>p.incident))return null;
+  const l=Object.entries(etat.pieces).filter(([pid,p])=>(PIECES[p.type].prod||PIECES[p.type].entraine)&&occupants(pid).some(j=>j.blesse<=0));
+  if(!l.length)return null;const [pid]=l[Math.floor(Math.random()*l.length)];declencherIncident(pid);return pid;
+}
+function chanceIncident(pid){
+  const p=etat.pieces[pid],I=INCIDENTS[p.incident.type],C=CONFIG.incidents,eq=occupants(pid).filter(j=>j.blesse<=0);
+  if(!eq.length)return 0;const val=Math.max(...eq.map(j=>statBase(j,I.stat)))+C.aideParJimee*(eq.length-1);
+  return Math.round(borne(C.chanceBase+C.chanceParPoint*(val-p.incident.diff),10,95));
+}
+function resoudreIncident(pid,tirage){
+  const p=etat.pieces[pid];if(!p||!p.incident)return null;
+  const eq=occupants(pid).filter(j=>j.blesse<=0);if(!eq.length)return {erreur:'Personne pour intervenir. Affectez un Jimee à cette pièce.'};
+  const I=INCIDENTS[p.incident.type],chance=chanceIncident(pid),ok=(tirage??Math.random())*100<chance,d=p.incident.diff;
+  const r={ok,chance,nom:I.nom};
+  if(ok){r.credits=Math.round(10+d*6);r.ferraille=Math.round(d);etat.res.credits+=r.credits;etat.res.ferraille+=r.ferraille;for(const j of eq)gagnerXp(j,1)}
+  else{const j=eq[Math.floor((tirage??Math.random())*eq.length)];j.blesse=CONFIG.incidents.blessureMin;j.piece=null;r.blesse=j.nom;p.stock=0}
+  p.incident=null;return r;
+}
 
 /* ---------- 9. Capsules de la Corp ---------- */
 const couponActif=()=>etat.coupons[0]||null;
@@ -802,19 +975,22 @@ const missionsActives=()=>etat.missions.filter(m=>!m.termine);
 const missionExpress=()=>etat.guide&&etat.stats.missions+etat.stats.morts===0&&!etat.reglages.test;
 function dureeMission(p){if(missionExpress())return CONFIG.mission.expressMs;return p.dureeMin*60000*(etat.reglages.test?CONFIG.mission.testFacteur:1)}
 const carte=id=>CARTES.find(c=>c.id===id)||CARTES_GARDIEN.find(c=>c.id===id);
-function lancerMission(pid,equipeIds){
+function lancerMission(pid,equipeIds,sacIds){
   const p=planete(pid);if(!p||!planeteOuverte(p))return 'Planète inaccessible.';
   if(missionsActives().length>=missionsMax())return `Le cockpit ne gère que ${pluriel(missionsMax(),'mission')} à la fois. Améliorez-le.`;
   const eq=equipeIds.map(jimee).filter(Boolean);
   if(!eq.length||eq.length>2)return 'Choisissez un ou deux Jimees.';
   if(eq.some(j=>!disponible(j)))return 'Un Jimee de l\'équipe n\'est pas disponible.';
   if(etat.res.carburant<p.carburant)return `Il faut ${p.carburant} ⛽ de carburant.`;
+  const sac=(sacIds||[]).slice(0,CONFIG.sacMax),besoin={};for(const x of sac)besoin[x]=(besoin[x]||0)+1;
+  for(const [x,n] of Object.entries(besoin))if(!PROVISIONS[x]||(etat.provisions[x]||0)<n)return 'Il manque une provision dans la réserve.';
+  for(const [x,n] of Object.entries(besoin))etat.provisions[x]-=n;
   etat.res.carburant-=p.carburant;
   const id='M'+(++etat.compteur),t=Date.now(),D=dureeMission(p),seed=etat.cree+'/'+id,r=creerRng(seed+'/CARTES');
   const pool=r.melanger(CARTES.filter(c=>!c.biomes||c.biomes.includes(p.biome)));
   const choisies=pool.slice(0,3).map(c=>c.id);if(p.gardien)choisies[2]='gardien';
-  const m={id,planete:p.id,equipe:eq.map(j=>j.id),depart:t,fin:t+D,seed,express:missionExpress(),termine:false,statut:'en_cours',morts:[],blesses:[],
-    butin:{credits:0,ferraille:0,gadgets:[]},xp:{},cartes:choisies.map((c,k)=>({id:c,t:t+D*(k+1)/4,choix:null,auto:false,res:null}))};
+  const m={id,planete:p.id,equipe:eq.map(j=>j.id),sac,depart:t,fin:t+D,seed,express:missionExpress(),termine:false,statut:'en_cours',morts:[],blesses:[],
+    butin:{credits:0,ferraille:0,objets:[],provisions:[]},xp:{},cartes:choisies.map((c,k)=>({id:c,t:t+D*(k+1)/4,choix:null,auto:false,res:null}))};
   for(const j of eq){j.mission=id;j.pieceAvant=j.piece;j.piece=null}   // il retrouvera son poste au retour
   etat.missions.push(m);
   programmerNotifications(m);
@@ -826,14 +1002,22 @@ const vivants=m=>m.equipe.filter(id=>!m.morts.includes(id)).map(jimee).filter(Bo
 function evaluerOption(m,o){
   const p=planete(m.planete),eq=vivants(m),R=CONFIG.risques[o.risque],M=CONFIG.mission;
   if(!eq.length)return {chance:0,acteur:null};
-  const acteur=eq.reduce((a,b)=>statMission(b,o.stat)>statMission(a,o.stat)?b:a);
-  const val=statMission(acteur,o.stat)+(eq.length>1?M.equipeBonus:0);
+  if(o.objet)return {chance:100,acteur:eq[0],val:0};
+  const acteur=eq.reduce((a,b)=>statMission(b,o.stat,m)>statMission(a,o.stat,m)?b:a);
+  const val=statMission(acteur,o.stat,m)+(eq.length>1?M.equipeBonus:0);
   return {chance:Math.round(borne(M.chanceBase+M.chanceParPoint*(val-(p.difficulte+R.diff)),M.chanceMin,M.chanceMax)),acteur,val};
+}
+// Options d'une transmission : les deux habituelles, plus une option dorée si le sac contient la bonne provision
+function optionsCarte(m,c){
+  const l=[...c.o];
+  if(c.objet&&(m.sac||[]).includes(c.objet.id)){const P=PROVISIONS[c.objet.id];l.push({txt:c.objet.txt,objet:c.objet.id,gain:c.objet.gain,risque:'sur',ic:P.ic})}
+  return l;
 }
 const visageChance=c=>c>=80?'😀':c>=60?'🙂':c>=40?'😬':'😱';
 function choixAuto(m,k){
   const c=carte(m.cartes[k].id),chef=vivants(m)[0],rang={sur:0,normal:1,risque:2};
   const r=creerRng(m.seed+'/AUTO/'+k);
+  if(optionsCarte(m,c).length>2)return 2;   // tout Jimee sait se servir d'une provision
   switch(chef&&chef.perso){
     case 'temeraire':return rang[c.o[0].risque]>=rang[c.o[1].risque]?0:1;
     case 'prudent':return rang[c.o[0].risque]<=rang[c.o[1].risque]?0:1;
@@ -843,23 +1027,30 @@ function choixAuto(m,k){
 }
 function resoudreCarte(m,k,choix,auto){
   const cc=m.cartes[k];if(!cc||cc.choix!==null||m.statut!=='en_cours')return null;
-  const c=carte(cc.id),o=c.o[choix],R=CONFIG.risques[o.risque],p=planete(m.planete),B=CONFIG.butin;
+  const c=carte(cc.id),o=optionsCarte(m,c)[choix];if(!o)return null;
+  const R=CONFIG.risques[o.objet?'normal':o.risque],p=planete(m.planete),B=CONFIG.butin;
   const {chance,acteur}=evaluerOption(m,o);if(!acteur)return null;
-  const r=creerRng(m.seed+'/'+k+'/'+choix),ok=r.f()*100<chance,nom=acteur.nom;
-  const res={ok,chance,acteur:acteur.id,stat:o.stat,credits:0,ferraille:0,gadget:null,consequence:'aucune'};
+  const r=creerRng(m.seed+'/'+k+'/'+choix),ok=o.objet?true:r.f()*100<chance,nom=acteur.nom;
+  const res={ok,chance,txt:o.txt,acteur:acteur.id,stat:o.stat||null,objetUtilise:o.objet||null,credits:0,ferraille:0,objet:null,provision:null,consequence:'aucune'};
+  if(o.objet)m.sac.splice(m.sac.indexOf(o.objet),1);
   if(ok){
-    const mult=R.gain*(TRAITS[acteur.trait].butin||1)*(c.gardien?2.5:1);
+    const mult=R.gain*(o.gain||1)*(TRAITS[acteur.trait].butin||1)*(c.gardien?2.5:1)*(effetPorte(acteur,'pillard')?1.5:1);
     res.credits=Math.round((B.credits+p.palier*B.creditsPalier)*mult);res.ferraille=Math.round((B.ferraille+p.palier*B.ferraillePalier)*mult);
-    if((o.risque==='risque'&&r.chance(B.gadgetRisque))||c.gardien)res.gadget=creerGadget(m.seed+'/'+k,c.gardien?2:1);
-    m.butin.credits+=res.credits;m.butin.ferraille+=res.ferraille;if(res.gadget)m.butin.gadgets.push(res.gadget);
+    if(c.gardien){const L=LEGENDAIRES.filter(x=>!etat.legendaires||!etat.legendaires.includes(x.nom));
+      res.objet=L.length&&r.chance(.5)?creerObjet(m.seed+'/'+k,{legendaire:r.pick(L)}):creerObjet(m.seed+'/'+k,{bonusMin:2})}
+    else if(o.risque==='risque'&&r.chance(B.objetRisque)||o.objet&&r.chance(B.objetRisque))res.objet=creerObjet(m.seed+'/'+k);
+    if(r.chance(B.provision))res.provision=r.pick(Object.keys(PROVISIONS));
+    m.butin.credits+=res.credits;m.butin.ferraille+=res.ferraille;if(res.objet)m.butin.objets.push(res.objet);if(res.provision)m.butin.provisions.push(res.provision);
     m.xp[acteur.id]=(m.xp[acteur.id]||0)+(o.risque==='risque'?2:1);
-    res.texte=r.pick(TEXTES_RESULTAT.ok[o.stat]).replace(/\{nom\}/g,nom);
+    res.texte=(o.objet?PROVISIONS[o.objet].reussite:r.pick(TEXTES_RESULTAT.ok[o.stat])).replace(/\{nom\}/g,nom);
   } else {
     const pMort=R.mort+p.palier*R.mortPalier;
+    const soin=()=>{if(m.sac.includes('trousse')){m.sac.splice(m.sac.indexOf('trousse'),1);res.soigne=true;return ` La trousse de soin le remet d'aplomb sur place.`}if(!m.blesses.includes(acteur.id))m.blesses.push(acteur.id);return ` ${nom} est blessé.`};
     if(r.chance(pMort)){
-      if(TRAITS[acteur.trait].increvable&&!m.blesses.includes(acteur.id+'!')){m.blesses.push(acteur.id+'!',acteur.id);res.consequence='blessure';res.texte=`${nom} aurait dû y rester. Increvable, il se relève, couvert de bleus.`}
+      if(effetPorte(acteur,'increvable')&&!m.blesses.includes(acteur.id+'*')){m.blesses.push(acteur.id+'*');res.consequence='blessure';res.texte=`${nom} aurait dû y rester. Le Casque du Premier Jimee encaisse le choc à sa place.`+soin();if(res.soigne)res.consequence='aucune'}
+      else if(TRAITS[acteur.trait].increvable&&!m.blesses.includes(acteur.id+'!')){m.blesses.push(acteur.id+'!',acteur.id);res.consequence='blessure';res.texte=`${nom} aurait dû y rester. Increvable, il se relève, couvert de bleus.`}
       else{m.morts.push(acteur.id);res.consequence='mort';res.texte=r.pick(TEXTES_RESULTAT.mort).replace(/\{nom\}/g,nom)}
-    } else if(r.chance(R.blessure)){if(!m.blesses.includes(acteur.id))m.blesses.push(acteur.id);res.consequence='blessure';res.texte=r.pick(TEXTES_RESULTAT.ko[o.stat]).replace(/\{nom\}/g,nom)+` ${nom} est blessé.`}
+    } else if(r.chance(R.blessure)){res.consequence='blessure';res.texte=r.pick(TEXTES_RESULTAT.ko[o.stat]).replace(/\{nom\}/g,nom)+soin();if(res.soigne)res.consequence='aucune'}
     else if(o.risque!=='sur'&&(m.butin.credits||m.butin.ferraille)){m.butin.credits=Math.floor(m.butin.credits/2);m.butin.ferraille=Math.floor(m.butin.ferraille/2);res.consequence='perte';res.texte=r.pick(TEXTES_RESULTAT.ko[o.stat]).replace(/\{nom\}/g,nom)+' La moitié du butin roule au fond d\'un trou.'}
     else res.texte=r.pick(TEXTES_RESULTAT.ko[o.stat]).replace(/\{nom\}/g,nom)+' Rien de grave, rien de gagné.';
   }
@@ -881,7 +1072,10 @@ const rapportPret=m=>!m.termine&&(m.statut==='perdue'||Date.now()>=m.fin)&&m.car
 function cloturerMission(m){
   if(!rapportPret(m))return null;
   const p=planete(m.planete),reussites=m.cartes.filter(c=>c.res&&c.res.ok).length,vivs=vivants(m),r={mission:m,planete:p,reussites,niveaux:[],affiches:[],etoilesAvant:etoilesDe(p.id)};
-  etat.res.credits+=m.butin.credits;etat.res.ferraille+=m.butin.ferraille;etat.gadgets.push(...m.butin.gadgets);
+  etat.res.credits+=m.butin.credits;etat.res.ferraille+=m.butin.ferraille;
+  for(const o of m.butin.objets){etat.objets.push(o);if(o.effet)(etat.legendaires=etat.legendaires||[]).push(o.nom)}
+  r.rendues=[];for(const x of [...m.butin.provisions,...(m.sac||[]).filter(x=>x!=='ration')])etat.provisions[x]=(etat.provisions[x]||0)+1;
+  r.rendues=(m.sac||[]).filter(x=>x!=='ration');
   for(const j of vivs){const nv=gagnerXp(j,(m.xp[j.id]||0)+1);for(const x of nv)r.niveaux.push({nom:j.nom,...x});j.missions++;j.mission=null;j.piece=null;if(m.blesses.includes(j.id))j.blesse=CONFIG.soinMin.dehors;
     const av=j.pieceAvant&&etat.pieces[j.pieceAvant];if(av&&j.blesse<=0&&PIECES[av.type].prod&&occupants(j.pieceAvant).length<placesPiece(av))j.piece=j.pieceAvant;j.pieceAvant=null}
   for(const id of m.morts){const j=jimee(id);if(!j)continue;const aff=creerAffiche(j,m);r.affiches.push(aff);etat.memorial.unshift(aff);
@@ -928,7 +1122,7 @@ function programmerNotifications(m){
 }
 
 /* ---------- 13. Affichage : barre, fusée, missions ---------- */
-let signatureFusee='',feuilleCourante=null,carteSel={planete:null,equipe:[]},minuteursRapport=[];
+let signatureFusee='',feuilleCourante=null,carteSel={planete:null,equipe:[],sac:[]},minuteursRapport=[];
 const reduit=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 function majBarre(){
   for(const k of ['credits','rations','carburant','ferraille']){const el=$('#r-'+k),v=Math.floor(etat.res[k]);const b=el.querySelector('b');
@@ -944,21 +1138,21 @@ function habitantsHtml(pid,p){
     return `<span class="habitant${dort?' dort':''}${j.blesse>0?' blesse':''}" data-jimee="${j.id}" style="--de:${de}%;--a:${a}%;--duree:${r.int(6,11)}s;--delai:-${r.int(0,9)}s;${dort?`left:${de}%`:''}" title="${j.nom}"><span class="tourne" style="display:block">${dessinJimee(j)}</span></span>`}).join('');
 }
 function bulleRecolte(p){
-  const T=PIECES[p.type];if(!T.prod)return '';const n=Math.floor(p.stock||0);if(n<1)return '';
+  const T=PIECES[p.type];if(!T.prod||p.incident)return '';const n=Math.floor(p.stock||0);if(n<1)return '';
   const plein=n>=T.cap[p.niveau-1];return `<span class="recolte${plein?' pleine':''}" data-recolte="1">${RESSOURCES[T.prod].ic} +${n}</span>`;
 }
 function pieceHtml(pid,etage,slot){
   if(!pid)return `<button class="piece vide-piece" data-construire="${etage}/${slot}"><span>+ Construire</span></button>`;
   const p=etat.pieces[pid],T=PIECES[p.type],places=placesPiece(p);
-  const faim=T.prod&&etat.res.rations<=0;
-  return `<div class="piece${T.large?' large':''}${faim?' affame':''}" data-piece="${pid}" role="button" tabindex="0" aria-label="${T.nom}">
+  const faim=T.prod&&etat.res.rations<=0,I=p.incident&&INCIDENTS[p.incident.type];
+  return `<div class="piece${T.large?' large':''}${faim?' affame':''}${I?' incident':''}" data-piece="${pid}" role="button" tabindex="0" aria-label="${T.nom}">
     ${fondPiece(p.type,p.niveau)}<span class="nom-piece">${T.nom}${p.type!=='guichet'&&p.type!=='cockpit'?` <small>niv. ${p.niveau}</small>`:''}</span>
     ${places?`<span class="places">${occupants(pid).length}/${places}</span>`:''}
     ${p.type==='cockpit'&&missionsActives().length?`<span class="places">🚀 ${missionsActives().length}/${missionsMax()}</span>`:''}
-    <span class="habitants">${habitantsHtml(pid,p)}</span><span class="zone-recolte">${bulleRecolte(p)}</span></div>`;
+    <span class="habitants">${habitantsHtml(pid,p)}</span><span class="zone-recolte">${bulleRecolte(p)}</span>${I?`<span class="alerte-incident">${I.ic} ${I.nom} !</span>`:''}</div>`;
 }
 function dessinerFusee(force){
-  const sig=JSON.stringify([etat.etages,Object.entries(etat.pieces).map(([k,p])=>[k,p.type,p.niveau]),etat.jimees.map(j=>[j.id,j.piece,j.mission,j.blesse>0,j.couleur,j.chapeau]),missionsActives().length,etat.res.rations<=0]);
+  const sig=JSON.stringify([etat.etages,Object.entries(etat.pieces).map(([k,p])=>[k,p.type,p.niveau,p.incident&&p.incident.type]),etat.jimees.map(j=>[j.id,j.piece,j.mission,j.blesse>0,j.couleur,j.chapeau]),missionsActives().length,etat.res.rations<=0]);
   if(!force&&sig===signatureFusee){majBulles();return}
   signatureFusee=sig;
   const etages=etat.etages.map((e,i)=>`<div class="etage">${e[0]&&etat.pieces[e[0]]&&PIECES[etat.pieces[e[0]].type].large?pieceHtml(e[0],i,0):e.map((pid,s)=>pieceHtml(pid,i,s)).join('')}</div>`).join('');
@@ -999,7 +1193,7 @@ function rafraichirFeuille(){if(!feuilleCourante)return;const c=feuilleCourante,
   ({jimee:feuilleJimee,piece:feuillePiece,planete:feuillePlanete,guichet:feuilleGuichet,construire:feuilleConstruire,reglages:feuilleReglages}[c.type]||(()=>{}))(c.id,true);f.scrollTop=s}
 const toast=(m)=>{const t=$('#toast');t.textContent=m;t.classList.remove('vu');void t.offsetWidth;t.classList.add('vu');clearTimeout(toast.m);toast.m=setTimeout(()=>t.classList.remove('vu'),2800)};
 function statsHtml(j){
-  return CLES_STATS.map(k=>{const b=j.stats[k],g=j.gadget&&j.gadget.stat===k?j.gadget.bonus:0;
+  return CLES_STATS.map(k=>{const b=j.stats[k],g=statBase(j,k)-b;
     return `<div class="stat"><span>${STATS[k].ic}</span><span>${STATS[k].nom}</span><span class="j"><i style="width:${b*10}%;float:left"></i>${g?`<i class="bonus" style="width:${g*10}%;float:left"></i>`:''}</span><span>${b+g}</span></div>`}).join('');
 }
 const etoilesRarete=r=>'★'.repeat(RARETES[r].etoiles);
@@ -1012,7 +1206,8 @@ function etatJimee(j){
 function feuilleJimee(jid,refresh){
   const j=jimee(jid);if(!j)return fermerFeuille();
   const P=PERSONNALITES[j.perso],T=TRAITS[j.trait],xpMin=CONFIG.xpNiveaux[j.niveau-1],xpMax=CONFIG.xpNiveaux[j.niveau]||xpMin+1;
-  const pieces=Object.entries(etat.pieces).filter(([pid,p])=>PIECES[p.type].prod||p.type==='infirmerie');
+  const pieces=Object.entries(etat.pieces).filter(([pid,p])=>PIECES[p.type].prod||PIECES[p.type].entraine||p.type==='infirmerie');
+  const reserve=[...etat.objets].sort((a,b)=>b.bonus-a.bonus);
   const html=`<div class="tete-jimee"><div class="portrait">${dessinJimee(j,j.blesse>0?'blesse':'heureux')}</div><div><h2>${j.nom}</h2>
       <p class="sous"><span class="puce ${j.rarete}">${etoilesRarete(j.rarete)} ${RARETES[j.rarete].nom}</span> niveau ${j.niveau}${j.cousinDe?` · cousin de ${j.cousinDe}`:''}</p>
       <div class="xp"><i style="width:${j.niveau>=10?100:borne((j.xp-xpMin)/(xpMax-xpMin)*100,0,100)}%"></i></div></div></div>
@@ -1020,11 +1215,14 @@ function feuilleJimee(jid,refresh){
     <div class="carte-blanche">${statsHtml(j)}</div>
     <div class="carte-blanche"><div class="ligne"><span><b>${P.nom}</b></span><small class="note" style="margin:0">${P.desc}</small></div><div class="ligne"><span><b>${T.nom}</b></span><small class="note" style="margin:0">${T.desc}</small></div>
       <p class="main" style="margin-top:6px">« ${creerRng(j.id+'/'+Math.floor(Date.now()/60000)).pick(P.repliques)} »</p></div>
-    <h3>Gadget</h3>
-    ${j.gadget?`<div class="ligne"><span>${STATS[j.gadget.stat].ic} ${j.gadget.nom} <b>+${j.gadget.bonus}</b></span>${j.mission?'':`<button class="puce" data-action="desequiper" data-j="${j.id}">Retirer</button>`}</div>`:'<p class="note">Aucun.</p>'}
-    ${!j.mission&&etat.gadgets.length?etat.gadgets.map(g=>`<div class="ligne"><span>${STATS[g.stat].ic} ${g.nom} <b>+${g.bonus}</b></span><button class="puce bon" data-action="equiper" data-j="${j.id}" data-g="${g.id}">Équiper</button></div>`).join(''):''}
+    <h3>Équipement</h3>
+    <div class="emplacements">${Object.entries(EMPLACEMENTS).map(([sl,E])=>{const o=j.equip[sl];return o?`<div class="emplacement ${o.rarete}"><span class="ic">${E.ic}</span><b>${o.nom}</b><span>${STATS[o.stat].ic} +${o.bonus}${o.effet?' ✨':''}</span>${j.mission?'':`<button class="puce" data-action="desequiper" data-j="${j.id}" data-slot="${sl}">Retirer</button>`}</div>`
+      :`<div class="emplacement vide"><span class="ic">${E.ic}</span><span>${E.nom}</span><small>vide</small></div>`}).join('')}</div>
+    ${objetsPortes(j).filter(o=>o.effet).map(o=>`<p class="note">✨ <b>${o.nom}</b> : ${o.desc}</p>`).join('')}
+    ${!j.mission&&reserve.length?`<p class="note">Dans la réserve :</p>`+reserve.map(o=>`<div class="ligne"><span>${texteObjet(o)}</span><button class="puce bon" data-action="equiper" data-j="${j.id}" data-o="${o.id}">${j.equip[o.slot]?'Échanger':'Équiper'}</button></div>`).join('')
+      :!j.mission?'<p class="note">Réserve vide. L\'atelier fabrique de l\'équipement, les missions risquées en rapportent.</p>':''}
     ${j.mission?'':`<h3>Où l'envoyer ?</h3>
-      ${pieces.map(([pid,p])=>{const Tp=PIECES[p.type],ici=j.piece===pid;return `<button class="choix-jimee${ici?' on':''}" data-affecter="${pid}" data-j="${j.id}"><span class="txt">${Tp.nom} niv. ${p.niveau}<small>${Tp.prod?`${STATS[Tp.stat].ic} ${STATS[Tp.stat].nom} : ${statBase(j,Tp.stat)}`:'soins'} · ${occupants(pid).length}/${placesPiece(p)}</small></span>${ici?'<span class="val">✓</span>':''}</button>`}).join('')}
+      ${pieces.map(([pid,p])=>{const Tp=PIECES[p.type],ici=j.piece===pid;return `<button class="choix-jimee${ici?' on':''}" data-affecter="${pid}" data-j="${j.id}"><span class="txt">${Tp.nom} niv. ${p.niveau}<small>${Tp.prod?`${STATS[Tp.stat].ic} ${STATS[Tp.stat].nom} : ${statBase(j,Tp.stat)}`:Tp.entraine?`entraîne ${STATS[Tp.entraine].ic} ${STATS[Tp.entraine].nom.toLowerCase()} (${j.stats[Tp.entraine]}/10)`:'soins'} · ${occupants(pid).length}/${placesPiece(p)}</small></span>${ici?'<span class="val">✓</span>':''}</button>`}).join('')}
       <div class="btns"><button class="btn sec" data-affecter="" data-j="${j.id}">Au repos</button>${disponible(j)?`<button class="btn" data-action="vers-mission" data-j="${j.id}">En mission</button>`:''}</div>`}`;
   ouvrirFeuille(html,{type:'jimee',id:jid});
 }
@@ -1033,18 +1231,29 @@ function feuillePiece(pid){
   if(p.type==='cockpit'){fermerFeuille();return ouvrirCarte()}
   if(p.type==='guichet')return feuilleGuichet('capsules');
   const T=PIECES[p.type],occ=occupants(pid),places=placesPiece(p);
+  const sk=T.stat||T.entraine;
   let h=`<h2>${T.nom} <small style="font-size:.9rem">niv. ${p.niveau}</small></h2><p class="sous">${T.desc}</p>`;
+  if(p.incident){const I=INCIDENTS[p.incident.type],ch=occ.some(j=>j.blesse<=0)?chanceIncident(pid):0,reste=CONFIG.incidents.dureeMaxMin*60000-(Date.now()-p.incident.t);
+    h+=`<div class="carte-alerte"><h3 style="margin:0">${I.ic} ${I.nom}</h3><p>${I.texte}</p>
+      <p class="note">Pièce à l'arrêt. Épreuve de ${STATS[I.stat].ic} ${STATS[I.stat].nom.toLowerCase()} (niveau ${String(p.incident.diff).replace('.',',')}) : le meilleur de l'équipe s'en charge, les autres aident. Sinon, ça s'arrangera tout seul dans ${fmtTemps(reste)}… en perdant le stock.</p>
+      ${ch?`<button class="btn rouge" data-action="incident" data-p="${pid}">Intervenir · ${visageChance(ch)} ${ch} %</button>`:`<p class="note"><b>Personne pour intervenir : affectez un Jimee à cette pièce.</b></p>`}</div>`}
+  if(T.entraine){const k=T.entraine;
+    h+=`<div class="carte-blanche"><p class="note" style="margin-top:0">Chaque Jimee affecté ici gagne +1 en ${STATS[k].ic} ${STATS[k].nom.toLowerCase()} après un moment (plus long à chaque niveau, maximum 10).</p>
+      ${occ.map(j=>{const sv=seuilEntrainement(j,k),v=j.entrainement[k]||0,vit=CONFIG.entrainement.base[p.niveau-1]*(TRAITS[j.trait].travail||1);
+        return `<div class="ligne"><span>${j.nom} · ${STATS[k].ic} ${j.stats[k]}</span><small>${j.stats[k]>=10?'au maximum':`+1 dans ${fmtTemps((sv-v)/vit*60000)}`}</small></div><div class="xp"><i style="width:${j.stats[k]>=10?100:borne(v/sv*100,0,100)}%"></i></div>`}).join('')||'<p class="note">Personne ne s\'entraîne.</p>'}</div>`}
   if(T.prod){const taux=tauxPiece(pid,etat.res.rations<=0)*60,cap=T.cap[p.niveau-1];
-    h+=`<div class="carte-blanche"><div class="ligne"><span>Production</span><b>${T.prod==='gadget'?`${(taux/T.progres).toFixed(1)} gadget/h`:`${Math.round(taux)} ${RESSOURCES[T.prod].ic} / heure`}</b></div>
+    const rush=T.prod!=='gadget'&&!p.incident&&taux>0?{n:Math.max(CONFIG.accelerer.minimum,Math.round(taux/60*CONFIG.accelerer.minutes)),r:Math.round(risqueAcceleration(p)*100)}:null;
+    h+=`<div class="carte-blanche"><div class="ligne"><span>Production</span><b>${T.prod==='gadget'?`${(taux/T.progres).toFixed(1)} équipement/h`:`${Math.round(taux)} ${RESSOURCES[T.prod].ic} / heure`}</b></div>
       <div class="ligne"><span>En stock</span><b>${Math.floor(p.stock||0)} / ${cap}</b></div>${etat.res.rations<=0?`<p class="note">🍞 Équipage affamé : production divisée par deux.</p>`:''}
-      ${Math.floor(p.stock||0)>=1?`<button class="btn" data-action="recolter" data-p="${pid}">Récolter +${Math.floor(p.stock)} ${RESSOURCES[T.prod].ic}</button>`:''}</div>`}
+      ${Math.floor(p.stock||0)>=1&&!p.incident?`<button class="btn" data-action="recolter" data-p="${pid}">Récolter +${Math.floor(p.stock)} ${RESSOURCES[T.prod].ic}</button>`:''}
+      ${rush?`<button class="btn sec" data-action="accelerer" data-p="${pid}">⚡ Accélérer : +${rush.n} ${RESSOURCES[T.prod].ic} tout de suite · risque d'incident ${rush.r} %</button>`:''}</div>`}
   if(p.type==='dortoir'){const idle=etat.jimees.filter(j=>!j.mission&&!j.piece);
     h+=`<div class="carte-blanche"><div class="ligne"><span>Places d'équipage</span><b>${etat.jimees.length} / ${capacite()}</b></div><p class="note">Chaque dortoir ajoute ${T.places[p.niveau-1]} places. Les Jimees au repos y font la sieste.</p></div>
       ${idle.map(j=>`<button class="choix-jimee" data-jimee="${j.id}"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${etatJimee(j)}</small></span></button>`).join('')}`}
   if(places){
-    h+=`<h3>Équipe · ${occ.length}/${places}</h3>`+occ.map(j=>`<div class="choix-jimee"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${T.stat?`${STATS[T.stat].ic} ${statBase(j,T.stat)}`:etatJimee(j)}</small></span><button class="puce" data-affecter="" data-j="${j.id}">Retirer</button></div>`).join('');
-    if(occ.length<places){const cand=etat.jimees.filter(j=>!j.mission&&j.piece!==pid&&(p.type==='infirmerie'?j.blesse>0:j.blesse<=0)).sort((a,b)=>T.stat?statBase(b,T.stat)-statBase(a,T.stat):0);
-      h+=cand.length?`<p class="note">Ajouter :</p>`+cand.map(j=>`<button class="choix-jimee" data-affecter="${pid}" data-j="${j.id}"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${etatJimee(j)}</small></span>${T.stat?`<span class="val">${STATS[T.stat].ic}${statBase(j,T.stat)}</span>`:''}</button>`).join('')
+    h+=`<h3>Équipe · ${occ.length}/${places}</h3>`+occ.map(j=>`<div class="choix-jimee"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${sk?`${STATS[sk].ic} ${statBase(j,sk)}`:etatJimee(j)}</small></span><button class="puce" data-affecter="" data-j="${j.id}">Retirer</button></div>`).join('');
+    if(occ.length<places){const cand=etat.jimees.filter(j=>!j.mission&&j.piece!==pid&&(p.type==='infirmerie'?j.blesse>0:j.blesse<=0)).sort((a,b)=>T.entraine?a.stats[sk]-b.stats[sk]:T.stat?statBase(b,T.stat)-statBase(a,T.stat):0);
+      h+=cand.length?`<p class="note">Ajouter :</p>`+cand.map(j=>`<button class="choix-jimee" data-affecter="${pid}" data-j="${j.id}"><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom}<small>${etatJimee(j)}</small></span>${sk?`<span class="val">${STATS[sk].ic}${statBase(j,sk)}</span>`:''}</button>`).join('')
         :`<p class="note">${p.type==='infirmerie'?'Aucun blessé. Pour l\'instant.':'Aucun Jimee disponible.'}</p>`}}
   if(p.niveau<3){const c=COUT_NIVEAU[p.niveau];h+=`<button class="btn sec" data-action="ameliorer" data-p="${pid}" ${peutPayer(c)?'':'disabled'}>Améliorer au niveau ${p.niveau+1} · ${texteCout(c)}</button>`}
   ouvrirFeuille(h,{type:'piece',id:pid});
@@ -1058,14 +1267,16 @@ let ongletGuichet='capsules';
 function feuilleGuichet(onglet){
   ongletGuichet=onglet||ongletGuichet;const c=couponActif(),ch=chancesRarete(),tot=ch.reduce((s,x)=>s+x.poids,0);
   let h=`<h2>Guichet de la Corp</h2><p class="sous main">« Vos Jimees meurent ? Nous aussi, on adore les nouveaux clients. »</p>
-    <div class="onglets">${[['capsules','Capsules'],['gadgets',`Gadgets (${etat.gadgets.length})`],['memorial',`Mémorial (${etat.memorial.length})`],['album','Album']].map(([k,n])=>`<button data-guichet="${k}" aria-pressed="${ongletGuichet===k}">${n}</button>`).join('')}</div>`;
+    <div class="onglets">${[['capsules','Capsules'],['boutique','Boutique'],['objets',`Équipement (${etat.objets.length})`],['memorial',`Mémorial (${etat.memorial.length})`],['album','Album']].map(([k,n])=>`<button data-guichet="${k}" aria-pressed="${ongletGuichet===k}">${n}</button>`).join('')}</div>`;
   if(ongletGuichet==='capsules')h+=`<div class="distributeur" id="distributeur">${distributeurSvg()}<span class="capsule-tombe">${CAPSULE_SVG()}</span></div>
     <div id="revelation"></div>
     ${c?`<p class="carte-blanche main" style="text-align:center">🎟️ Coupon hommage : −${Math.round(c.reduc*100)} % · le cousin de ${c.de} hérite +1 en ${STATS[c.stat].nom.toLowerCase()}</p>`:''}
     <button class="btn rouge" data-action="capsule" ${etat.jimees.length>=capacite()||etat.res.credits<prixCapsule()?'disabled':''}>Tourner la manivelle · ${prixCapsule()} 💰</button>
     <p class="note" style="text-align:center">Équipage ${etat.jimees.length} / ${capacite()}${etat.jimees.length>=capacite()?' : construisez un dortoir pour recruter.':''} · Commun ${Math.round(ch[0].poids/tot*100)} % · Rare ${Math.round(ch[1].poids/tot*100)} % · Légendaire ${Math.round(ch[2].poids/tot*100)} %${etat.deuils?` (bonus de deuil inclus)`:''}</p>`;
-  if(ongletGuichet==='gadgets')h+=etat.gadgets.length?etat.gadgets.map(g=>`<div class="ligne"><span>${STATS[g.stat].ic} ${g.nom} <b>+${g.bonus}</b></span><button class="puce" data-action="vendre" data-g="${g.id}">Vendre ${CONFIG.vente.gadget[g.bonus-1]} 💰</button></div>`).join('')
-    :`<p class="note">Aucun gadget en stock. L'atelier en fabrique, les missions risquées en rapportent.</p>`;
+  if(ongletGuichet==='boutique')h+=`<p class="note">Provisions à glisser dans le sac avant une mission (${CONFIG.sacMax} places). Les bonnes provisions ouvrent une option dorée, réussie à coup sûr, sur certaines transmissions.</p>`+
+    Object.entries(PROVISIONS).map(([id,P])=>`<div class="ligne"><span>${P.ic} <b>${P.nom}</b> <small>×${etat.provisions[id]||0}</small><br><small class="note" style="margin:0">${P.desc.replace('{nom} ','votre Jimee ')}</small></span><button class="puce bon" data-action="acheter" data-prov="${id}" ${etat.res.credits<P.prix?'disabled':''}>${P.prix} 💰</button></div>`).join('');
+  if(ongletGuichet==='objets')h+=etat.objets.length?`<p class="note">Pour équiper un Jimee, touchez-le dans la fusée. Ici, la Corp rachète (à prix d'ami, pour elle).</p>`+[...etat.objets].sort((a,b)=>b.bonus-a.bonus).map(o=>`<div class="ligne"><span>${texteObjet(o)}</span><button class="puce" data-action="vendre" data-o="${o.id}">Vendre ${CONFIG.vente[o.rarete]*o.bonus} 💰</button></div>`).join('')
+    :`<p class="note">Aucun équipement en réserve. L'atelier en fabrique, les missions risquées en rapportent, les gardiens cachent des légendaires.</p>`;
   if(ongletGuichet==='memorial')h+=etat.memorial.length?`<p class="note">Chaque Jimee perdu a droit à son affiche. La Corp les réimprime en cas de forte demande.</p><div class="affiches">${etat.memorial.map(afficheHtml).join('')}</div>`
     :`<p class="note">Aucune affiche. Vos Jimees sont tous vivants, ce qui n'arrange pas le service marketing.</p>`;
   if(ongletGuichet==='album'){const vus=Object.keys(etat.album).length,total=COULEURS_JIMEE.length*CHAPEAUX.length;
@@ -1118,6 +1329,8 @@ function feuillePlanete(pid){
   const p=planete(pid);if(!p)return;
   if(carteSel.planete!==pid){carteSel.planete=pid;carteSel.equipe=carteSel.equipe.filter(id=>{const j=jimee(id);return j&&disponible(j)})}
   if(!planeteOuverte(p)){toast('🔒 Gagnez au moins une étoile sur la planète précédente.');bruit('non');return}
+  carteSel.sac=(carteSel.sac||[]).filter((x,i,l)=>l.slice(0,i+1).filter(y=>y===x).length<=(etat.provisions[x]||0));
+  const utiles=new Set([...CARTES.filter(c=>!c.biomes||c.biomes.includes(p.biome)),...(p.gardien?CARTES_GARDIEN:[])].filter(c=>c.objet).map(c=>c.objet.id));
   const B=BIOMES.find(b=>b.id===p.biome),e=etoilesDe(p.id),plein=missionsActives().length>=missionsMax();
   const raison=plein?`Le cockpit gère ${pluriel(missionsMax(),'mission')} à la fois.`:etat.res.carburant<p.carburant?`Il manque ${Math.ceil(p.carburant-etat.res.carburant)} ⛽.`:!carteSel.equipe.length?'Choisissez un ou deux Jimees.':'';
   const h=`<div class="tete-jimee"><div class="portrait" style="padding:6px;border-radius:50%"><img src="${imageBiome(p.biome)}" alt="" style="width:100%;height:100%"></div><div>
@@ -1127,6 +1340,11 @@ function feuillePlanete(pid){
     <h3>Équipe (1 ou 2 Jimees)</h3>
     ${etat.jimees.map(j=>{const ok=disponible(j),on=carteSel.equipe.includes(j.id);return `<button class="choix-jimee${on?' on':''}" data-equipe="${j.id}" ${ok?'':'disabled'}><span class="mini">${dessinJimee(j)}</span><span class="txt">${j.nom} · niv. ${j.niveau}<small>${ok?CLES_STATS.map(k=>`${STATS[k].ic}${statMission(j,k)}`).join(' '):etatJimee(j)}</small></span>${on?'<span class="val">✓</span>':''}</button>`}).join('')}
     ${carteSel.equipe.length?`<p class="note">Chances sur une épreuve normale :</p><p>${chancesEquipe(p,carteSel.equipe)}</p>`:''}
+    <h3>Sac · ${carteSel.sac.length}/${CONFIG.sacMax}</h3>
+    ${nbProvisions()?`<div class="sac">${Object.entries(PROVISIONS).filter(([id])=>(etat.provisions[id]||0)>0).map(([id,P])=>{const n=carteSel.sac.filter(x=>x===id).length,dispo=(etat.provisions[id]||0)-n,utile=P.passive||utiles.has(id);
+      return `<button class="provision${n?' on':''}" data-sac="${id}" ${!n&&(!dispo||carteSel.sac.length>=CONFIG.sacMax)?'disabled':''}>${P.ic} ${P.nom}${n?` ✓${n>1?n:''}`:` <small>×${dispo}</small>`}${utile&&!P.passive?' <span class="utile">utile ici</span>':''}</button>`}).join('')}</div>
+      <p class="note">Touchez pour emporter (encore pour en prendre un deuxième, puis pour vider). Les provisions non utilisées reviennent.</p>`
+      :`<p class="note">Aucune provision. Il y en a à la boutique du guichet.</p>`}
     <button class="btn rouge" data-action="lancer" ${raison?'disabled':''}>Décoller · ${p.carburant} ⛽</button>${raison?`<p class="note">${raison}</p>`:''}`;
   ouvrirFeuille(h,{type:'planete',id:pid});
 }
@@ -1136,11 +1354,13 @@ let trCourante=null;
 function ouvrirTransmission(mid){
   const m=etat.missions.find(x=>x.id===mid);if(!m)return;const k=carteEnAttente(m);if(k<0)return fermerTransmission();
   trCourante={m:mid,k};const c=carte(m.cartes[k].id),p=planete(m.planete),chef=vivants(m)[0],nom=chef.nom;
-  const opt=c.o.map((o,i)=>{const ev=evaluerOption(m,o),R=CONFIG.risques[o.risque],mort=R.mort>0;
+  const opt=optionsCarte(m,c).map((o,i)=>{if(o.objet)return `<button class="option doree" data-choix="${i}"><span class="fleche">${o.ic} grâce à la ${PROVISIONS[o.objet].nom.toLowerCase()} du sac</span><b>${o.txt}</b>
+      <span class="details"><span class="visage">😎</span><span>100 %</span><span class="puce bon">sans risque</span><span class="puce">💰×${String(CONFIG.risques.normal.gain*o.gain).replace('.',',')}</span></span></button>`;
+    const ev=evaluerOption(m,o),R=CONFIG.risques[o.risque],mort=R.mort>0;
     return `<button class="option" data-choix="${i}"><span class="fleche">${i?'glisser à droite ›':'‹ glisser à gauche'}</span><b>${o.txt}</b>
       <span class="details"><span>${STATS[o.stat].ic} ${ev.acteur.nom}</span><span class="visage">${visageChance(ev.chance)}</span><span>${ev.chance} %</span></span>
       <span class="details"><span class="puce ${o.risque==='sur'?'bon':o.risque==='risque'?'mauvais':''}">${R.nom}${mort&&o.risque==='risque'?' 💀':''}</span><span class="puce">💰×${String(R.gain).replace('.',',')}</span></span></button>`}).join('');
-  $('#transmission').innerHTML=`<p class="entete-tr">📡 Transmission ${k+1}/3<small>${p.nom} · ${nom} attend vos ordres. Sans réponse dans ${fmtTemps(echeanceCarte(m,k)-Date.now())}, il décidera seul (${PERSONNALITES[chef.perso].nom.toLowerCase()}).</small></p>
+  $('#transmission').innerHTML=`<p class="entete-tr">📡 Transmission ${k+1}/3<small>${p.nom} · ${nom} attend vos ordres. Sans réponse dans ${fmtTemps(echeanceCarte(m,k)-Date.now())}, il décidera seul (${PERSONNALITES[chef.perso].nom.toLowerCase()}).${m.sac.length?` · Sac : ${m.sac.map(x=>PROVISIONS[x].ic).join(' ')}`:''}</small></p>
     <div class="zone-carte"><div class="carte-tr" id="carte-tr"><span class="indice g" id="indice-g">${c.o[0].txt}</span><span class="indice d" id="indice-d">${c.o[1].txt}</span>
       <div class="illu">${illustration(p.biome,chef,c.picto)}</div><div class="texte"><h3>${c.titre}</h3><p>${c.texte.replace(/\{nom\}/g,nom)}</p></div></div></div>
     <div class="options">${opt}</div>`;
@@ -1161,10 +1381,11 @@ function choisir(i){
   const res=resoudreCarte(m,k,i,false);if(!res)return fermerTransmission();
   const c=carte(m.cartes[k].id),p=planete(m.planete),acteur=jimee(res.acteur);
   const tampon=res.consequence==='mort'?['mort','PERDU']:res.ok?['ok','RÉUSSI']:['ko','RATÉ'];
-  const gains=[res.credits?`<span class="puce">💰 +${res.credits}</span>`:'',res.ferraille?`<span class="puce">⚙️ +${res.ferraille}</span>`:'',res.gadget?`<span class="puce legendaire">🔧 ${res.gadget.nom} +${res.gadget.bonus}</span>`:'',
+  const gains=[res.credits?`<span class="puce">💰 +${res.credits}</span>`:'',res.ferraille?`<span class="puce">⚙️ +${res.ferraille}</span>`:'',res.objet?`<span class="puce legendaire">${EMPLACEMENTS[res.objet.slot].ic} ${res.objet.nom} ${STATS[res.objet.stat].ic}+${res.objet.bonus}</span>`:'',
+    res.provision?`<span class="puce">${PROVISIONS[res.provision].ic} ${PROVISIONS[res.provision].nom}</span>`:'',res.soigne?'<span class="puce bon">🩹 trousse utilisée</span>':'',
     res.consequence==='blessure'?'<span class="puce mauvais">🩹 blessé</span>':'',res.consequence==='perte'?'<span class="puce mauvais">½ butin perdu</span>':''].join('');
   const suite=carteEnAttente(m);
-  $('#transmission').innerHTML=`<p class="entete-tr">📡 Transmission ${k+1}/3<small>${p.nom} · ${c.o[i].txt} (${res.chance} %)</small></p>
+  $('#transmission').innerHTML=`<p class="entete-tr">📡 Transmission ${k+1}/3<small>${p.nom} · ${res.txt} (${res.chance} %)</small></p>
     <div class="zone-carte"><div class="carte-tr"><div class="illu">${illustration(p.biome,acteur,res.consequence==='mort'?'crane':c.picto,res.consequence==='mort'?'mort':res.ok?'heureux':res.consequence==='blessure'?'blesse':'normal')}</div>
       <div class="texte resultat-tr"><span class="tampon ${tampon[0]}">${tampon[1]}</span><p>${res.texte}</p><div class="gains">${gains}</div>
       ${res.consequence==='mort'?'<p class="note main">La Corp a été prévenue. Elle sourit.</p>':''}</div></div></div>
@@ -1180,16 +1401,18 @@ function ouvrirRapport(mid){
   const p=r.planete,vivs=m.equipe.filter(id=>!m.morts.includes(id)).map(jimee).filter(Boolean),chef=vivs[0]||null;
   const lignes=[{ic:'capsule',ton:'',txt:`Atterrissage sur ${p.nom}.`}];
   m.cartes.forEach((cc,k)=>{if(cc.annulee||!cc.res)return;const c=carte(cc.id);lignes.push({ic:cc.res.consequence==='mort'?'crane':c.picto,ton:cc.res.consequence==='mort'?'mort':cc.res.ok?'':'ko',
-    txt:`<b>${c.titre}</b> · ${c.o[cc.choix].txt}${cc.auto?' <small>(décidé seul)</small>':''} : ${cc.res.texte}`})});
+    txt:`<b>${c.titre}</b> · ${cc.res.txt||c.o[cc.choix].txt}${cc.auto?' <small>(décidé seul)</small>':''} : ${cc.res.texte}`})});
   lignes.push(vivs.length?{ic:'capsule',ton:'',txt:`Retour à la fusée${vivs.some(j=>j.blesse>0)?', avec des bleus':''}.`}:{ic:'crane',ton:'mort',txt:'Personne ne remonte dans la navette.'});
-  const fete=r.etoiles===3&&r.etoiles>r.etoilesAvant||m.butin.gadgets.length||r.niveaux.length;
+  const fete=r.etoiles===3&&r.etoiles>r.etoilesAvant||m.butin.objets.length||r.niveaux.length;
   $('#rapport').innerHTML=`<p class="entete-tr">Rapport de mission<small>${p.nom} · ${GALAXIES[p.galaxie].nom}</small></p>
     <div id="rap-scene">${illustration(p.biome,chef,vivs.length?'etoile':'crane',vivs.length?'heureux':null)}</div>
     <div id="rap-corps">${lignes.map(l=>`<div class="ligne-rap ${l.ton}">${picto(l.ic,14,l.ton==='mort'?'#F4C9C2':l.ton==='ko'?'#FBE3C8':'#FFF7E4')}<p>${l.txt}</p></div>`).join('')}
       <div id="rap-bilan" style="display:none">
         ${vivs.length?`<div class="grandes-etoiles">${[1,2,3].map(n=>`<span class="${n<=r.etoiles?'on':''}" style="animation-delay:${n*.15}s">★</span>`).join('')}</div>
-        <div class="butin-chiffres"><span><b>${m.butin.credits}</b><small>crédits</small></span><span style="animation-delay:.1s"><b>${m.butin.ferraille}</b><small>ferraille</small></span><span style="animation-delay:.2s"><b>${m.butin.gadgets.length}</b><small>gadgets</small></span></div>
-        ${m.butin.gadgets.map(g=>`<p class="ligne"><span>🔧 ${g.nom}</span><b>${STATS[g.stat].ic} +${g.bonus}</b></p>`).join('')}
+        <div class="butin-chiffres"><span><b>${m.butin.credits}</b><small>crédits</small></span><span style="animation-delay:.1s"><b>${m.butin.ferraille}</b><small>ferraille</small></span><span style="animation-delay:.2s"><b>${m.butin.objets.length}</b><small>équipements</small></span></div>
+        ${m.butin.objets.map(o=>`<p class="ligne"><span>${texteObjet(o)}</span>${o.effet?'<b>LÉGENDAIRE</b>':''}</p>`).join('')}
+        ${m.butin.provisions.map(x=>`<p class="ligne"><span>${PROVISIONS[x].ic} ${PROVISIONS[x].nom} trouvé${PROVISIONS[x].nom.endsWith('e')?'e':''}</span><small>dans la réserve</small></p>`).join('')}
+        ${r.rendues.length?`<p class="ligne"><span>🎒 Rapporté dans le sac : ${r.rendues.map(x=>PROVISIONS[x].ic).join(' ')}</span></p>`:''}
         ${r.niveaux.map(n=>`<p class="ligne"><span>⬆️ ${n.nom} passe niveau ${n.niveau}</span><b>${STATS[n.stat].ic} +1</b></p>`).join('')}
         ${vivs.filter(j=>j.blesse>0).map(j=>`<p class="ligne"><span>🩹 ${j.nom} est blessé</span><small>infirmerie conseillée</small></p>`).join('')}`:''}
         ${r.affiches.map(afficheHtml).join('')}
@@ -1273,17 +1496,21 @@ function voler(depuis,ic,vers){
 }
 function erreurOu(msg,ok){if(msg){toast(msg);bruit('non');return false}if(ok)ok();return true}
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-action],[data-piece],[data-jimee],[data-recolte],[data-construire],[data-affecter],[data-planete],[data-equipe],[data-choix],[data-guichet]');if(!t)return;
+  const t=e.target.closest('[data-action],[data-piece],[data-jimee],[data-recolte],[data-construire],[data-affecter],[data-planete],[data-equipe],[data-choix],[data-guichet],[data-sac]');if(!t)return;
   const d=t.dataset;
   if(d.recolte!==undefined){const pid=t.closest('[data-piece]').dataset.piece,p=etat.pieces[pid],T=PIECES[p.type],n=recolter(pid);
-    if(n){voler(t,RESSOURCES[T.prod].ic,T.prod==='gadget'?'#r-ferraille':'#r-'+T.prod);bruit('piece');toast(T.prod==='gadget'?`🔧 ${pluriel(n,'gadget')} fabriqué${n>1?'s':''} ! Ils sont au guichet.`:`+${n} ${RESSOURCES[T.prod].nom}`)}
+    if(n){voler(t,RESSOURCES[T.prod].ic,T.prod==='gadget'?'#r-ferraille':'#r-'+T.prod);bruit('piece');toast(T.prod==='gadget'?`🎒 ${pluriel(n,'équipement')} fabriqué${n>1?'s':''} ! Touchez un Jimee pour l'équiper.`:`+${n} ${RESSOURCES[T.prod].nom}`)}
     tout();return}
   if(d.choix!==undefined)return choisir(+d.choix);
   if(d.guichet)return feuilleGuichet(d.guichet);
   if(d.equipe){const i=carteSel.equipe.indexOf(d.equipe);if(i>=0)carteSel.equipe.splice(i,1);else{if(carteSel.equipe.length>=2)carteSel.equipe.shift();carteSel.equipe.push(d.equipe)}bruit('pop');return feuillePlanete(carteSel.planete)}
   if(d.planete)return feuillePlanete(d.planete);
+  if(d.sac){const n=carteSel.sac.filter(x=>x===d.sac).length,dispo=(etat.provisions[d.sac]||0)-n;
+    if(n&&(!dispo||carteSel.sac.length>=CONFIG.sacMax||n>=2))carteSel.sac=carteSel.sac.filter(x=>x!==d.sac);else if(carteSel.sac.length<CONFIG.sacMax&&dispo>0)carteSel.sac.push(d.sac);
+    bruit('pop');return feuillePlanete(carteSel.planete)}
   if(d.affecter!==undefined){const msg=affecter(d.j,d.affecter||null);if(erreurOu(msg)){bruit('pop');tout();rafraichirFeuille()}return}
   if(d.construire)return feuilleConstruire(d.construire);
+  {const pi=t.closest('#fusee [data-piece]');if(pi&&!d.action&&(etat.pieces[pi.dataset.piece]||{}).incident)return feuillePiece(pi.dataset.piece)}   // un incident passe avant tout
   if(d.jimee&&!d.action){if(!jimee(d.jimee))return;return feuilleJimee(d.jimee)}
   if(d.piece&&!d.action)return feuillePiece(d.piece);
   const a=d.action;
@@ -1297,13 +1524,22 @@ document.addEventListener('click',e=>{
   if(a==='ameliorer'){if(erreurOu(ameliorer(d.p))){bruit('fanfare');toast('Pièce améliorée !');tout(true);rafraichirFeuille()}return}
   if(a==='construire'){const [e2,s]=d.ou.split('/').map(Number);if(erreurOu(construire(e2,s,d.type))){bruit('fanfare');fermerFeuille();tout(true)}return}
   if(a==='etage'){if(erreurOu(ajouterEtage())){bruit('fanfare');tout(true)}return}
-  if(a==='equiper'){equiper(d.j,d.g);bruit('pop');tout(true);return rafraichirFeuille()}
-  if(a==='desequiper'){desequiper(d.j);tout(true);return rafraichirFeuille()}
-  if(a==='vendre'){const v=vendreGadget(d.g);if(v){bruit('piece');toast(`+${v} crédits. La Corp le revendra le double.`)}tout();return rafraichirFeuille()}
+  if(a==='equiper'){equiper(d.j,d.o);bruit('pop');tout(true);return rafraichirFeuille()}
+  if(a==='desequiper'){desequiper(d.j,d.slot);tout(true);return rafraichirFeuille()}
+  if(a==='acheter'){if(erreurOu(acheterProvision(d.prov))){bruit('piece');toast(`${PROVISIONS[d.prov].ic} ${PROVISIONS[d.prov].nom} dans la réserve.`);tout()}return rafraichirFeuille()}
+  if(a==='accelerer'){const x=accelerer(d.p);if(x.erreur){toast(x.erreur);bruit('non')}
+      else if(x.incident){bruit('mauvais');toast(`💥 Trop vite ! ${INCIDENTS[etat.pieces[d.p].incident.type].nom} !`);tout(true)}
+      else{bruit('piece');voler(t,RESSOURCES[x.ressource].ic,'#r-'+x.ressource);toast(`⚡ +${x.gain} ${RESSOURCES[x.ressource].nom}`);tout()}
+    return rafraichirFeuille()}
+  if(a==='incident'){const x=resoudreIncident(d.p);if(!x)return rafraichirFeuille();if(x.erreur){toast(x.erreur);bruit('non');return}
+    if(x.ok){bruit('bon');toast(`✅ ${x.nom} : réglé ! +${x.credits} 💰 +${x.ferraille} ⚙️`);dire(`Incident réglé. La Corp note que c'était « une simple formalité ».`)}
+    else{bruit('mauvais');toast(`🩹 Raté : ${x.blesse} est blessé, le stock est perdu.`);dire(`${x.nom} : ${x.blesse} y a laissé des plumes. La pièce redémarre quand même.`)}
+    tout(true);return rafraichirFeuille()}
+  if(a==='vendre'){const v=vendreObjet(d.o);if(v){bruit('piece');toast(`+${v} crédits. La Corp le revendra le double.`)}tout();return rafraichirFeuille()}
   if(a==='vers-mission'){carteSel.equipe=[d.j];fermerFeuille();ouvrirCarte();return}
-  if(a==='lancer'){const p=planete(carteSel.planete);if(erreurOu(lancerMission(carteSel.planete,carteSel.equipe))){bruit('depart');
+  if(a==='lancer'){const p=planete(carteSel.planete);if(erreurOu(lancerMission(carteSel.planete,carteSel.equipe,carteSel.sac))){bruit('depart');
       dire(`Décollage vers ${p.nom} ! ${missionsActives().slice(-1)[0].express?'Mission express : retour dans 45 secondes.':`Retour dans ${fmtTemps(missionsActives().slice(-1)[0].fin-Date.now())}.`}`);
-      carteSel={planete:null,equipe:[]};fermerFeuille();fermerCarte();tout(true)}return}
+      carteSel={planete:null,equipe:[],sac:[]};fermerFeuille();fermerCarte();tout(true)}return}
   if(a==='transmission')return ouvrirTransmission(d.m);
   if(a==='fermer-transmission'){const m=etat.missions.find(x=>x.id===d.m);fermerTransmission();if(m&&rapportPret(m))ouvrirRapport(m.id);return}
   if(a==='rapport')return ouvrirRapport(d.m);
@@ -1330,6 +1566,9 @@ function tic(){
   const apres=JSON.stringify(etat.missions.map(m=>[m.id,carteEnAttente(m),rapportPret(m)]));
   if(apres!==avant){majGuide();for(const m of missionsActives()){const k=carteEnAttente(m);if(k>=0){bruit('radio');notifier('📡 Transmission !',`Depuis ${planete(m.planete).nom} : votre Jimee attend vos ordres.`)}else if(rapportPret(m))notifier('Mission terminée',`Le rapport de ${planete(m.planete).nom} vous attend.`)}}
   if(change&&feuilleCourante&&feuilleCourante.type==='jimee')rafraichirFeuille();
+  if(Math.random()<CONFIG.incidents.parMinute/60&&!document.hidden){const pid=incidentAuHasard();
+    if(pid){const I=INCIDENTS[etat.pieces[pid].incident.type];bruit('mauvais');toast(`${I.ic} ${I.nom} : ${PIECES[etat.pieces[pid].type].nom} à l'arrêt !`);dire(`${I.nom} dans la pièce « ${PIECES[etat.pieces[pid].type].nom} ». Touchez-la pour intervenir.`);dessinerFusee(true)}}
+  if(etat.progres&&etat.progres.length){toast('💪 '+etat.progres.join(' '));bruit('fanfare');etat.progres=[];dessinerFusee(true);if(feuilleCourante)rafraichirFeuille()}
   if(Date.now()-derniereSauvegarde>5000){sauver();derniereSauvegarde=Date.now()}
 }
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});

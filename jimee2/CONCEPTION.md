@@ -55,6 +55,16 @@
 
 Personnages (Jimee et représentant de la Corp), palette et polices cartoon, décors au trait, 11 biomes et leurs planètes, scène animée du rapport, bruitages rétro, humour de la Corp.
 
-## 7. Ce qui n'est pas (encore) dans ce prototype
+## 7. Version 2 (6 octobre 2026) : objets et fusée vivante
 
-Mode à deux, contrats de la Corp, marché vivant, sets d'équipement, galaxies au-delà de 3. Les notifications app fermée passent par ntfy (comme Jimee 1), à régler dans les réglages.
+- **Équipement** : 3 emplacements par Jimee (tête, tenue, accessoire), raretés commun / rare / légendaire. Fabriqué à l'atelier, trouvé sur les options risquées, rare ou légendaire sur les gardiens. Les 3 légendaires ont un effet : *Casque du Premier Jimee* (évite une mort par mission), *Combinaison de l'Explorateur* (+1 partout), *Gant doré de la Corp* (butin ×1,5). Vente au guichet (onglet Équipement), équipement depuis la fiche du Jimee.
+- **Provisions et sac** (à la FTL) : boutique au guichet ; 2 places dans le sac au départ. Corde, pied-de-biche, fumigène, appât, lampe ouvrent une **3e option dorée** (réussite assurée, butin ×1 à ×1,5) sur les transmissions qui s'y prêtent ; la fiche planète signale « utile ici ». Trousse (soigne la première blessure) et ration (+1 partout) sont passives. Sans réponse, le Jimee utilise la provision. Les provisions non utilisées reviennent ; les missions en rapportent parfois.
+- **40 transmissions** (20 nouvelles) ; la plupart des anciennes acceptent aussi une provision.
+- **Incidents** (à la Fallout Shelter) : de temps en temps une pièce occupée tombe en panne (fuite, rats, court-circuit, cafards, inspection de la Corp). Elle s'arrête et clignote ; « Intervenir » = épreuve de la bonne caractéristique (le meilleur agit, les autres aident) : récompense ou blessure. Ignoré, l'incident s'éteint en 15 min avec le stock.
+- **⚡ Accélérer** : 20 minutes de production tout de suite, avec un risque d'incident (15 %, +12 % à chaque nouvelle accélération dans la demi-heure, 80 % au plus).
+- **Salles d'entraînement** : salle de sport (muscles), piste (jambes), bibliothèque (cervelle). +1 après 20 + 10 × niveau actuel minutes de travail, jusqu'à 10.
+- Valeurs dans `CONFIG` (`sacMax`, `incidents`, `accelerer`, `entrainement`, `vente`, `butin`). Sauvegarde v2 : les anciens gadgets deviennent des accessoires.
+
+## 8. Ce qui n'est pas (encore) dans ce prototype
+
+Mode à deux, contrats quotidiens de la Corp, marché vivant, sets d'équipement, galaxies au-delà de 3. Les notifications app fermée passent par ntfy (comme Jimee 1), à régler dans les réglages.
